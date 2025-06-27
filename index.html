@@ -3,60 +3,94 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SoccerTR Lig Paketleri & Antrenman</title>
+<title>SoccerTR</title>
 <style>
+  /* Tema renkleri */
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #022c43, #38a3a5);
-    color: #e0f7fa;
+    background: var(--bg-color);
+    color: var(--text-color);
     margin: 0; padding: 20px;
-    user-select: none; /* Metin seçimi kapalı */
+    user-select: none;
+    transition: background 0.5s, color 0.5s;
   }
+
+  :root {
+    --bg-color: #022c43;
+    --text-color: #e0f7fa;
+    --btn-bg: #00796b;
+    --btn-hover-bg: #00bfa5;
+    --btn-text: #b2dfdb;
+    --btn-hover-text: #004d40;
+    --shadow-color: #004d40aa;
+  }
+  body.dark {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --btn-bg: #222;
+    --btn-hover-bg: #555;
+    --btn-text: #bbb;
+    --btn-hover-text: #eee;
+    --shadow-color: #000000cc;
+  }
+  body.light {
+    --bg-color: #fefefe;
+    --text-color: #222;
+    --btn-bg: #ddd;
+    --btn-hover-bg: #aaa;
+    --btn-text: #222;
+    --btn-hover-text: #111;
+    --shadow-color: #999999aa;
+  }
+
   header {
     text-align: center;
-    font-size: 2.8rem;
+    font-size: 3rem;
     font-weight: 900;
-    margin-bottom: 15px;
-    text-shadow: 0 0 10px #00bcd4;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px var(--btn-hover-bg);
   }
+
   #coinDisplay {
     font-weight: 700;
     font-size: 1.5rem;
     margin-bottom: 20px;
     text-align: center;
-    text-shadow: 0 0 6px #00bcd4;
   }
+
   #menu {
     display: flex;
     justify-content: center;
     gap: 12px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
   }
   #menu button {
-    background: #00796b;
+    background: var(--btn-bg);
     border: none;
     padding: 12px 22px;
     border-radius: 30px;
-    color: #b2dfdb;
+    color: var(--btn-text);
     font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 0 10px #004d40aa;
+    box-shadow: 0 0 10px var(--shadow-color);
     transition: background-color 0.3s ease;
   }
   #menu button.active,
   #menu button:hover {
-    background: #00bfa5;
-    color: #004d40;
-    box-shadow: 0 0 18px #00bfa5;
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-text);
+    box-shadow: 0 0 18px var(--btn-hover-bg);
   }
+
   main {
-    max-width: 900px;
+    max-width: 1000px;
     margin: auto;
     background: rgba(0, 77, 64, 0.7);
     border-radius: 15px;
     padding: 25px;
-    box-shadow: 0 0 25px #004d40bb;
+    box-shadow: 0 0 25px var(--shadow-color);
   }
   section {
     display: none;
@@ -76,52 +110,58 @@
     border-radius: 8px;
     border: none;
     margin-right: 15px;
-    background: #004d40;
-    color: #b2dfdb;
+    background: var(--btn-bg);
+    color: var(--btn-text);
     cursor: pointer;
+    min-width: 180px;
   }
   #openPackBtn {
-    background: #00bfa5;
+    background: var(--btn-hover-bg);
     border: none;
     padding: 10px 22px;
     border-radius: 30px;
     font-weight: 700;
-    color: #004d40;
+    color: var(--btn-hover-text);
     cursor: pointer;
-    box-shadow: 0 0 15px #00bfa5;
+    box-shadow: 0 0 15px var(--btn-hover-bg);
     transition: background-color 0.3s ease;
   }
   #openPackBtn:disabled {
-    background: #00796b;
+    background: var(--btn-bg);
     cursor: not-allowed;
     box-shadow: none;
+    color: var(--btn-text);
   }
+
   #packMessage {
-    margin-top: 18px;
-    font-weight: 700;
-    font-size: 1.25rem;
-    min-height: 32px;
-    color: #ffd54f;
-    animation: glowPack 3s ease-in-out forwards;
+    margin-top: 25px;
+    font-weight: 900;
+    font-size: 2rem;
+    min-height: 50px;
+    color: #ffca28;
+    animation: glowPack 3.5s ease-in-out forwards;
   }
   @keyframes glowPack {
-    0%, 100% { text-shadow: 0 0 8px #ffd54f; }
-    50% { text-shadow: 0 0 22px #ffa000; }
+    0%, 100% { text-shadow: 0 0 20px #ffca28; }
+    50% { text-shadow: 0 0 40px #ff6f00; }
   }
 
   /* Oyuncular listesi */
   ul {
     list-style: none;
     padding: 0;
+    max-height: 320px;
+    overflow-y: auto;
   }
   li.playerItem {
-    background: #004d40cc;
+    background: rgba(0, 77, 64, 0.8);
     margin-bottom: 10px;
-    padding: 10px 14px;
+    padding: 14px 20px;
     border-radius: 12px;
     display: flex;
     justify-content: space-between;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1.1rem;
     box-shadow: inset 0 0 8px #00bfa599;
     user-select: none;
   }
@@ -130,43 +170,118 @@
   #trainingSection button {
     margin-top: 15px;
     margin-right: 10px;
-    background: #00bfa5;
+    background: var(--btn-hover-bg);
     border: none;
-    padding: 10px 18px;
+    padding: 12px 22px;
     border-radius: 30px;
     font-weight: 700;
-    color: #004d40;
+    color: var(--btn-hover-text);
     cursor: pointer;
-    box-shadow: 0 0 15px #00bfa5;
+    box-shadow: 0 0 15px var(--btn-hover-bg);
     transition: background-color 0.3s ease;
   }
   #trainingSection button:disabled {
-    background: #00796b;
+    background: var(--btn-bg);
     cursor: not-allowed;
     box-shadow: none;
+    color: var(--btn-text);
   }
   #trainingMessage {
     margin-top: 15px;
     font-weight: 700;
-    min-height: 26px;
-    color: #ffd54f;
+    min-height: 28px;
+    color: #ffca28;
   }
 
+  /* Maç bölümü */
+  #matchSection {
+    text-align: center;
+  }
+  #matchButtons button {
+    margin: 12px;
+    background: var(--btn-hover-bg);
+    border: none;
+    padding: 15px 30px;
+    border-radius: 40px;
+    font-weight: 900;
+    font-size: 1.25rem;
+    color: var(--btn-hover-text);
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--btn-hover-bg);
+    transition: background-color 0.3s ease;
+  }
+  #matchButtons button:disabled {
+    background: var(--btn-bg);
+    cursor: not-allowed;
+    box-shadow: none;
+    color: var(--btn-text);
+  }
+
+  #matchInfo {
+    margin-top: 25px;
+    font-weight: 900;
+    font-size: 1.5rem;
+    min-height: 50px;
+    color: #ffca28;
+  }
+
+  /* Ayarlar bölümü */
+  #settingsSection {
+    max-width: 600px;
+    margin: auto;
+  }
+  label {
+    display: block;
+    font-weight: 700;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+  }
+  select, input[type="radio"] {
+    font-size: 1rem;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    box-shadow: 0 0 8px var(--shadow-color);
+    transition: background-color 0.3s ease;
+  }
+  .themeRadioGroup {
+    display: flex;
+    gap: 15px;
+  }
+  .themeRadioGroup label {
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Genel buton stilleri */
+  button:focus,
+  select:focus,
+  input[type="radio"]:focus + label {
+    outline: 2px solid var(--btn-hover-bg);
+    outline-offset: 3px;
+  }
 </style>
 </head>
 <body>
 
-<header>SoccerTR Lig Paketleri & Antrenman</header>
+<header>SoccerTR</header>
+
 <div id="coinDisplay">Coin: <span id="coinCount">100</span></div>
 
 <div id="menu">
   <button id="btnPack" class="active">Paket Aç</button>
   <button id="btnPlayers">Oyuncular</button>
   <button id="btnTraining">Antrenman</button>
+  <button id="btnMatch">Maç</button>
+  <button id="btnSettings">Ayarlar</button>
 </div>
 
 <main>
-  <!-- Paket Açma Bölümü -->
+  <!-- Paket Açma -->
   <section id="packSection" class="active">
     <select id="ligSelect" title="Lig Paketi Seç">
       <option value="">Lig Seç</option>
@@ -183,23 +298,54 @@
     <div id="packMessage"></div>
   </section>
 
-  <!-- Oyuncular Listesi -->
+  <!-- Oyuncular -->
   <section id="playersSection">
     <h2>Oyuncularınız</h2>
     <ul id="playersList"></ul>
   </section>
 
-  <!-- Antrenman Bölümü -->
+  <!-- Antrenman -->
   <section id="trainingSection">
     <h2>Antrenman</h2>
-    <p>Normal antrenman ücretsiz, oyuncu antremanı paralı (10 coin).</p>
+    <p>Normal antrenman ücretsiz, oyuncu antremanı paralı değil (bedava).</p>
     <select id="trainingSelect">
       <option value="">Oyuncu Seç</option>
     </select>
     <br>
     <button id="normalTrainBtn" disabled>Normal Antreman (Ücretsiz)</button>
-    <button id="paidTrainBtn" disabled>Oyuncu Antremanı (-10 Coin)</button>
+    <button id="paidTrainBtn" disabled>Oyuncu Antremanı (Ücretsiz)</button>
     <div id="trainingMessage"></div>
+  </section>
+
+  <!-- Maç -->
+  <section id="matchSection">
+    <h2>Maç Modları</h2>
+    <div id="matchButtons">
+      <button id="btn1v1">1v1 Botla</button>
+      <button id="btn11v11" disabled>11v11 Botla (Yapımda)</button>
+    </div>
+    <div id="matchInfo"></div>
+  </section>
+
+  <!-- Ayarlar -->
+  <section id="settingsSection">
+    <h2>Ayarlar</h2>
+    <label for="languageSelect">Dil Seçimi:</label>
+    <select id="languageSelect">
+      <option value="tr">Türkçe</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+      <option value="ru">Русский</option>
+      <option value="pt">Português</option>
+    </select>
+
+    <label>Tema Seçimi:</label>
+    <div class="themeRadioGroup">
+      <input type="radio" id="themeDark" name="theme" value="dark" checked><label for="themeDark">Koyu</label>
+      <input type="radio" id="themeLight" name="theme" value="light"><label for="themeLight">Açık</label>
+      <input type="radio" id="themeDefault" name="theme" value="default"><label for="themeDefault">Varsayılan</label>
+    </div>
   </section>
 </main>
 
@@ -207,16 +353,32 @@
   // Başlangıç coin
   let coin = 100;
 
-  // Lig paketleri oyuncu havuzları
+  // Lig paketleri oyuncu havuzları (gerçek oyuncular)
   const ligPaketleri = {
-    "Bundesliga": ["Lewandowski", "Kimmich", "Alaba", "Sancho"],
-    "Premier Lig": ["Salah", "De Bruyne", "Sterling", "Rashford"],
-    "La Liga": ["Messi", "Benzema", "Hazard", "Gavi"],
-    "Ligue 1": ["Mbappé", "Neymar"],
-    "Serie A": ["Casemiro", "Verratti"],
-    "Süper Lig": ["Fenerbahçe Oyuncusu", "Galatasaray Oyuncusu"],
-    "Suudi Pro Lig": ["Suudi Oyuncu 1", "Suudi Oyuncu 2"],
-    "MLS": ["MLS Oyuncu 1", "MLS Oyuncu 2"]
+    "Bundesliga": [
+      "Robert Lewandowski", "Joshua Kimmich", "David Alaba", "Jadon Sancho", "Thomas Müller"
+    ],
+    "Premier Lig": [
+      "Mohamed Salah", "Kevin De Bruyne", "Raheem Sterling", "Marcus Rashford", "Harry Kane"
+    ],
+    "La Liga": [
+      "Lionel Messi", "Karim Benzema", "Eden Hazard", "Gavi", "Jordi Alba"
+    ],
+    "Ligue 1": [
+      "Kylian Mbappé", "Neymar Jr", "Marco Verratti", "Marquinhos", "Achraf Hakimi"
+    ],
+    "Serie A": [
+      "Casemiro", "Lautaro Martínez", "Paulo Dybala", "Sergej Milinković-Savić", "Francesco Acerbi"
+    ],
+    "Süper Lig": [
+      "Mesut Özil", "Aaron Lennon", "Hakan Çalhanoğlu", "Edin Visca", "Burak Yılmaz"
+    ],
+    "Suudi Pro Lig": [
+      "Salem Al-Dawsari", "Nawaf Al-Abed", "Cristiano Ronaldo", "Odion Ighalo", "Ever Banega"
+    ],
+    "MLS": [
+      "Blaise Matuidi", "Carlos Vela", "Gonzalo Higuaín", "Chicharito", "Josef Martínez"
+    ]
   };
 
   // Oyuncu listesi
@@ -225,28 +387,239 @@
   // ID için sayaç
   let nextId = 1;
 
-  // Coin gösterimi
-  function updateCoins() {
-    document.getElementById('coinCount').innerText = coin;
-  }
+  // Dil dosyaları (basit metinler)
+  const languages = {
+    tr: {
+      coin: "Coin",
+      packOpen: "Paket Aç",
+      packPrice: "Paket Aç (100 Coin)",
+      playersTitle: "Oyuncularınız",
+      trainingTitle: "Antrenman",
+      trainingInfo: "Normal antrenman ücretsiz, oyuncu antremanı paralı değil (bedava).",
+      normalTrainBtn: "Normal Antreman (Ücretsiz)",
+      paidTrainBtn: "Oyuncu Antremanı (Ücretsiz)",
+      matchTitle: "Maç Modları",
+      btn1v1: "1v1 Botla",
+      btn11v11: "11v11 Botla (Yapımda)",
+      settingsTitle: "Ayarlar",
+      languageLabel: "Dil Seçimi:",
+      themeLabel: "Tema Seçimi:",
+      themeDark: "Koyu",
+      themeLight: "Açık",
+      themeDefault: "Varsayılan",
+      newPlayerMsg: "Yeni oyuncu geliyor...",
+      noCoins: "Yeterli coin yok!",
+      allPlayersOwned: "Seçilen ligde tüm oyuncular zaten var!",
+      normalTrainDone: "normal antrenman yaptı! Rating +",
+      playerTrainDone: "oyuncu antrenmanı yaptı! Rating +",
+      goalMsg: " ⚽ Gol attı!",
+      assistMsg: " 🎯 Asist yaptı!"
+    },
+    en: {
+      coin: "Coins",
+      packOpen: "Open Pack",
+      packPrice: "Open Pack (100 Coins)",
+      playersTitle: "Your Players",
+      trainingTitle: "Training",
+      trainingInfo: "Normal training is free, player training is free.",
+      normalTrainBtn: "Normal Training (Free)",
+      paidTrainBtn: "Player Training (Free)",
+      matchTitle: "Match Modes",
+      btn1v1: "1v1 vs Bot",
+      btn11v11: "11v11 vs Bot (Coming Soon)",
+      settingsTitle: "Settings",
+      languageLabel: "Language Selection:",
+      themeLabel: "Theme Selection:",
+      themeDark: "Dark",
+      themeLight: "Light",
+      themeDefault: "Default",
+      newPlayerMsg: "New player incoming...",
+      noCoins: "Not enough coins!",
+      allPlayersOwned: "All players in the selected league are already owned!",
+      normalTrainDone: "did normal training! Rating +",
+      playerTrainDone: "did player training! Rating +",
+      goalMsg: " ⚽ Scored a goal!",
+      assistMsg: " 🎯 Made an assist!"
+    },
+    es: {
+      coin: "Monedas",
+      packOpen: "Abrir Paquete",
+      packPrice: "Abrir Paquete (100 Monedas)",
+      playersTitle: "Tus Jugadores",
+      trainingTitle: "Entrenamiento",
+      trainingInfo: "Entrenamiento normal gratis, entrenamiento de jugador gratis.",
+      normalTrainBtn: "Entrenamiento Normal (Gratis)",
+      paidTrainBtn: "Entrenamiento de Jugador (Gratis)",
+      matchTitle: "Modos de Partido",
+      btn1v1: "1v1 contra Bot",
+      btn11v11: "11v11 contra Bot (Próximamente)",
+      settingsTitle: "Configuraciones",
+      languageLabel: "Selección de Idioma:",
+      themeLabel: "Selección de Tema:",
+      themeDark: "Oscuro",
+      themeLight: "Claro",
+      themeDefault: "Predeterminado",
+      newPlayerMsg: "Nuevo jugador llegando...",
+      noCoins: "¡No tienes suficientes monedas!",
+      allPlayersOwned: "¡Todos los jugadores de la liga seleccionada ya están en tu equipo!",
+      normalTrainDone: "¡entrenó normalmente! Rating +",
+      playerTrainDone: "¡entrenó como jugador! Rating +",
+      goalMsg: " ⚽ ¡Gol anotado!",
+      assistMsg: " 🎯 ¡Asistencia hecha!"
+    },
+    de: {
+      coin: "Münzen",
+      packOpen: "Paket öffnen",
+      packPrice: "Paket öffnen (100 Münzen)",
+      playersTitle: "Deine Spieler",
+      trainingTitle: "Training",
+      trainingInfo: "Normales Training ist kostenlos, Spielertraining ist kostenlos.",
+      normalTrainBtn: "Normales Training (Kostenlos)",
+      paidTrainBtn: "Spielertraining (Kostenlos)",
+      matchTitle: "Spielmodi",
+      btn1v1: "1v1 gegen Bot",
+      btn11v11: "11v11 gegen Bot (Bald)",
+      settingsTitle: "Einstellungen",
+      languageLabel: "Sprachauswahl:",
+      themeLabel: "Thema Auswahl:",
+      themeDark: "Dunkel",
+      themeLight: "Hell",
+      themeDefault: "Standard",
+      newPlayerMsg: "Neuer Spieler kommt...",
+      noCoins: "Nicht genug Münzen!",
+      allPlayersOwned: "Alle Spieler der ausgewählten Liga sind bereits vorhanden!",
+      normalTrainDone: "hat normales Training gemacht! Bewertung +",
+      playerTrainDone: "hat Spielertraining gemacht! Bewertung +",
+      goalMsg: " ⚽ Tor geschossen!",
+      assistMsg: " 🎯 Assist gemacht!"
+    },
+    ru: {
+      coin: "Монеты",
+      packOpen: "Открыть пакет",
+      packPrice: "Открыть пакет (100 монет)",
+      playersTitle: "Ваши игроки",
+      trainingTitle: "Тренировка",
+      trainingInfo: "Обычная тренировка бесплатна, тренировка игрока бесплатна.",
+      normalTrainBtn: "Обычная тренировка (Бесплатно)",
+      paidTrainBtn: "Тренировка игрока (Бесплатно)",
+      matchTitle: "Режимы матча",
+      btn1v1: "1v1 против бота",
+      btn11v11: "11v11 против бота (Скоро)",
+      settingsTitle: "Настройки",
+      languageLabel: "Выбор языка:",
+      themeLabel: "Выбор темы:",
+      themeDark: "Темная",
+      themeLight: "Светлая",
+      themeDefault: "По умолчанию",
+      newPlayerMsg: "Новый игрок приходит...",
+      noCoins: "Недостаточно монет!",
+      allPlayersOwned: "Все игроки выбранной лиги уже у вас есть!",
+      normalTrainDone: "сделал обычную тренировку! Рейтинг +",
+      playerTrainDone: "сделал тренировку игрока! Рейтинг +",
+      goalMsg: " ⚽ Забил гол!",
+      assistMsg: " 🎯 Сделал передачу!"
+    },
+    pt: {
+      coin: "Moedas",
+      packOpen: "Abrir Pacote",
+      packPrice: "Abrir Pacote (100 Moedas)",
+      playersTitle: "Seus Jogadores",
+      trainingTitle: "Treino",
+      trainingInfo: "Treino normal é grátis, treino de jogador é grátis.",
+      normalTrainBtn: "Treino Normal (Grátis)",
+      paidTrainBtn: "Treino de Jogador (Grátis)",
+      matchTitle: "Modos de Jogo",
+      btn1v1: "1v1 contra Bot",
+      btn11v11: "11v11 contra Bot (Em breve)",
+      settingsTitle: "Configurações",
+      languageLabel: "Seleção de idioma:",
+      themeLabel: "Seleção de tema:",
+      themeDark: "Escuro",
+      themeLight: "Claro",
+      themeDefault: "Padrão",
+      newPlayerMsg: "Novo jogador chegando...",
+      noCoins: "Moedas insuficientes!",
+      allPlayersOwned: "Todos os jogadores da liga selecionada já estão em sua equipe!",
+      normalTrainDone: "fez treino normal! Rating +",
+      playerTrainDone: "fez treino de jogador! Rating +",
+      goalMsg: " ⚽ Gol marcado!",
+      assistMsg: " 🎯 Assistência feita!"
+    }
+  };
 
-  // Menü butonları ve bölümlerin gösterimi
+  // Tema ayarları - default: koyu
+  const bodyEl = document.body;
+
+  // UI elementleri
   const btnPack = document.getElementById('btnPack');
   const btnPlayers = document.getElementById('btnPlayers');
   const btnTraining = document.getElementById('btnTraining');
+  const btnMatch = document.getElementById('btnMatch');
+  const btnSettings = document.getElementById('btnSettings');
 
   const packSection = document.getElementById('packSection');
   const playersSection = document.getElementById('playersSection');
   const trainingSection = document.getElementById('trainingSection');
+  const matchSection = document.getElementById('matchSection');
+  const settingsSection = document.getElementById('settingsSection');
 
+  const coinCountEl = document.getElementById('coinCount');
+
+  const ligSelect = document.getElementById('ligSelect');
+  const openPackBtn = document.getElementById('openPackBtn');
+  const packMessage = document.getElementById('packMessage');
+
+  const playersList = document.getElementById('playersList');
+
+  const trainingSelect = document.getElementById('trainingSelect');
+  const normalTrainBtn = document.getElementById('normalTrainBtn');
+  const paidTrainBtn = document.getElementById('paidTrainBtn');
+  const trainingMessage = document.getElementById('trainingMessage');
+
+  const btn1v1 = document.getElementById('btn1v1');
+  const btn11v11 = document.getElementById('btn11v11');
+  const matchInfo = document.getElementById('matchInfo');
+
+  const languageSelect = document.getElementById('languageSelect');
+
+  const themeRadios = document.querySelectorAll('input[name="theme"]');
+
+  // Başlangıç dil
+  let currentLang = 'tr';
+
+  // Dil fonksiyonu
+  function t(key) {
+    return languages[currentLang][key] || key;
+  }
+
+  // Güncelleme fonksiyonu (dil ve yazıları değiştir)
+  function updateTexts() {
+    coinCountEl.textContent = coin;
+    openPackBtn.textContent = t('packPrice');
+    document.querySelector('#playersSection h2').textContent = t('playersTitle');
+    document.querySelector('#trainingSection h2').textContent = t('trainingTitle');
+    document.querySelector('#trainingSection p').textContent = t('trainingInfo');
+    normalTrainBtn.textContent = t('normalTrainBtn');
+    paidTrainBtn.textContent = t('paidTrainBtn');
+    document.querySelector('#matchSection h2').textContent = t('matchTitle');
+    btn1v1.textContent = t('btn1v1');
+    btn11v11.textContent = t('btn11v11');
+    document.querySelector('#settingsSection h2').textContent = t('settingsTitle');
+    document.querySelector('label[for="languageSelect"]').textContent = t('languageLabel');
+    document.querySelector('label[for="themeSelect"]').textContent = t('themeLabel');
+
+    // Menü butonları
+    btnPack.textContent = t('packOpen');
+    btnPlayers.textContent = t('playersTitle');
+    btnTraining.textContent = t('trainingTitle');
+    btnMatch.textContent = t('matchTitle');
+    btnSettings.textContent = t('settingsTitle');
+  }
+
+  // Menü geçişi
   function showSection(section) {
-    packSection.classList.remove('active');
-    playersSection.classList.remove('active');
-    trainingSection.classList.remove('active');
-    btnPack.classList.remove('active');
-    btnPlayers.classList.remove('active');
-    btnTraining.classList.remove('active');
-
+    [packSection, playersSection, trainingSection, matchSection, settingsSection].forEach(sec => sec.classList.remove('active'));
+    [btnPack, btnPlayers, btnTraining, btnMatch, btnSettings].forEach(btn => btn.classList.remove('active'));
     if (section === 'pack') {
       packSection.classList.add('active');
       btnPack.classList.add('active');
@@ -258,58 +631,70 @@
       trainingSection.classList.add('active');
       btnTraining.classList.add('active');
       updateTrainingSelect();
+    } else if (section === 'match') {
+      matchSection.classList.add('active');
+      btnMatch.classList.add('active');
+      matchInfo.textContent = "";
+    } else if (section === 'settings') {
+      settingsSection.classList.add('active');
+      btnSettings.classList.add('active');
     }
   }
 
   btnPack.onclick = () => showSection('pack');
   btnPlayers.onclick = () => showSection('players');
   btnTraining.onclick = () => showSection('training');
+  btnMatch.onclick = () => showSection('match');
+  btnSettings.onclick = () => showSection('settings');
 
   // Lig seçimi ve paket açma butonu kontrolü
-  const ligSelect = document.getElementById('ligSelect');
-  const openPackBtn = document.getElementById('openPackBtn');
-  const packMessage = document.getElementById('packMessage');
-
   ligSelect.addEventListener('change', () => {
     openPackBtn.disabled = ligSelect.value === "";
-    packMessage.innerText = "";
+    packMessage.textContent = "";
   });
 
-  // Paket açma animasyonu fonksiyonu
+  // Paket açma animasyonu
   function showPackAnimation(playerName) {
-    packMessage.innerHTML = `<div class="pack-animation">Yeni oyuncu geliyor... <br><strong>${playerName}</strong>!</div>`;
-    packMessage.style.opacity = '1';
-    setTimeout(() => {
-      packMessage.style.opacity = '0';
-    }, 3500);
+    packMessage.innerHTML = `<div style="animation: pulseGlow 3s ease-in-out 1;">${t('newPlayerMsg')}<br><strong>${playerName}</strong>!</div>`;
   }
+
+  // Pulse glow animasyon
+  const style = document.createElement('style');
+  style.innerHTML = `
+  @keyframes pulseGlow {
+    0% { text-shadow: 0 0 8px #00bfa5; opacity: 0; }
+    50% { text-shadow: 0 0 30px #00ffbb; opacity: 1; }
+    100% { text-shadow: 0 0 8px #00bfa5; opacity: 0; }
+  }
+  `;
+  document.head.appendChild(style);
 
   // Paket açma işlemi
   openPackBtn.onclick = () => {
+    const lig = ligSelect.value;
     if (coin < 100) {
-      packMessage.innerText = "Yeterli coin yok!";
+      packMessage.textContent = t('noCoins');
       return;
     }
-    const lig = ligSelect.value;
     const pool = ligPaketleri[lig] || [];
-    // Paket açılırken havuzdan henüz olmayan oyuncuları filtrele
+    // Havuzda olmayan oyuncuları filtrele
     const availablePlayers = pool.filter(name => !players.some(p => p.name === name));
     if (availablePlayers.length === 0) {
-      packMessage.innerText = "Seçilen ligde tüm oyuncular zaten var!";
+      packMessage.textContent = t('allPlayersOwned');
       return;
     }
     coin -= 100;
-    updateCoins();
+    updateCoinDisplay();
 
     // Rastgele oyuncu seç
     const randomIndex = Math.floor(Math.random() * availablePlayers.length);
     const newPlayerName = availablePlayers[randomIndex];
 
-    // Yeni oyuncu oluştur (rating rastgele 60-90 arası)
+    // Yeni oyuncu objesi oluştur
     const newPlayer = {
       id: nextId++,
       name: newPlayerName,
-      rating: Math.floor(Math.random() * 31) + 60,
+      rating: Math.floor(Math.random() * 31) + 60, // 60-90 arası rating
       goals: 0,
       assists: 0
     };
@@ -318,16 +703,20 @@
     // Animasyon göster
     showPackAnimation(newPlayerName);
 
-    // Mesajı 3.5 saniye sonra kaldırıyoruz, zaten animasyona bağlı
+    // 3 saniye sonra animasyon ve mesaj temizle, listeyi güncelle
     setTimeout(() => {
-      packMessage.innerText = "";
+      packMessage.textContent = "";
       updatePlayersList();
       updateTrainingSelect();
-    }, 3500);
+    }, 3000);
   };
 
+  // Coin güncelleme
+  function updateCoinDisplay() {
+    coinCountEl.textContent = coin;
+  }
+
   // Oyuncular listesini güncelle
-  const playersList = document.getElementById('playersList');
   function updatePlayersList() {
     playersList.innerHTML = '';
     if (players.length === 0) {
@@ -342,14 +731,9 @@
     });
   }
 
-  // Antrenman seçimi ve butonlar
-  const trainingSelect = document.getElementById('trainingSelect');
-  const normalTrainBtn = document.getElementById('normalTrainBtn');
-  const paidTrainBtn = document.getElementById('paidTrainBtn');
-  const trainingMessage = document.getElementById('trainingMessage');
-
+  // Antrenman seçimi ve butonlar güncelle
   function updateTrainingSelect() {
-    trainingSelect.innerHTML = '<option value="">Oyuncu Seç</option>';
+    trainingSelect.innerHTML = '<option value="">' + t('playersTitle') + '</option>';
     players.forEach(p => {
       const option = document.createElement('option');
       option.value = p.id;
@@ -358,69 +742,121 @@
     });
     normalTrainBtn.disabled = true;
     paidTrainBtn.disabled = true;
-    trainingMessage.innerText = '';
+    trainingMessage.textContent = '';
   }
 
   trainingSelect.addEventListener('change', () => {
     const selected = trainingSelect.value;
     normalTrainBtn.disabled = !selected;
-    paidTrainBtn.disabled = !selected || coin < 10;
-    trainingMessage.innerText = '';
+    paidTrainBtn.disabled = !selected;
+    trainingMessage.textContent = '';
   });
 
-  // Normal antrenman: rating artar ama gol/asist yok, ücretsiz
+  // Normal antrenman (bedava)
   normalTrainBtn.onclick = () => {
     const pid = parseInt(trainingSelect.value);
     const player = players.find(p => p.id === pid);
     if (!player) return;
-    // Rating 1-3 arası artar
     const increase = Math.floor(Math.random() * 3) + 1;
     player.rating = Math.min(100, player.rating + increase);
     trainingMessage.style.color = '#4caf50';
-    trainingMessage.innerText = `${player.name} normal antrenman yaptı! Rating +${increase} → ${player.rating}`;
+    trainingMessage.textContent = `${player.name} ${t('normalTrainDone')}${increase} → ${player.rating}`;
     updatePlayersList();
     updateTrainingSelect();
   };
 
-  // Oyuncu antremanı: rating artar, %30 gol, %20 asist, 10 coin gider
+  // Oyuncu antremanı (bedava)
   paidTrainBtn.onclick = () => {
-    if (coin < 10) {
-      trainingMessage.style.color = '#f44336';
-      trainingMessage.innerText = "Yeterli coin yok!";
-      return;
-    }
     const pid = parseInt(trainingSelect.value);
     const player = players.find(p => p.id === pid);
     if (!player) return;
 
-    coin -= 10;
-    updateCoins();
-
     const ratingIncrease = Math.floor(Math.random() * 5) + 2;
     player.rating = Math.min(100, player.rating + ratingIncrease);
 
-    let msg = `${player.name} oyuncu antrenmanı yaptı! Rating +${ratingIncrease} → ${player.rating}`;
+    let msg = `${player.name} ${t('playerTrainDone')}${ratingIncrease} → ${player.rating}`;
 
     // %30 gol, %20 asist ihtimali
     const rand = Math.random();
     if (rand < 0.3) {
       player.goals++;
-      msg += " ⚽ Gol attı!";
+      msg += t('goalMsg');
     } else if (rand < 0.5) {
       player.assists++;
-      msg += " 🎯 Asist yaptı!";
+      msg += t('assistMsg');
     }
 
     trainingMessage.style.color = '#ffc107';
-    trainingMessage.innerText = msg;
+    trainingMessage.textContent = msg;
     updatePlayersList();
     updateTrainingSelect();
   };
 
-  // Başlangıçta coin ve listeleri güncelle
-  updateCoins();
-  updatePlayersList();
+  // Maç modu 1v1 botla
+  btn1v1.onclick = () => {
+    if (players.length === 0) {
+      matchInfo.style.color = 'red';
+      matchInfo.textContent = "Lütfen önce oyuncu paketinden oyuncu açın!";
+      return;
+    }
+    // Basit maç simülasyonu
+    const player = players[Math.floor(Math.random() * players.length)];
+    const botRating = Math.floor(Math.random() * 40) + 50; // 50-90 arası bot rating
+    let resultText = `Senin oyuncun: ${player.name} (Rating: ${player.rating}) | Bot oyuncu (Rating: ${botRating})\n`;
+
+    if (player.rating > botRating) {
+      resultText += "Maçı sen kazandın! 🎉";
+    } else if (player.rating < botRating) {
+      resultText += "Maçı bot kazandı! 😞";
+    } else {
+      resultText += "Maç berabere bitti! 🤝";
+    }
+
+    matchInfo.style.color = '#ffca28';
+    matchInfo.textContent = resultText.replace(/\n/g, ' ');
+  };
+
+  btn11v11.onclick = () => {
+    matchInfo.style.color = 'gray';
+    matchInfo.textContent = "11v11 modu yapım aşamasında.";
+  };
+
+  // Dil seçimi değişimi
+  languageSelect.addEventListener('change', () => {
+    currentLang = languageSelect.value;
+    updateTexts();
+    updateTrainingSelect();
+    updatePlayersList();
+    packMessage.textContent = "";
+    trainingMessage.textContent = "";
+    matchInfo.textContent = "";
+  });
+
+  // Tema seçimi
+  themeRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.checked) {
+        if (radio.value === "dark") {
+          bodyEl.classList.remove('light');
+          bodyEl.classList.add('dark');
+        } else if (radio.value === "light") {
+          bodyEl.classList.remove('dark');
+          bodyEl.classList.add('light');
+        } else {
+          bodyEl.classList.remove('dark', 'light');
+        }
+      }
+    });
+  });
+
+  // İlk yüklemede varsayılan tema ve dil
+  bodyEl.classList.add('dark');
+  updateTexts();
+
+  // Başlangıçta menüde paket açma açık
   showSection('pack');
+  updateCoinDisplay();
+
 </script>
 
 </body>
