@@ -2,132 +2,219 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<title>SoccerTR Paketli</title>
+<title>SoccerTR - Görevli & Bilgili</title>
 <style>
+  /* Reset ve genel stil */
+  * {
+    box-sizing: border-box;
+  }
   body {
-    background: #154734;
-    color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0; padding: 0;
+    background: linear-gradient(135deg, #1e3c34, #13562b);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #e0f2f1;
     display: flex;
     flex-direction: column;
-    align-items: center;
     min-height: 100vh;
+    align-items: center;
   }
   header {
-    background: #0b3d22;
-    padding: 15px 30px;
     width: 100%;
+    background: #0a2e21;
     text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    box-shadow: 0 3px 8px #0008;
+    padding: 18px 0;
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #a3f7bf;
+    text-shadow: 0 0 8px #38ef7d;
+    box-shadow: 0 3px 15px #0a2e2150;
   }
   #coinDisplay {
-    margin: 10px 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    background: #2f9c35;
-    border-radius: 8px;
-    padding: 5px 15px;
+    margin: 15px 0;
+    background: #2a6b37;
+    border-radius: 50px;
+    padding: 8px 25px;
+    font-weight: 800;
+    font-size: 1.4rem;
+    box-shadow: 0 0 10px #2a6b37aa;
+    user-select: none;
   }
   #menu {
     display: flex;
-    gap: 10px;
-    margin: 10px 0 20px 0;
+    gap: 18px;
+    margin-bottom: 25px;
   }
   #menu button {
-    padding: 10px 20px;
-    font-weight: 700;
-    font-size: 1rem;
-    border-radius: 8px;
+    background: #2a6b37;
     border: none;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #c8e6c9;
     cursor: pointer;
-    background: #2f9c35;
-    color: white;
-    transition: background 0.3s;
+    box-shadow: 0 0 12px #2a6b37aa;
+    transition: all 0.3s ease;
+    user-select: none;
   }
-  #menu button:hover, #menu button.active {
-    background: #57d85f;
-    color: #0b3d22;
+  #menu button:hover {
+    background: #38ef7d;
+    color: #064321;
+    box-shadow: 0 0 20px #38ef7d;
   }
+  #menu button.active {
+    background: #38ef7d;
+    color: #064321;
+    box-shadow: 0 0 20px #38ef7d;
+  }
+
   main {
-    max-width: 1000px;
-    width: 90%;
-    margin: 0 auto 40px auto;
+    width: 95%;
+    max-width: 1100px;
+    flex: 1;
   }
-  .section {
-    background: #0d2c15;
-    padding: 15px;
-    border-radius: 10px;
+
+  /* Bölümler */
+  section {
+    background: rgba(10, 46, 33, 0.85);
+    border-radius: 14px;
+    padding: 20px 25px;
+    margin-bottom: 35px;
+    box-shadow: 0 0 20px #17d24a55;
+    min-height: 280px;
   }
-  h2 {
+  section h2 {
     margin-top: 0;
-    border-bottom: 2px solid #2f9c35;
-    padding-bottom: 6px;
+    font-weight: 900;
+    font-size: 1.8rem;
+    letter-spacing: 1.5px;
+    color: #9dfeb3;
+    border-bottom: 3px solid #38ef7d;
+    padding-bottom: 7px;
+    user-select: none;
   }
+
+  /* Liste stilleri */
   ul {
     list-style: none;
     padding: 0;
-    max-height: 300px;
+    max-height: 270px;
     overflow-y: auto;
-    border: 1px solid #2f9c35;
-    border-radius: 6px;
-    margin-top: 10px;
   }
   li {
-    padding: 8px 12px;
-    border-bottom: 1px solid #2f9c35;
-    cursor: default;
+    background: #17532b;
+    margin-bottom: 10px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    box-shadow: inset 0 0 6px #2ecc71aa;
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  li:hover {
-    background: #2f9c35aa;
-  }
-  .selected {
-    background: #57d85f;
-    color: #0b3d22;
-    font-weight: bold;
-  }
-  button.actionBtn {
-    margin-left: 10px;
-    background: #2f9c35;
-    border: none;
-    color: white;
-    padding: 5px 12px;
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: default;
+    user-select: none;
     transition: background 0.3s;
   }
+  li:hover {
+    background: #2ecc7155;
+  }
+
+  /* Butonlar */
+  button.actionBtn {
+    background: #1a4423;
+    border: none;
+    color: #a3f7bf;
+    font-weight: 700;
+    padding: 6px 12px;
+    margin-left: 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    box-shadow: 0 0 8px #0e2d17;
+    user-select: none;
+  }
   button.actionBtn:hover:not(:disabled) {
-    background: #57d85f;
+    background: #38ef7d;
+    color: #064321;
+    box-shadow: 0 0 14px #38ef7d;
   }
   button.actionBtn:disabled {
-    background: #555;
+    background: #0a1b0e;
+    color: #375c35;
     cursor: not-allowed;
   }
-  .message {
-    margin-top: 10px;
-    font-style: italic;
-    color: #ace1af;
-    min-height: 22px;
+
+  /* Paket Aç bölümü */
+  #packSection {
+    background: rgba(10, 46, 33, 0.9);
+    border-radius: 14px;
+    padding: 20px 25px;
+    margin-bottom: 40px;
+    box-shadow: 0 0 22px #20d46e99;
+    max-width: 1100px;
   }
+  #packSection p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    user-select: none;
+    margin-bottom: 10px;
+  }
+  #packSection button {
+    width: 180px;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  #packMessage {
+    margin-top: 12px;
+    font-style: italic;
+    color: #a3f7bf;
+    min-height: 24px;
+  }
+
+  /* Mesaj kutuları */
+  .message {
+    margin-top: 12px;
+    font-style: italic;
+    color: #b6e1b7;
+    min-height: 24px;
+  }
+
+  /* Antrenman kontrol */
   #trainingControls {
-    margin-top: 15px;
+    margin-top: 18px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
   }
-  #packSection {
-    background: #0d2c15;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    max-width: 1000px;
-    width: 90%;
+  select#trainingSelect {
+    font-size: 1rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    background: #2a6b37;
+    color: #d1f6ce;
+    user-select: none;
+  }
+
+  /* Görev listesi */
+  #missionsSection ul {
+    max-height: 150px;
+  }
+  #missionsSection li {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 15px;
+    user-select: none;
+  }
+  #missionsSection li.completed {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+  #missionsSection li span.reward {
+    font-weight: 700;
+    color: #c7f2b0;
   }
 </style>
 </head>
@@ -141,6 +228,7 @@
   <button id="menuPlayers" class="active">Oyuncular</button>
   <button id="menuLineup">Kadro</button>
   <button id="menuTraining">Antrenman</button>
+  <button id="menuMissions">Görevler</button>
 </div>
 
 <div id="packSection">
@@ -190,6 +278,12 @@
     </div>
     <div class="message" id="trainingMessage"></div>
   </section>
+
+  <section class="section" id="missionsSection" style="display:none;">
+    <h2>Görevler</h2>
+    <ul id="missionsList"></ul>
+    <div class="message" id="missionsMessage"></div>
+  </section>
 </main>
 
 <script>
@@ -199,6 +293,8 @@
       this.name = name;
       this.rating = rating; // 0-100 arası güç
       this.status = status; // "outside", "first11", "substitute"
+      this.goals = 0;      // Gol sayısı
+      this.assists = 0;    // Asist sayısı
     }
   }
 
@@ -220,6 +316,12 @@
 
   // ID sayaç
   let nextId = 1;
+
+  // Görevler
+  const missions = [
+    { id: 1, text: "10 Gol At", goal: 10, assist: 0, reward: 100, completed: false },
+    { id: 2, text: "3 Asist Yap", goal: 0, assist: 3, reward: 50, completed: false }
+  ];
 
   // Coin göstergesi güncelleme
   function updateCoins() {
@@ -244,15 +346,21 @@
       playersList.innerHTML = '<li>Kadro boş. Paket açarak oyuncu kazanabilirsin!</li>';
     } else {
       players.forEach(p => {
-        // Oyuncular sekmesi
+        // Oyuncular sekmesi: İsim, Rating, Gol, Asist, Durum
         const liAll = document.createElement('li');
-        liAll.textContent = `${p.name} (Rating: ${p.rating}) [${p.status}]`;
+        liAll.innerHTML = `
+          <div>
+            <strong>${p.name}</strong> | Rating: ${p.rating} | Gol: ${p.goals} | Asist: ${p.assists} | Durum: ${p.status}
+          </div>
+        `;
         playersList.appendChild(liAll);
 
         // Kadro bölümleri için liste elemanı oluştur
         function createKadroItem(player) {
           const li = document.createElement('li');
-          li.textContent = `${player.name} (Rating: ${player.rating})`;
+          li.innerHTML = `
+            <div><strong>${player.name}</strong> | Rating: ${player.rating} | Gol: ${player.goals} | Asist: ${player.assists}</div>
+          `;
 
           // Hareket butonları
           const btnFirst11 = document.createElement('button');
@@ -370,13 +478,31 @@
     const player = players.find(p => p.id === pid);
     if(!player) return;
 
+    // Antrenman gücü artırır ve %10 ihtimalle gol ya da asist ekler
     player.rating += Math.floor(Math.random() * 5) + 1;
     if(player.rating > 100) player.rating = 100;
 
+    // Görevler için gol ve asist ekleyelim random
+    // %30 gol, %20 asist
+    let golAdded = 0, assistAdded = 0;
+    let rand = Math.random();
+    if(rand < 0.3) {
+      player.goals++;
+      golAdded = 1;
+    } else if(rand < 0.5) {
+      player.assists++;
+      assistAdded = 1;
+    }
+
     coin -= 10;
-    trainingMessage.innerText = `${player.name} antrenman yaptı! Rating: ${player.rating}`;
+
+    trainingMessage.innerHTML = `${player.name} antrenman yaptı! Rating: ${player.rating}` +
+      (golAdded ? ' ⚽ Gol attı!' : '') +
+      (assistAdded ? ' 🎯 Asist yaptı!' : '');
+
     updateCoins();
     updateLists();
+    checkMissions();
   });
 
   // Paket açma sistemi
@@ -417,19 +543,23 @@
   const menuPlayersBtn = document.getElementById('menuPlayers');
   const menuLineupBtn = document.getElementById('menuLineup');
   const menuTrainingBtn = document.getElementById('menuTraining');
+  const menuMissionsBtn = document.getElementById('menuMissions');
 
   const playersSection = document.getElementById('playersSection');
   const lineupSection = document.getElementById('lineupSection');
   const trainingSection = document.getElementById('trainingSection');
+  const missionsSection = document.getElementById('missionsSection');
 
   function showSection(section) {
     playersSection.style.display = 'none';
     lineupSection.style.display = 'none';
     trainingSection.style.display = 'none';
+    missionsSection.style.display = 'none';
 
     menuPlayersBtn.classList.remove('active');
     menuLineupBtn.classList.remove('active');
     menuTrainingBtn.classList.remove('active');
+    menuMissionsBtn.classList.remove('active');
 
     if(section === 'players') {
       playersSection.style.display = 'block';
@@ -440,16 +570,81 @@
     } else if(section === 'training') {
       trainingSection.style.display = 'block';
       menuTrainingBtn.classList.add('active');
+    } else if(section === 'missions') {
+      missionsSection.style.display = 'block';
+      menuMissionsBtn.classList.add('active');
     }
   }
 
   menuPlayersBtn.onclick = () => showSection('players');
   menuLineupBtn.onclick = () => showSection('lineup');
   menuTrainingBtn.onclick = () => showSection('training');
+  menuMissionsBtn.onclick = () => showSection('missions');
 
-  // Başlangıç
+  // Görevleri güncelle ve göster
+  function updateMissionsUI() {
+    const missionsList = document.getElementById('missionsList');
+    missionsList.innerHTML = '';
+    missions.forEach(m => {
+      const li = document.createElement('li');
+      li.textContent = m.text;
+      if(m.completed) li.classList.add('completed');
+
+      const progress = document.createElement('span');
+      progress.style.fontWeight = "bold";
+      progress.style.marginLeft = "10px";
+      progress.style.color = m.completed ? "#a3f7bf" : "#d1f6ce";
+
+      // Progress göster
+      // toplam gol ya da asist olarak hesaplayacağız:
+      let currentProgress = 0;
+      if(m.goal > 0) currentProgress = totalGoals();
+      else if(m.assist > 0) currentProgress = totalAssists();
+
+      // Yüzde
+      let progressText = `${Math.min(currentProgress,m.goal||m.assist)}/${m.goal||m.assist}`;
+      if(m.completed) progressText = "Tamamlandı!";
+
+      progress.textContent = progressText + " (+" + m.reward + " coin)";
+      progress.className = "reward";
+
+      li.appendChild(progress);
+      missionsList.appendChild(li);
+    });
+  }
+
+  // Toplam gol sayısı
+  function totalGoals() {
+    return players.reduce((acc, p) => acc + p.goals, 0);
+  }
+  // Toplam asist sayısı
+  function totalAssists() {
+    return players.reduce((acc, p) => acc + p.assists, 0);
+  }
+
+  // Görev kontrolü ve ödül verme
+  function checkMissions() {
+    missions.forEach(m => {
+      if(!m.completed) {
+        if(m.goal > 0 && totalGoals() >= m.goal) {
+          m.completed = true;
+          coin += m.reward;
+          document.getElementById('missionsMessage').innerText = `Görev tamamlandı: ${m.text}. +${m.reward} coin kazandınız!`;
+        } else if(m.assist > 0 && totalAssists() >= m.assist) {
+          m.completed = true;
+          coin += m.reward;
+          document.getElementById('missionsMessage').innerText = `Görev tamamlandı: ${m.text}. +${m.reward} coin kazandınız!`;
+        }
+      }
+    });
+    updateCoins();
+    updateMissionsUI();
+  }
+
+  // Başlangıç ayarları
   updateCoins();
   updateLists();
+  updateMissionsUI();
   showSection('players');
 </script>
 
