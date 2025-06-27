@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<title>SoccerTR Gelişmiş</title>
+<title>SoccerTR Paketli</title>
 <style>
   body {
     background: #154734;
@@ -78,7 +78,7 @@
   li {
     padding: 8px 12px;
     border-bottom: 1px solid #2f9c35;
-    cursor: pointer;
+    cursor: default;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -109,10 +109,6 @@
     background: #555;
     cursor: not-allowed;
   }
-  .stats {
-    font-size: 0.9rem;
-    color: #a9f6a1;
-  }
   .message {
     margin-top: 10px;
     font-style: italic;
@@ -125,18 +121,33 @@
     align-items: center;
     gap: 10px;
   }
+  #packSection {
+    background: #0d2c15;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    max-width: 1000px;
+    width: 90%;
+  }
 </style>
 </head>
 <body>
 
 <header>SoccerTR</header>
 
-<div id="coinDisplay">Coin: <span id="coinCount">0</span></div>
+<div id="coinDisplay">Coin: <span id="coinCount">100</span></div>
 
 <div id="menu">
   <button id="menuPlayers" class="active">Oyuncular</button>
   <button id="menuLineup">Kadro</button>
   <button id="menuTraining">Antrenman</button>
+</div>
+
+<div id="packSection">
+  <h2>Paket Aç</h2>
+  <p>100 Coin karşılığında yeni bir oyuncu kazan.</p>
+  <button id="openPackBtn">Paket Aç (100 Coin)</button>
+  <div class="message" id="packMessage"></div>
 </div>
 
 <main>
@@ -191,11 +202,12 @@
     }
   }
 
-  let coin = 200; // Başlangıç coini biraz artırdım test için
+  // Başlangıç coin
+  let coin = 100;
   let maxOutside = 500;
 
-  // Gerçek futbolcu isimleri
-  const playerNames = [
+  // Oyuncu havuzu: bütün oyuncular burada ama henüz hiçbiri kadroya eklenmedi
+  const playerPool = [
     "Mbappé", "Ronaldo", "Messi", "Neymar", "Lewandowski",
     "Salah", "De Bruyne", "Kante", "Benzema", "Modric",
     "Hazard", "Alaba", "Kimmich", "Sancho", "Foden",
@@ -203,21 +215,18 @@
     "Son", "Casemiro", "Cancelo"
   ];
 
+  // Oyuncular dizisi (şu anda boş)
   const players = [];
 
-  // 23 oyuncuyu oluştur, 11 ilk 11, 11 yedek, 1 kadro dışı
-  for(let i=0; i<23; i++) {
-    let st = i < 11 ? "first11" : (i < 22 ? "substitute" : "outside");
-    let rating = Math.floor(Math.random()*40) + 60; // 60-99 arası rating
-    players.push(new Player(i+1, playerNames[i], rating, st));
-  }
+  // ID sayaç
+  let nextId = 1;
 
-  // Coin gösterimi
+  // Coin göstergesi güncelleme
   function updateCoins() {
     document.getElementById('coinCount').innerText = coin;
   }
 
-  // Oyuncuları listelere ve antrenman dropdownuna yerleştir
+  // Tüm listeleri ve antrenman dropdownunu güncelle
   function updateLists() {
     const playersList = document.getElementById('playersList');
     const first11List = document.getElementById('first11List');
@@ -231,54 +240,59 @@
     outsideList.innerHTML = '';
     trainingSelect.innerHTML = '<option value="">Oyuncu Seç</option>';
 
-    players.forEach(p => {
-      // Oyuncular sekmesi
-      const liAll = document.createElement('li');
-      liAll.textContent = `${p.name} (Rating: ${p.rating}) [${p.status}]`;
-      playersList.appendChild(liAll);
+    if(players.length === 0) {
+      playersList.innerHTML = '<li>Kadro boş. Paket açarak oyuncu kazanabilirsin!</li>';
+    } else {
+      players.forEach(p => {
+        // Oyuncular sekmesi
+        const liAll = document.createElement('li');
+        liAll.textContent = `${p.name} (Rating: ${p.rating}) [${p.status}]`;
+        playersList.appendChild(liAll);
 
-      // Kadro bölümleri
-      function createKadroItem(player) {
-        const li = document.createElement('li');
-        li.textContent = `${player.name} (Rating: ${player.rating})`;
-        // Hareket butonları
-        const btnFirst11 = document.createElement('button');
-        btnFirst11.textContent = "İlk 11'e";
-        btnFirst11.className = "actionBtn";
-        btnFirst11.disabled = player.status === "first11";
-        btnFirst11.onclick = () => changeStatus(player.id, "first11");
+        // Kadro bölümleri için liste elemanı oluştur
+        function createKadroItem(player) {
+          const li = document.createElement('li');
+          li.textContent = `${player.name} (Rating: ${player.rating})`;
 
-        const btnSub = document.createElement('button');
-        btnSub.textContent = "Yedek 11'e";
-        btnSub.className = "actionBtn";
-        btnSub.disabled = player.status === "substitute";
-        btnSub.onclick = () => changeStatus(player.id, "substitute");
+          // Hareket butonları
+          const btnFirst11 = document.createElement('button');
+          btnFirst11.textContent = "İlk 11'e";
+          btnFirst11.className = "actionBtn";
+          btnFirst11.disabled = player.status === "first11";
+          btnFirst11.onclick = () => changeStatus(player.id, "first11");
 
-        const btnOut = document.createElement('button');
-        btnOut.textContent = "Kadro Dışı";
-        btnOut.className = "actionBtn";
-        btnOut.disabled = player.status === "outside";
-        btnOut.onclick = () => changeStatus(player.id, "outside");
+          const btnSub = document.createElement('button');
+          btnSub.textContent = "Yedek 11'e";
+          btnSub.className = "actionBtn";
+          btnSub.disabled = player.status === "substitute";
+          btnSub.onclick = () => changeStatus(player.id, "substitute");
 
-        li.appendChild(btnFirst11);
-        li.appendChild(btnSub);
-        li.appendChild(btnOut);
+          const btnOut = document.createElement('button');
+          btnOut.textContent = "Kadro Dışı";
+          btnOut.className = "actionBtn";
+          btnOut.disabled = player.status === "outside";
+          btnOut.onclick = () => changeStatus(player.id, "outside");
 
-        return li;
-      }
+          li.appendChild(btnFirst11);
+          li.appendChild(btnSub);
+          li.appendChild(btnOut);
 
-      if(p.status === "first11") first11List.appendChild(createKadroItem(p));
-      else if(p.status === "substitute") subsList.appendChild(createKadroItem(p));
-      else if(p.status === "outside") outsideList.appendChild(createKadroItem(p));
+          return li;
+        }
 
-      // Antrenman dropdown (ilk 11 ve yedek)
-      if(p.status === "first11" || p.status === "substitute") {
-        const option = document.createElement('option');
-        option.value = p.id;
-        option.textContent = `${p.name} (Rating: ${p.rating})`;
-        trainingSelect.appendChild(option);
-      }
-    });
+        if(p.status === "first11") first11List.appendChild(createKadroItem(p));
+        else if(p.status === "substitute") subsList.appendChild(createKadroItem(p));
+        else if(p.status === "outside") outsideList.appendChild(createKadroItem(p));
+
+        // Antrenman dropdown (ilk 11 ve yedek)
+        if(p.status === "first11" || p.status === "substitute") {
+          const option = document.createElement('option');
+          option.value = p.id;
+          option.textContent = `${p.name} (Rating: ${p.rating})`;
+          trainingSelect.appendChild(option);
+        }
+      });
+    }
 
     // Kadro dışı artırma butonu kontrolü
     document.getElementById('increaseOutsideBtn').disabled = maxOutside >= 1000 || coin < 100;
@@ -361,6 +375,40 @@
 
     coin -= 10;
     trainingMessage.innerText = `${player.name} antrenman yaptı! Rating: ${player.rating}`;
+    updateCoins();
+    updateLists();
+  });
+
+  // Paket açma sistemi
+  const openPackBtn = document.getElementById('openPackBtn');
+  const packMessage = document.getElementById('packMessage');
+
+  openPackBtn.addEventListener('click', () => {
+    if(coin < 100) {
+      packMessage.innerText = "Yeterli coin yok!";
+      return;
+    }
+
+    // Paket açma 100 coin düş
+    coin -= 100;
+
+    // Havuzda henüz olmayan oyuncuları bul
+    const availablePlayers = playerPool.filter(name => !players.some(p => p.name === name));
+    if(availablePlayers.length === 0) {
+      packMessage.innerText = "Tüm oyuncular zaten var!";
+      updateCoins();
+      return;
+    }
+
+    // Rastgele bir oyuncu seç
+    const randomIndex = Math.floor(Math.random() * availablePlayers.length);
+    const newPlayerName = availablePlayers[randomIndex];
+
+    // Yeni oyuncu oluştur, kadro dışı olarak ekle
+    const newPlayer = new Player(nextId++, newPlayerName, Math.floor(Math.random() * 40) + 60, "outside");
+    players.push(newPlayer);
+
+    packMessage.innerText = `${newPlayerName} kadrona katıldı!`;
     updateCoins();
     updateLists();
   });
