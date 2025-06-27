@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<title>SoccerTR</title>
+<title>SoccerTR Gelişmiş</title>
 <style>
   body {
     background: #154734;
@@ -23,34 +23,49 @@
     font-weight: bold;
     box-shadow: 0 3px 8px #0008;
   }
+  #coinDisplay {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    background: #2f9c35;
+    border-radius: 8px;
+    padding: 5px 15px;
+  }
+  #menu {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0 20px 0;
+  }
+  #menu button {
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: #2f9c35;
+    color: white;
+    transition: background 0.3s;
+  }
+  #menu button:hover, #menu button.active {
+    background: #57d85f;
+    color: #0b3d22;
+  }
   main {
     max-width: 1000px;
     width: 90%;
-    margin: 20px auto;
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .coins {
-    font-size: 1.2rem;
-    margin: 10px 0;
-    padding: 8px 16px;
-    background: #2f9c35;
-    border-radius: 8px;
+    margin: 0 auto 40px auto;
   }
   .section {
     background: #0d2c15;
     padding: 15px;
     border-radius: 10px;
-    flex: 1 1 400px;
-    min-width: 320px;
   }
   h2 {
     margin-top: 0;
     border-bottom: 2px solid #2f9c35;
     padding-bottom: 6px;
   }
-  /* Kadro listeleri */
   ul {
     list-style: none;
     padding: 0;
@@ -76,21 +91,21 @@
     color: #0b3d22;
     font-weight: bold;
   }
-  button {
-    margin-top: 10px;
+  button.actionBtn {
+    margin-left: 10px;
     background: #2f9c35;
     border: none;
     color: white;
-    padding: 8px 16px;
+    padding: 5px 12px;
     font-weight: 700;
     cursor: pointer;
     border-radius: 8px;
     transition: background 0.3s;
   }
-  button:hover:not(:disabled) {
+  button.actionBtn:hover:not(:disabled) {
     background: #57d85f;
   }
-  button:disabled {
+  button.actionBtn:disabled {
     background: #555;
     cursor: not-allowed;
   }
@@ -104,52 +119,69 @@
     color: #ace1af;
     min-height: 22px;
   }
+  #trainingControls {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 </style>
 </head>
 <body>
 
 <header>SoccerTR</header>
 
-<div class="coins">Coin: <span id="coinCount">0</span></div>
+<div id="coinDisplay">Coin: <span id="coinCount">0</span></div>
+
+<div id="menu">
+  <button id="menuPlayers" class="active">Oyuncular</button>
+  <button id="menuLineup">Kadro</button>
+  <button id="menuTraining">Antrenman</button>
+</div>
 
 <main>
-  <section class="section" id="dailySection">
-    <h2>Günlük Paket</h2>
-    <p>Bugün için ücretsiz <b>100 coin</b> kazanın!</p>
-    <button id="dailyBtn">Hediye Al</button>
-    <div class="message" id="dailyMessage"></div>
-  </section>
-
   <section class="section" id="playersSection">
     <h2>Oyuncularınız</h2>
     <ul id="playersList"></ul>
   </section>
 
-  <section class="section" id="lineupSection">
-    <h2>Kadro</h2>
-    <strong>İlk 11</strong>
-    <ul id="first11List"></ul>
-    <strong>Yedek 11</strong>
-    <ul id="substitutesList"></ul>
-    <strong>Kadro Dışı</strong>
-    <ul id="outsideList"></ul>
+  <section class="section" id="lineupSection" style="display:none;">
+    <h2>Kadro Yönetimi</h2>
+
+    <div>
+      <strong>İlk 11</strong>
+      <ul id="first11List"></ul>
+    </div>
+
+    <div>
+      <strong>Yedek 11</strong>
+      <ul id="substitutesList"></ul>
+    </div>
+
+    <div>
+      <strong>Kadro Dışı</strong>
+      <ul id="outsideList"></ul>
+    </div>
+
     <button id="increaseOutsideBtn">Kadro Dışı +100 Coin</button>
     <div class="message" id="lineupMessage"></div>
   </section>
 
-  <section class="section" id="trainingSection">
+  <section class="section" id="trainingSection" style="display:none;">
     <h2>Antrenman</h2>
     <p>Oyuncu seçip antrenman yaparak güçlendirin.</p>
-    <select id="trainingSelect">
-      <option value="">Oyuncu Seç</option>
-    </select>
-    <button id="trainBtn" disabled>Antrenman Yap (+10 coin)</button>
+
+    <div id="trainingControls">
+      <select id="trainingSelect">
+        <option value="">Oyuncu Seç</option>
+      </select>
+      <button id="trainBtn" disabled>Antrenman Yap (+10 coin)</button>
+    </div>
     <div class="message" id="trainingMessage"></div>
   </section>
 </main>
 
 <script>
-  // Oyuncu modeli
   class Player {
     constructor(id, name, rating, status) {
       this.id = id;
@@ -159,24 +191,34 @@
     }
   }
 
-  // Başlangıç verileri
-  let coin = 0;
+  let coin = 200; // Başlangıç coini biraz artırdım test için
   let maxOutside = 500;
+
+  // Gerçek futbolcu isimleri
+  const playerNames = [
+    "Mbappé", "Ronaldo", "Messi", "Neymar", "Lewandowski",
+    "Salah", "De Bruyne", "Kante", "Benzema", "Modric",
+    "Hazard", "Alaba", "Kimmich", "Sancho", "Foden",
+    "Gavi", "Rashford", "Verratti", "Haaland", "Sterling",
+    "Son", "Casemiro", "Cancelo"
+  ];
+
   const players = [];
 
-  // 23 oyuncu oluşturalım rastgele rating ve dışı dolu
-  for(let i=1; i<=23; i++) {
-    let st = i <= 11 ? "first11" : (i <= 22 ? "substitute" : "outside");
-    players.push(new Player(i, `Oyuncu ${i}`, Math.floor(Math.random()*50)+50, st));
+  // 23 oyuncuyu oluştur, 11 ilk 11, 11 yedek, 1 kadro dışı
+  for(let i=0; i<23; i++) {
+    let st = i < 11 ? "first11" : (i < 22 ? "substitute" : "outside");
+    let rating = Math.floor(Math.random()*40) + 60; // 60-99 arası rating
+    players.push(new Player(i+1, playerNames[i], rating, st));
   }
 
-  // Coin sayfasını göster
+  // Coin gösterimi
   function updateCoins() {
     document.getElementById('coinCount').innerText = coin;
   }
 
-  // Oyuncuları listelere yerleştir
-  function updatePlayerLists() {
+  // Oyuncuları listelere ve antrenman dropdownuna yerleştir
+  function updateLists() {
     const playersList = document.getElementById('playersList');
     const first11List = document.getElementById('first11List');
     const subsList = document.getElementById('substitutesList');
@@ -189,30 +231,47 @@
     outsideList.innerHTML = '';
     trainingSelect.innerHTML = '<option value="">Oyuncu Seç</option>';
 
-    // Tüm oyuncular
     players.forEach(p => {
-      const li = document.createElement('li');
-      li.textContent = `${p.name} (Rating: ${p.rating}) [${p.status}]`;
+      // Oyuncular sekmesi
+      const liAll = document.createElement('li');
+      liAll.textContent = `${p.name} (Rating: ${p.rating}) [${p.status}]`;
+      playersList.appendChild(liAll);
 
-      // Players bölümüne tüm oyuncular ekleniyor
-      playersList.appendChild(li);
+      // Kadro bölümleri
+      function createKadroItem(player) {
+        const li = document.createElement('li');
+        li.textContent = `${player.name} (Rating: ${player.rating})`;
+        // Hareket butonları
+        const btnFirst11 = document.createElement('button');
+        btnFirst11.textContent = "İlk 11'e";
+        btnFirst11.className = "actionBtn";
+        btnFirst11.disabled = player.status === "first11";
+        btnFirst11.onclick = () => changeStatus(player.id, "first11");
 
-      // Kadro alanlarına yerleştir
-      const item = document.createElement('li');
-      item.textContent = `${p.name} (Rating: ${p.rating})`;
+        const btnSub = document.createElement('button');
+        btnSub.textContent = "Yedek 11'e";
+        btnSub.className = "actionBtn";
+        btnSub.disabled = player.status === "substitute";
+        btnSub.onclick = () => changeStatus(player.id, "substitute");
 
-      // Kadro dışı ise +100 coin ile artırma limiti kontrolü
-      if(p.status === "first11") {
-        first11List.appendChild(item);
+        const btnOut = document.createElement('button');
+        btnOut.textContent = "Kadro Dışı";
+        btnOut.className = "actionBtn";
+        btnOut.disabled = player.status === "outside";
+        btnOut.onclick = () => changeStatus(player.id, "outside");
+
+        li.appendChild(btnFirst11);
+        li.appendChild(btnSub);
+        li.appendChild(btnOut);
+
+        return li;
       }
-      else if(p.status === "substitute") {
-        subsList.appendChild(item);
-      }
-      else if(p.status === "outside") {
-        outsideList.appendChild(item);
-      }
 
-      // Antrenman seçimine sadece kadroda olanlar ekleniyor
+      if(p.status === "first11") first11List.appendChild(createKadroItem(p));
+      else if(p.status === "substitute") subsList.appendChild(createKadroItem(p));
+      else if(p.status === "outside") outsideList.appendChild(createKadroItem(p));
+
+      // Antrenman dropdown (ilk 11 ve yedek)
       if(p.status === "first11" || p.status === "substitute") {
         const option = document.createElement('option');
         option.value = p.id;
@@ -225,23 +284,40 @@
     document.getElementById('increaseOutsideBtn').disabled = maxOutside >= 1000 || coin < 100;
   }
 
-  // Günlük paket butonu ve kontrolü
-  let dailyGiven = false;
+  // Oyuncu durumunu değiştir
+  function changeStatus(playerId, newStatus) {
+    const player = players.find(p => p.id === playerId);
+    if (!player) return;
 
-  document.getElementById('dailyBtn').addEventListener('click', () => {
-    if(dailyGiven) {
-      document.getElementById('dailyMessage').innerText = "Bugün zaten hediye aldınız. Yarın tekrar deneyin.";
+    // Kadro dışı sınır kontrolü
+    if(newStatus === "outside" && countStatus("outside") >= maxOutside) {
+      document.getElementById('lineupMessage').innerText = "Kadro dışı limiti dolu!";
       return;
     }
-    coin += 100;
-    dailyGiven = true;
-    updateCoins();
-    updatePlayerLists();
-    document.getElementById('dailyMessage').innerText = "100 coin kazandınız! İyi oyunlar.";
-    document.getElementById('dailyBtn').disabled = true;
-  });
 
-  // Kadro dışı artırma +100 coin
+    // İlk 11 sınır 11 kişi
+    if(newStatus === "first11" && countStatus("first11") >= 11) {
+      document.getElementById('lineupMessage').innerText = "İlk 11 dolu!";
+      return;
+    }
+
+    // Yedek sınır 11 kişi
+    if(newStatus === "substitute" && countStatus("substitute") >= 11) {
+      document.getElementById('lineupMessage').innerText = "Yedek 11 dolu!";
+      return;
+    }
+
+    player.status = newStatus;
+    document.getElementById('lineupMessage').innerText = `${player.name} ${newStatus} olarak ayarlandı.`;
+    updateLists();
+  }
+
+  // Statü sayısı
+  function countStatus(status) {
+    return players.filter(p => p.status === status).length;
+  }
+
+  // Kadro dışı artırma
   document.getElementById('increaseOutsideBtn').addEventListener('click', () => {
     if(coin < 100) {
       document.getElementById('lineupMessage').innerText = "Yeterli coin yok.";
@@ -255,7 +331,7 @@
     maxOutside += 100;
     document.getElementById('lineupMessage').innerText = `Kadro dışı limiti +100 oldu: ${maxOutside}`;
     updateCoins();
-    updatePlayerLists();
+    updateLists();
   });
 
   // Antrenman sistemi
@@ -277,23 +353,56 @@
       return;
     }
 
-    // Oyuncuyu bul
     const player = players.find(p => p.id === pid);
     if(!player) return;
 
-    // Güçlendirme
     player.rating += Math.floor(Math.random() * 5) + 1;
     if(player.rating > 100) player.rating = 100;
 
     coin -= 10;
     trainingMessage.innerText = `${player.name} antrenman yaptı! Rating: ${player.rating}`;
     updateCoins();
-    updatePlayerLists();
+    updateLists();
   });
 
-  // Sayfa yüklendiğinde listeleri güncelle
+  // Menü butonları ve görünürlük kontrolü
+  const menuPlayersBtn = document.getElementById('menuPlayers');
+  const menuLineupBtn = document.getElementById('menuLineup');
+  const menuTrainingBtn = document.getElementById('menuTraining');
+
+  const playersSection = document.getElementById('playersSection');
+  const lineupSection = document.getElementById('lineupSection');
+  const trainingSection = document.getElementById('trainingSection');
+
+  function showSection(section) {
+    playersSection.style.display = 'none';
+    lineupSection.style.display = 'none';
+    trainingSection.style.display = 'none';
+
+    menuPlayersBtn.classList.remove('active');
+    menuLineupBtn.classList.remove('active');
+    menuTrainingBtn.classList.remove('active');
+
+    if(section === 'players') {
+      playersSection.style.display = 'block';
+      menuPlayersBtn.classList.add('active');
+    } else if(section === 'lineup') {
+      lineupSection.style.display = 'block';
+      menuLineupBtn.classList.add('active');
+    } else if(section === 'training') {
+      trainingSection.style.display = 'block';
+      menuTrainingBtn.classList.add('active');
+    }
+  }
+
+  menuPlayersBtn.onclick = () => showSection('players');
+  menuLineupBtn.onclick = () => showSection('lineup');
+  menuTrainingBtn.onclick = () => showSection('training');
+
+  // Başlangıç
   updateCoins();
-  updatePlayerLists();
+  updateLists();
+  showSection('players');
 </script>
 
 </body>
