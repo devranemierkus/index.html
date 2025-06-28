@@ -1,1502 +1,599 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoccerTR: Kendi Rüya Takımını Kur!</title>
-    <style>
-        /* Genel Stil Ayarları */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background: linear-gradient(to bottom right, #2c3e50, #34495e); /* Koyu tema */
-            color: #ecf0f1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            user-select: none; /* Metin seçimi engelleme */
-        }
-
-        #game-container {
-            background-color: #3b5998; /* Daha canlı bir mavi tonu */
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            width: 90%;
-            max-width: 1200px;
-            min-height: 700px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 2px solid #2980b9;
-        }
-
-        /* Başlık ve Kullanıcı Bilgileri */
-        header {
-            background-color: #2980b9;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #2471a3;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            z-index: 10; /* Başlık her zaman üstte olsun */
-            position: relative; /* Z-index'in çalışması için */
-        }
-
-        header h1 {
-            margin: 0;
-            color: #ecf0f1;
-            font-size: 2.2em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #ecf0f1;
-        }
-
-        .user-info span {
-            margin-left: 20px;
-            padding: 8px 15px;
-            background-color: #3498db;
-            border-radius: 20px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Ana Navigasyon */
-        .main-nav {
-            display: flex;
-            justify-content: space-around;
-            background-color: #2c3e50;
-            padding: 15px 0;
-            border-bottom: 2px solid #212f3d;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            /* Başlangıçta gizli olacak */
-            display: none; 
-            z-index: 9; /* Navigasyon da üstte olsun ama header'ın altında */
-            position: relative;
-        }
-
-        .main-nav button {
-            background-color: #e67e22; /* Turuncu buton */
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .main-nav button:hover {
-            background-color: #d35400;
-            transform: translateY(-2px);
-        }
-
-        .main-nav button:active {
-            background-color: #c0392b;
-            transform: translateY(0);
-        }
-
-        /* Genel Ekran Stilleri */
-        .screen {
-            flex-grow: 1;
-            padding: 30px;
-            display: none; /* Varsayılan olarak gizli */
-            background-color: #4667a2; /* Açık mavi tonu */
-            border-radius: 0 0 12px 12px;
-            overflow-y: auto; /* İçerik taşarsa kaydırma çubuğu */
-            box-sizing: border-box;
-            animation: fadeIn 0.6s ease-out;
-            position: absolute; /* Ekranların üst üste binmesini sağlamak için */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            /* Padding ayarlamaları, header ve nav bar'ı kapsayacak şekilde güncellendi */
-            padding-top: calc(15px + 2.2em + 15px + 15px + 1.1em + 15px); /* Header + Nav yüksekliği */
-            box-sizing: border-box;
-            z-index: 1; /* Normal ekranlar */
-        }
-
-        .screen.active {
-            display: block; /* Aktif ekranı göster */
-            z-index: 2; /* Aktif ekranın diğerlerinin üzerinde olmasını sağla */
-        }
-
-        /* Giriş ekranı özel konumu */
-        #auth-screen {
-            display: flex; /* Varsayılan olarak aktif */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(to top left, #3498db, #2980b9); /* Mavinin tonları */
-            border-radius: 12px;
-            position: absolute; /* Tamamen kaplasın */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 3; /* Giriş ekranı her zaman en üstte */
-            padding-top: 0; /* Kendi içeriği ortalanacağı için padding'e ihtiyaç duymaz */
-        }
-
-        /* Giriş ekranı gizlendiğinde */
-        #auth-screen.hidden {
-            display: none;
-        }
-
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .screen h2 {
-            color: #ecf0f1;
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-        }
-
-        /* Geri Butonları */
-        .back-button {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1em;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .back-button:hover {
-            background-color: #c0392b;
-        }
-
-        /* Giriş/Kayıt Ekranı */
-        #auth-screen h2 {
-            color: white;
-            font-size: 3em;
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
-            margin-bottom: 40px;
-        }
-
-        .auth-form {
-            background-color: rgba(255, 255, 255, 0.15);
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 80%;
-            max-width: 400px;
-        }
-
-        .auth-form input {
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1.1em;
-            background-color: rgba(255, 255, 255, 0.9);
-            color: #333;
-        }
-
-        .auth-form button {
-            background-color: #27ae60; /* Yeşil buton */
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 1.1em;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .auth-form button:hover {
-            background-color: #229a54;
-        }
-
-        #guest-warning {
-            color: #ffda79;
-            font-size: 0.9em;
-            margin-top: 10px;
-            text-align: center;
-            background-color: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px dashed #f1c40f;
-        }
-
-        .password-info {
-            color: #bdc3c7;
-            font-size: 0.85em;
-            text-align: center;
-            margin-top: -10px;
-            margin-bottom: 5px;
-        }
-
-        /* Paket Açma Ekranı */
-        .pack-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .pack-card {
-            background-color: #2c3e50;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border: 2px solid #3498db;
-        }
-
-        .pack-card:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        .pack-card img {
-            width: 80%;
-            height: auto;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #5faee3;
-        }
-
-        .pack-card h3 {
-            color: #ecf0f1;
-            font-size: 1.4em;
-            margin-bottom: 10px;
-        }
-
-        .pack-card p {
-            color: #bdc3c7;
-            font-size: 0.9em;
-        }
-
-        .pack-card button {
-            background-color: #f39c12; /* Altın sarısı */
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background-color 0.3s ease;
-        }
-
-        .pack-card button:hover {
-            background-color: #e67e22;
-        }
-
-        #player-reveal-area {
-            background-color: #2c3e50;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            min-height: 250px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border: 2px dashed #3498db;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden; /* Animasyonlar için */
-        }
-
-        .revealed-player-card {
-            display: none; /* JS ile gösterilecek */
-            animation: playerPopIn 0.8s ease-out forwards;
-            position: relative;
-            transform-style: preserve-3d;
-        }
-
-        @keyframes playerPopIn {
-            0% { opacity: 0; transform: scale(0.5) rotateY(90deg); }
-            60% { opacity: 1; transform: scale(1.1) rotateY(-10deg); }
-            100% { opacity: 1; transform: scale(1) rotateY(0deg); }
-        }
-
-        .player-card {
-            background-color: #34495e;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            width: 250px;
-            margin: 0 auto;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
-            border: 3px solid; /* Çerçeve rengi JS ile belirlenecek */
-            transition: transform 0.2s ease;
-        }
-
-        .player-card.draggable {
-            cursor: grab;
-        }
-
-        .player-card.draggable:active {
-            cursor: grabbing;
-        }
-
-        .player-card img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #ecf0f1;
-            margin-bottom: 10px;
-        }
-
-        .player-card h4 {
-            color: #ecf0f1;
-            font-size: 1.5em;
-            margin: 5px 0;
-        }
-
-        .player-card p {
-            color: #bdc3c7;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-
-        .player-card .rating-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            margin-top: 10px;
-            color: white;
-            font-size: 1.1em;
-        }
-
-        .rating-green { background-color: #27ae60; }
-        .rating-orange { background-color: #e67e22; }
-        .rating-red { background-color: #c0392b; }
-
-        .player-card .stars {
-            color: gold;
-            font-size: 1.5em;
-            margin-top: 5px;
-        }
-
-        /* Kadro Yönetimi Ekranı */
-        #squad-management-screen {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .squad-container {
-            display: grid;
-            grid-template-columns: 2fr 1fr; /* Formation ve Bench/Pool */
-            gap: 20px;
-            flex-grow: 1;
-        }
-
-        #formation-area {
-            background-color: #3b5998; /* Saha rengi gibi */
-            border: 3px dashed #2980b9;
-            border-radius: 10px;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr); /* Örnek 4-3-3 için */
-            grid-template-rows: repeat(4, 1fr); /* Kaleci, defans, orta saha, forvet */
-            gap: 10px;
-            position: relative;
-            min-height: 500px;
-        }
-        
-        #formation-area::before {
-            content: 'SAHA';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 5em;
-            color: rgba(255, 255, 255, 0.1);
-            font-weight: bold;
-            z-index: 0;
-        }
-
-
-        .position-slot {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px dashed #7f8c8d;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.9em;
-            color: #bdc3c7;
-            height: 100px; /* Sabit yükseklik */
-            box-sizing: border-box;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .position-slot.hover {
-            border-color: #3498db;
-            background-color: rgba(52, 152, 219, 0.2);
-        }
-
-        .position-slot .player-card {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 5px; /* Kartın içine sığması için */
-            box-sizing: border-box;
-            font-size: 0.8em;
-        }
-        .position-slot .player-card img {
-            width: 60px;
-            height: 60px;
-        }
-        .position-slot .player-card h4 {
-            font-size: 1em;
-            margin: 2px 0;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        .position-slot .player-card .rating-badge {
-            font-size: 0.8em;
-            padding: 3px 6px;
-        }
-        .position-slot .player-card .stars {
-            font-size: 1em;
-        }
-
-
-        .squad-side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        #bench-area, #out-of-squad-pool {
-            background-color: #2c3e50;
-            border: 2px solid #34495e;
-            border-radius: 10px;
-            padding: 15px;
-            min-height: 200px;
-            overflow-y: auto;
-        }
-
-        #bench-area h3, #out-of-squad-pool h3 {
-            color: #ecf0f1;
-            margin-top: 0;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #3498db;
-            padding-bottom: 8px;
-            font-size: 1.5em;
-        }
-
-        .player-list-scroll {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        /* Maç Ekranı */
-        #match-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #27ae60; /* Yeşil saha rengi */
-        }
-        #match-screen h2 {
-            color: white;
-        }
-
-        .match-display {
-            background-color: #2ecc71; /* Daha açık saha */
-            width: 80%;
-            aspect-ratio: 16/9; /* Geniş ekran oranı */
-            border: 5px solid white;
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2em;
-            color: rgba(255, 255, 255, 0.5);
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-        }
-
-        /* Player Detay Modal */
-        .modal {
-            display: none; /* Varsayılan olarak gizli */
-            position: fixed; /* Ekranı kaplar */
-            z-index: 1000; /* En üstte */
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto; /* Gerekirse kaydırma */
-            background-color: rgba(0, 0, 0, 0.6); /* Yarı şeffaf siyah arka plan */
-            backdrop-filter: blur(5px); /* Arka planı bulanıklaştırma */
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #34495e;
-            margin: auto;
-            padding: 30px;
-            border: 2px solid #2980b9;
-            border-radius: 15px;
-            width: 80%;
-            max-width: 400px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            animation: modalOpen 0.3s ease-out;
-        }
-
-        @keyframes modalOpen {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 35px;
-            font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: #ecf0f1;
-            text-decoration: none;
-        }
-
-        #detail-player-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #f39c12; /* Altın sarısı çerçeve */
-            margin-bottom: 15px;
-            box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
-        }
-
-        #detail-player-name {
-            color: #ecf0f1;
-            font-size: 2.2em;
-            margin-bottom: 10px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        }
-
-        .modal-content p {
-            color: #bdc3c7;
-            font-size: 1.1em;
-            margin: 8px 0;
-        }
-
-        .modal-content p span {
-            font-weight: bold;
-            color: #ecf0f1;
-        }
-
-        /* Responsive Tasarım (Basit) */
-        @media (max-width: 768px) {
-            #game-container {
-                width: 98%;
-                min-height: 90vh;
-            }
-            header h1 {
-                font-size: 1.8em;
-            }
-            .main-nav {
-                flex-direction: column;
-            }
-            .main-nav button {
-                width: 90%;
-                margin: 5px auto;
-            }
-            .squad-container {
-                grid-template-columns: 1fr;
-            }
-            #formation-area {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .auth-form {
-                padding: 20px;
-            }
-        }
-        
-        /* Ayarlar Ekranı için Stil (Örnek) */
-        .settings-option {
-            background-color: #2c3e50;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .settings-option label {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #ecf0f1;
-        }
-
-        .settings-option button, .settings-option select {
-            padding: 8px 15px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-        }
-
-        .settings-option button.danger {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .settings-option button.danger:hover {
-            background-color: #c0392b;
-        }
-
-        .settings-option select {
-            background-color: #3498db;
-            color: white;
-        }
-        .settings-option select:hover {
-            background-color: #2980b9;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>SoccerTR – Tek Dosya Futbol Platformu</title>
+  <style>
+    /*────────────────────────────────────────
+       ROOT & RENK DEĞİŞKENLERİ
+    ────────────────────────────────────────*/
+    :root {
+      --accent1: #ff6600;
+      --accent2: #0055cc;
+      --bg: #f5f5f5;
+      --text: #222222;
+      --panel-bg: #ffffff;
+      --border: #dddddd;
+    }
+
+    /*────────────────────────────────────────
+       GENEL SAYFA AYARLARI
+    ────────────────────────────────────────*/
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.4;
+    }
+    a { color: var(--accent1); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /*────────────────────────────────────────
+       CONTAINER & NAVBAR
+    ────────────────────────────────────────*/
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      margin: 1.5rem auto;
+      background: var(--panel-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    header {
+      background: var(--accent2);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 1.8rem; }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1rem;
+    }
+    nav ul li button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0.5rem 0.8rem;
+      transition: background 0.2s;
+    }
+    nav ul li button:hover {
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+    }
+
+    /*────────────────────────────────────────
+       AYARLAR PANELİ
+    ────────────────────────────────────────*/
+    #settings {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      background: #fafafa;
+      border-bottom: 1px solid var(--border);
+    }
+    #settings label {
+      font-weight: bold;
+      margin-right: .4rem;
+    }
+    #settings select {
+      padding: .4rem .6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    /*────────────────────────────────────────
+       İÇERİK BÖLÜMLERİ
+    ────────────────────────────────────────*/
+    section {
+      display: none;
+      padding: 1.5rem 2rem;
+    }
+    section.active {
+      display: block;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .section-header h2 {
+      color: var(--accent1);
+      font-size: 1.4rem;
+    }
+
+    /*────────────────────────────────────────
+       GENEL BUTONLAR
+    ────────────────────────────────────────*/
+    .btn {
+      display: inline-block;
+      padding: .5rem .8rem;
+      background: var(--accent2);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background .2s;
+      font-size: .9rem;
+    }
+    .btn:hover {
+      background: #003d99;
+    }
+
+    /*────────────────────────────────────────
+       LİG & TAKIM SEÇİMİ
+    ────────────────────────────────────────*/
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
+      gap: 1rem;
+    }
+
+    /*────────────────────────────────────────
+       KADRO GÖRÜNÜMLERİ
+    ────────────────────────────────────────*/
+    .coin-bar {
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: bold;
+    }
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+      gap: 1rem;
+    }
+    .player-card {
+      background: #fcfcfc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .8rem;
+      text-align: center;
+    }
+    .player-card h3 {
+      margin-bottom: .4rem;
+      font-size: 1.1rem;
+    }
+    .player-card p {
+      margin: .2rem 0;
+      font-size: .9rem;
+    }
+    .player-card .btn {
+      margin-top: .6rem;
+      font-size: .85rem;
+      padding: .4rem .6rem;
+    }
+
+    /*────────────────────────────────────────
+       TRANSFER PİYASASI
+    ────────────────────────────────────────*/
+    #transfer-list {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+    .transfer-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: .6rem 0;
+      border-bottom: 1px solid #eee;
+    }
+    .transfer-item p {
+      margin: 0;
+      font-size: .9rem;
+    }
+    .transfer-item button {
+      font-size: .8rem;
+      padding: .4rem .6rem;
+    }
+
+    /*────────────────────────────────────────
+       FİKSTÜR & PUAN TABLOSU
+    ────────────────────────────────────────*/
+    #fixtures, #standings {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .fixture-card, .standing-card {
+      flex: 1 1 300px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fafafa;
+      padding: 1rem;
+    }
+    .fixture-card h4, .standing-card h4 {
+      margin-bottom: .6rem;
+      color: var(--accent2);
+    }
+    .fixture-card ul, .standing-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .fixture-card li, .standing-card li {
+      padding: .3rem 0;
+      border-bottom: 1px solid #eee;
+      font-size: .9rem;
+    }
+
+    /*────────────────────────────────────────
+       GENÇ AKADEMİ & TEKNİK DİREKTÖR
+    ────────────────────────────────────────*/
+    #academy, #managers {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    .academy-list, .manager-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
+      gap: 1rem;
+    }
+    .academy-card, .manager-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .8rem;
+      text-align: center;
+    }
+    .academy-card h4, .manager-card h4 {
+      margin-bottom: .5rem;
+      font-size: 1rem;
+    }
+
+    /*────────────────────────────────────────
+       GÜNLÜK HABERLER & OLAYLAR
+    ────────────────────────────────────────*/
+    #news {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    .news-item {
+      margin-bottom: .8rem;
+    }
+    .news-item h4 {
+      font-size: 1.05rem;
+      margin-bottom: .3rem;
+      color: var(--accent1);
+    }
+    .news-item p {
+      font-size: .88rem;
+      margin: 0;
+    }
+
+    /*────────────────────────────────────────
+       BUTON GRUPLARI & MODAL STİLLERİ (ILERİ DOLDUR)
+    ────────────────────────────────────────*/
+    /* ... daha fazla CSS kuralı, 200+ satır eklenebilir ... */
+  </style>
 </head>
 <body>
-    <div id="game-container">
-        <header>
-            <h1>SoccerTR</h1>
-            <div class="user-info">
-                <span id="user-coins">0 Coin</span>
-                <span id="username-display">Misafir</span>
-            </div>
-        </header>
+  <div class="container">
+    <!-- HEADER & NAV -->
+    <header>
+      <h1>SoccerTR</h1>
+      <nav>
+        <ul>
+          <li><button data-route="home">Ana Sayfa</button></li>
+          <li><button data-route="squad">Kadro</button></li>
+          <li><button data-route="fixtures">Fikstür</button></li>
+          <li><button data-route="transfers">Transfer</button></li>
+          <li><button data-route="academy">Akademi</button></li>
+          <li><button data-route="news">Haberler</button></li>
+        </ul>
+      </nav>
+    </header>
 
-        <nav class="main-nav" id="main-nav">
-            <button id="open-packs-btn">Paketleri Aç</button>
-            <button id="manage-squad-btn">Kadro Yönetimi</button>
-            <button id="play-match-btn">Maç Yap</button>
-            <button id="settings-btn">Ayarlar</button>
-        </nav>
-
-        <section id="auth-screen" class="screen active">
-            <h2>SoccerTR'ye Hoş Geldiniz!</h2>
-            <div class="auth-form">
-                <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-                <input type="password" id="password" placeholder="Şifre" required>
-                <p class="password-info">Şifre: 8-16 karakter, en az bir rakam ve "_" içermeli.</p>
-                <button id="login-btn">Giriş Yap</button>
-                <button id="register-btn">Kayıt Ol</button>
-                <hr style="width: 80%; border-color: rgba(255,255,255,0.2);">
-                <button id="guest-login-btn" style="background-color: #7f8c8d;">Misafir Hesabı Aç</button>
-                <p id="guest-warning">Misafir hesabı sadece bu oturum için geçerlidir. Sayfayı yenilediğinizde veya kapattığınızda ilerlemeniz **kaybolacaktır**.</p>
-            </div>
-        </section>
-
-        <section id="main-menu-screen" class="screen">
-            <h2>Ana Menü</h2>
-            <p id="welcome-message">Hoş geldiniz, menajer! Takımını kur ve zafere ulaş!</p>
-            <button id="dummy-button" style="margin-top: 50px; padding: 15px 30px; font-size: 1.2em; background-color: #3498db; color: white; border: none; border-radius: 8px;">Deneme Butonu</button>
-        </section>
-
-        <section id="pack-opening-screen" class="screen">
-            <h2>Paketleri Aç</h2>
-            <div class="pack-list" id="pack-list">
-                </div>
-            <div id="player-reveal-area">
-                <p>Açmak istediğiniz paketi seçin!</p>
-            </div>
-            <button id="back-to-menu-btn-pack" class="back-button">Ana Menüye Dön</button>
-        </section>
-
-        <section id="squad-management-screen" class="screen">
-            <h2>Kadro Yönetimi</h2>
-            <div class="squad-container">
-                <div id="formation-area" class="drop-zone">
-                    <div class="position-slot" data-position="GK">Kaleci</div>
-                    <div class="position-slot" data-position="LB">Sol Bek</div>
-                    <div class="position-slot" data-position="CB1">Stoper</div>
-                    <div class="position-slot" data-position="CB2">Stoper</div>
-                    <div class="position-slot" data-position="RB">Sağ Bek</div>
-                    <div class="position-slot" data-position="LM">Sol Orta Saha</div>
-                    <div class="position-slot" data-position="CM1">Merkez Orta Saha</div>
-                    <div class="position-slot" data-position="CM2">Merkez Orta Saha</div>
-                    <div class="position-slot" data-position="RM">Sağ Orta Saha</div>
-                    <div class="position-slot" data-position="LW">Sol Kanat</div>
-                    <div class="position-slot" data-position="ST">Santrafor</div>
-                    <div class="position-slot" data-position="RW">Sağ Kanat</div>
-                </div>
-                <div class="squad-side-panel">
-                    <div id="bench-area" class="drop-zone">
-                        <h3>Yedekler (11)</h3>
-                        <div class="player-list-scroll" id="bench-players">
-                            </div>
-                    </div>
-                    <div id="out-of-squad-pool" class="drop-zone">
-                        <h3>Kadro Dışı Havuz (<span id="pool-count">0</span>/500)</h3>
-                        <div class="player-list-scroll" id="pool-players">
-                            </div>
-                    </div>
-                </div>
-            </div>
-            <button id="back-to-menu-btn-squad" class="back-button">Ana Menüye Dön</button>
-        </section>
-
-        <section id="match-screen" class="screen">
-            <h2>Maç Başlıyor!</h2>
-            <div class="match-display">
-                <p>Maç simülasyonu yakında!</p>
-            </div>
-            <button id="back-to-menu-btn-match" class="back-button">Ana Menüye Dön</button>
-        </section>
-
-        <section id="settings-screen" class="screen">
-            <h2>Ayarlar</h2>
-            <div class="settings-options">
-                <div class="settings-option">
-                    <label for="language-select">Dil Seçimi:</label>
-                    <select id="language-select">
-                        <option value="tr">Türkçe</option>
-                        <option value="en">English</option>
-                        <option value="de">Deutsch</option>
-                        <option value="pt">Português</option>
-                        <option value="pt-br">Português (Brasil)</option>
-                    </select>
-                </div>
-                <div class="settings-option">
-                    <label>Tema:</label>
-                    <button id="toggle-theme-btn">Koyu/Açık Tema (Yakında)</button>
-                </div>
-                <div class="settings-option">
-                    <label>Hesap İşlemleri:</label>
-                    <button id="logout-btn" class="danger">Hesaptan Çıkış Yap</button>
-                </div>
-                <div class="settings-option">
-                    <label>Hesabı Sil:</label>
-                    <button id="delete-account-btn" class="danger">Hesabı Sil (Geri Alınamaz!)</button>
-                </div>
-            </div>
-            <button id="back-to-menu-btn-settings" class="back-button">Ana Menüye Dön</button>
-        </section>
-
-        <div id="player-detail-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
-                <h3 id="detail-player-name"></h3>
-                <img id="detail-player-image" src="" alt="Oyuncu Resmi">
-                <p>Rating: <span id="detail-player-rating"></span></p>
-                <p>Goller: <span id="detail-player-goals">0</span></p>
-                <p>Asistler: <span id="detail-player-assists">0</span></p>
-                <p>Nadir: <span id="detail-player-stars"></span></p>
-            </div>
-        </div>
+    <!-- SETTINGS -->
+    <div id="settings">
+      <div>
+        <label for="language">Dil:</label>
+        <select id="language">
+          <option value="tr">Türkçe</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div>
+        <label for="theme">Tema:</label>
+        <select id="theme">
+          <option value="orange-blue">Turuncu-Mavi</option>
+          <option value="red-white">Kırmızı-Beyaz</option>
+          <option value="yellow-red">Sarı-Kırmızı</option>
+        </select>
+      </div>
     </div>
 
-    <script>
-        // --- JS KODLARI BURADAN BAŞLIYOR ---
+    <!-- ANA SAYFA / LIG & TAKIM SEÇIM -->
+    <section id="home" class="active">
+      <div class="section-header">
+        <h2>Ana Sayfa</h2>
+      </div>
+      <div class="section">
+        <h3>Lig Seçimi</h3>
+        <div class="grid-5" id="league-buttons">
+          <!-- Lig butonları JS ile gelecek -->
+        </div>
 
-        // HTML Elemanlarına Erişim
-        const authScreen = document.getElementById('auth-screen');
-        const mainMenuScreen = document.getElementById('main-menu-screen');
-        const packOpeningScreen = document.getElementById('pack-opening-screen');
-        const squadManagementScreen = document.getElementById('squad-management-screen');
-        const matchScreen = document.getElementById('match-screen');
-        const settingsScreen = document.getElementById('settings-screen');
+        <h3>Takım Seçimi</h3>
+        <div class="grid-5" id="team-buttons">
+          <!-- Takım butonları JS ile gelecek -->
+        </div>
+      </div>
+    </section>
 
-        const gameContainer = document.getElementById('game-container'); // Oyun kapsayıcısı
-        const mainNav = document.getElementById('main-nav'); // Ana navigasyon
-        const welcomeMessage = document.getElementById('welcome-message'); // Hoş geldin mesajı
+    <!-- KADRO SEKSIYONU -->
+    <section id="squad">
+      <div class="section-header">
+        <h2>Kadro & Coin</h2>
+      </div>
+      <div class="coin-bar">Coin: <span id="coin">500</span></div>
+      <div class="players-grid" id="player-cards">
+        <!-- Oyuncu kartları JS ile gelecek -->
+      </div>
+    </section>
 
-        const loginBtn = document.getElementById('login-btn');
-        const registerBtn = document.getElementById('register-btn');
-        const guestLoginBtn = document.getElementById('guest-login-btn');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const usernameDisplay = document.getElementById('username-display');
-        const userCoinsDisplay = document.getElementById('user-coins');
+    <!-- FIKSTUR & PUAN TABLOSU -->
+    <section id="fixtures">
+      <div class="section-header">
+        <h2>Fikstür & Puan Tablosu</h2>
+      </div>
+      <div id="fixtures-container">
+        <div class="fixture-card">
+          <h4>Güncel Fikstür</h4>
+          <ul id="fixture-list"></ul>
+        </div>
+        <div class="standing-card">
+          <h4>Puan Tablosu</h4>
+          <ul id="standing-list"></ul>
+        </div>
+      </div>
+    </section>
 
-        const openPacksBtn = document.getElementById('open-packs-btn');
-        const manageSquadBtn = document.getElementById('manage-squad-btn');
-        const playMatchBtn = document.getElementById('play-match-btn');
-        const settingsBtn = document.getElementById('settings-btn');
+    <!-- TRANSFER PİYASASI -->
+    <section id="transfers">
+      <div class="section-header">
+        <h2>Transfer Pazarı</h2>
+      </div>
+      <div id="transfer-list">
+        <!-- Transfer elemanları JS ile gelecek -->
+      </div>
+    </section>
 
-        const packList = document.getElementById('pack-list');
-        const playerRevealArea = document.getElementById('player-reveal-area');
+    <!-- AKADEMİ & TEKNİK DİREKTÖRLER -->
+    <section id="academy">
+      <div class="section-header"><h2>Genç Akademi & Taktik</h2></div>
+      <h3>Akademi Gençleri</h3>
+      <div class="academy-list" id="academy-list"></div>
+      <h3>Teknik Direktörler</h3>
+      <div class="manager-list" id="manager-list"></div>
+    </section>
 
-        const formationArea = document.getElementById('formation-area');
-        const benchPlayersContainer = document.getElementById('bench-players');
-        const poolPlayersContainer = document.getElementById('pool-players');
-        const poolCountDisplay = document.getElementById('pool-count');
+    <!-- GÜNLÜK HABERLER -->
+    <section id="news">
+      <div class="section-header"><h2>Haberler & Olaylar</h2></div>
+      <div id="news-list"></div>
+    </section>
+  </div>
 
-        const playerDetailModal = document.getElementById('player-detail-modal');
-        const detailPlayerName = document.getElementById('detail-player-name');
-        const detailPlayerImage = document.getElementById('detail-player-image');
-        const detailPlayerRating = document.getElementById('detail-player-rating');
-        const detailPlayerGoals = document.getElementById('detail-player-goals');
-        const detailPlayerAssists = document.getElementById('detail-player-assists');
-        const detailPlayerStars = document.getElementById('detail-player-stars');
-        const closePlayerModalBtn = playerDetailModal.querySelector('.close-button');
+  <script>
+  /***************************************
+   *    UYGULAMA DURUMU & LOCAL STORAGE  *
+   ***************************************/
+  const STATE_KEY = 'SoccerTR_State';
+  let state = JSON.parse(localStorage.getItem(STATE_KEY)) || {
+    coins: 500,
+    squad: [],
+    fixtures: [],
+    standings: [],
+    transfers: [],
+    academy: [],
+    managers: [],
+    news: [],
+    currentRoute: 'home'
+  };
 
-        // Ayarlar Sayfası Elemanları
-        const logoutBtn = document.getElementById('logout-btn');
-        const deleteAccountBtn = document.getElementById('delete-account-btn');
-        const languageSelect = document.getElementById('language-select');
-        const toggleThemeBtn = document.getElementById('toggle-theme-btn');
+  /***************************************
+   *    YÖNLENDİRME (HASH-BASED ROUTER)  *
+   ***************************************/
+  function navigate(route) {
+    document.querySelectorAll('section').forEach(sec => {
+      sec.classList.toggle('active', sec.id === route);
+    });
+    state.currentRoute = route;
+    saveState();
+  }
+  document.querySelectorAll('nav ul li button').forEach(btn => {
+    btn.addEventListener('click', () => navigate(btn.dataset.route));
+  });
+  window.addEventListener('load', () => {
+    navigate(state.currentRoute);
+    renderHome();
+    renderSquad();
+    renderFixtures();
+    renderTransfers();
+    renderAcademy();
+    renderNews();
+  });
 
-        // Test butonu
-        document.getElementById('dummy-button').addEventListener('click', () => {
-            alert('Ana Menüdeki Deneme Butonu Çalışıyor!');
+  /***************************************
+   *    TEMA & DİL AYARLARI             *
+   ***************************************/
+  document.getElementById('theme').addEventListener('change', e => {
+    const theme = e.target.value;
+    if (theme==='orange-blue') {
+      document.documentElement.style.setProperty('--accent1','#ff6600');
+      document.documentElement.style.setProperty('--accent2','#0055cc');
+      document.documentElement.style.setProperty('--bg','#f5f5f5');
+    } else if (theme==='red-white') {
+      document.documentElement.style.setProperty('--accent1','#cc0000');
+      document.documentElement.style.setProperty('--accent2','#ffffff');
+      document.documentElement.style.setProperty('--bg','#fff0f0');
+    } else if (theme==='yellow-red') {
+      document.documentElement.style.setProperty('--accent1','#ffcc00');
+      document.documentElement.style.setProperty('--accent2','#cc0000');
+      document.documentElement.style.setProperty('--bg','#fffceb');
+    }
+  });
+  document.getElementById('language').addEventListener('change', e => {
+    // Dil değişimi: metinleri tekrar yükle ya da çeviri fonksiyonu
+    // (TR/EN çeviri haritası eklenebilir)
+  });
+
+  /***************************************
+   *    ANA SAYFA: LİG & TAKIM SEÇİM    *
+   ***************************************/
+  const leagues = {
+    superlig: ["Galatasaray","Fenerbahçe","Beşiktaş","Trabzon","Adana"],
+    premier: ["Man City","Liverpool","Arsenal","Chelsea","Man Utd"],
+    bundesliga:["Bayern","Dortmund","Leipzig","Leverkusen","Freiburg"],
+    mls:["Inter Miami","LA Galaxy","NYCFC","Toronto","Austin FC"],
+    suudi:["Al Hilal","Al Nassr","Al Ittihad","Al Ahli","Abha"],
+    ligue1:["PSG","Lyon","Marseille","Nice","Monaco"]
+  };
+
+  function renderHome() {
+    const leagueContainer = document.getElementById('league-buttons');
+    leagueContainer.innerHTML = '';
+    Object.keys(leagues).forEach(key => {
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.textContent = key.toUpperCase();
+      btn.onclick = () => selectLeague(key);
+      leagueContainer.appendChild(btn);
+    });
+  }
+
+  function selectLeague(ligKey) {
+    const teamContainer = document.getElementById('team-buttons');
+    teamContainer.innerHTML = '';
+    leagues[ligKey].forEach(team => {
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.textContent = team;
+      btn.onclick = () => {
+        state.selectedTeam = team;
+        renderSquad();
+      };
+      teamContainer.appendChild(btn);
+    });
+  }
+
+  /***************************************
+   *    KADRO & COIN & GELİŞTİRME       *
+   ***************************************/
+  const moraller = ["Özgüvenli","Mutlu","Formsuz","Agresif"];
+  function renderSquad() {
+    const container = document.getElementById('player-cards');
+    const coinEl     = document.getElementById('coin');
+    container.innerHTML = '';
+    coinEl.textContent = state.coins;
+    if (!state.selectedTeam) {
+      container.innerHTML = '<p>Lütfen önce bir lig ve takım seçin.</p>';
+      return;
+    }
+    // Eğer daha önce oluşturulmamışsa oluştur
+    if (!state.squad || state.squad.length === 0 || state.squadTeam !== state.selectedTeam) {
+      state.squad = [];
+      state.squadTeam = state.selectedTeam;
+      for (let i = 1; i <= 11; i++) {
+        state.squad.push({
+          id: i,
+          team: state.selectedTeam,
+          rating: 50 + Math.floor(Math.random()*50),
+          morale: moraller[Math.floor(Math.random()*moraller.length)],
+          developed: false
         });
-
-
-        // Oyun Verileri (Basit birer örnek)
-        let currentUser = null; // Giriş yapan kullanıcı
-        let userCoins = 0; // Başlangıçta 0, giriş tipine göre atanacak
-        let squad = {}; // { GK: playerObject, CB1: playerObject, ... }
-        let bench = []; // 11 kişilik yedekler
-        let playerPool = []; // 500 kişilik havuz
-
-        // --- Simüle Edilmiş Kullanıcı Veritabanı ve Hesap Verileri ---
-        // Gerçek bir uygulamada bu veriler sunucu tarafında güvenli bir şekilde saklanır.
-        // localStorage kullanarak kalıcılık sağlıyoruz (sadece tarayıcıda)
-        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {};
-        let savedUserData = JSON.parse(localStorage.getItem('userData')) || {}; // Kullanıcıya özel oyun verileri
-
-        // Oyuncu Veritabanı (Örnek, gerçekte çok daha büyük olur)
-        const allPlayers = [
-            { id: 'p001', name: 'Donnarumma', position: 'GK', rating: 90, image: 'https://cdn.sofascore.com/images/share/player/417244.png' },
-            { id: 'p002', name: 'Akanji', position: 'CB', rating: 85, image: 'https://cdn.sofascore.com/images/share/player/823023.png' },
-            { id: 'p003', name: 'Son Heung-min', position: 'LW', rating: 92, image: 'https://cdn.sofascore.com/images/share/player/780826.png' },
-            { id: 'p004', name: 'F. Mendy', position: 'LB', rating: 83, image: 'https://cdn.sofascore.com/images/share/player/850550.png' },
-            { id: 'p005', name: 'R. Varane', position: 'CB', rating: 86, image: 'https://cdn.sofascore.com/images/share/player/779435.png' },
-            { id: 'p006', name: 'J. Cancelo', position: 'RB', rating: 87, image: 'https://cdn.sofascore.com/images/share/player/779440.png' },
-            { id: 'p007', name: 'K. De Bruyne', position: 'CM', rating: 95, image: 'https://cdn.sofascore.com/images/share/player/779836.png' },
-            { id: 'p008', name: 'L. Modrić', position: 'CM', rating: 91, image: 'https://cdn.sofascore.com/images/share/player/779344.png' },
-            { id: 'p009', name: 'Mohamed Salah', position: 'RW', rating: 93, image: 'https://cdn.sofascore.com/images/share/player/783917.png' },
-            { id: 'p010', name: 'E. Haaland', position: 'ST', rating: 94, image: 'https://cdn.sofascore.com/images/share/player/918349.png' },
-            { id: 'p011', name: 'V. Van Dijk', position: 'CB', rating: 90, image: 'https://cdn.sofascore.com/images/share/player/780807.png' },
-            { id: 'p012', name: 'Neymar', position: 'LW', rating: 92, image: 'https://cdn.sofascore.com/images/share/player/779774.png' },
-            { id: 'p013', name: 'João Félix', position: 'LW', rating: 88, image: 'https://cdn.sofascore.com/images/share/player/949987.png' },
-            { id: 'p014', name: 'Pedri', position: 'CM', rating: 87, image: 'https://cdn.sofascore.com/images/share/player/991739.png' },
-            { id: 'p015', name: 'Gavi', position: 'CM', rating: 85, image: 'https://cdn.sofascore.com/images/share/player/1023797.png' },
-            { id: 'p016', name: 'Ronald Araujo', position: 'CB', rating: 86, image: 'https://cdn.sofascore.com/images/share/player/934658.png' },
-            { id: 'p017', name: 'Alphonso Davies', position: 'LB', rating: 87, image: 'https://cdn.sofascore.com/images/share/player/926639.png' },
-            { id: 'p018', name: 'Manuel Neuer', position: 'GK', rating: 91, image: 'https://cdn.sofascore.com/images/share/player/779268.png' },
-            { id: 'p019', name: 'Harry Kane', position: 'ST', rating: 90, image: 'https://cdn.sofascore.com/images/share/player/779951.png' },
-            { id: 'p020', name: 'Lautaro Martínez', position: 'ST', rating: 88, image: 'https://cdn.sofascore.com/images/share/player/889508.png' },
-            // Daha fazla oyuncu eklenebilir...
-        ];
-
-        // Başlangıç Paketi ve Oyuncular
-        const starterPlayers = [
-            allPlayers.find(p => p.id === 'p001'), // Donnarumma
-            allPlayers.find(p => p.id === 'p002'), // Akanji
-            allPlayers.find(p => p.id === 'p003'), // Son Heung-min
-            allPlayers.find(p => p.id === 'p004'), // F. Mendy (ek defans)
-            allPlayers.find(p => p.id === 'p005'), // R. Varane (ek defans)
-        ];
-
-        // Paket Verileri (Örnek)
-        const packs = [
-            { id: 'free-pack', name: 'Ücretsiz Paket', cost: 0, image: 'https://via.placeholder.com/200x250/3498db/ffffff?text=Free+Pack', description: 'Giriş hediyesi, nadir oyuncular içerebilir!', playerRange: { min: 70, max: 95 } },
-            { id: 'gold-pack', name: 'Altın Paket', cost: 1000, image: 'https://via.placeholder.com/200x250/f1c40f/ffffff?text=Gold+Pack', description: 'Orta ve yüksek ratingli oyuncular.', playerRange: { min: 80, max: 98 } },
-            { id: 'legend-pack', name: 'Efsane Paket', cost: 5000, image: 'https://via.placeholder.com/200x250/e74c3c/ffffff?text=Legend+Pack', description: 'Çok yüksek ratingli ve efsane oyuncular!', playerRange: { min: 90, max: 107 } },
-        ];
-
-        // --- Fonksiyonlar ---
-
-        function showScreen(screenToShow) {
-            // Tüm ekranları gizle
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-                // auth-screen'i kapatmak için hidden sınıfını ekle
-                if (screen.id === 'auth-screen') {
-                    screen.classList.add('hidden');
-                }
-            });
-            // Gösterilecek ekranı aktif et
-            screenToShow.classList.add('active');
-            // Oyun kapsayıcısının yüksekliğini içeriğe göre ayarla
-            gameContainer.style.height = 'auto'; 
-        }
-
-        function updateUI() {
-            usernameDisplay.textContent = currentUser ? currentUser.username : 'Misafir';
-            userCoinsDisplay.textContent = `${userCoins} Coin`;
-            poolCountDisplay.textContent = `${playerPool.length}/500`;
-            if (currentUser && !currentUser.isGuest) {
-                welcomeMessage.textContent = `Hoş geldiniz, ${currentUser.username}! Takımını kur ve zafere ulaş!`;
-            } else {
-                welcomeMessage.textContent = `Hoş geldiniz, menajer! Takımını kur ve zafere ulaş!`;
-            }
-        }
-
-        function getPlayerRatingClass(rating) {
-            if (rating >= 90) return 'rating-red';
-            if (rating >= 71) return 'rating-orange';
-            return 'rating-green';
-        }
-
-        function getPlayerStars(rating) {
-            if (rating >= 101) return '★★★★';
-            if (rating >= 91) return '★★★';
-            if (rating >= 81) return '★★';
-            return '★';
-        }
-
-        // Oyuncu kartı oluşturma
-        function createPlayerCard(player, isDraggable = false) {
-            const playerCard = document.createElement('div');
-            playerCard.classList.add('player-card');
-            if (isDraggable) {
-                playerCard.classList.add('draggable');
-                playerCard.setAttribute('draggable', 'true');
-                playerCard.dataset.playerId = player.id;
-                playerCard.dataset.playerSource = player.source; // pool, bench, squad
-                playerCard.dataset.playerPosition = player.position; // Sadece kadrodaki oyuncu için
-            }
-            playerCard.style.borderColor = getPlayerRatingClass(player.rating).replace('rating-', '#'); // Renk kodu olarak kullan
-            
-            playerCard.innerHTML = `
-                <img src="${player.image}" alt="${player.name}">
-                <h4>${player.name}</h4>
-                <p>Mevki: ${player.position}</p>
-                <div class="rating-badge ${getPlayerRatingClass(player.rating)}">${player.rating}</div>
-                <div class="stars">${getPlayerStars(player.rating)}</div>
-            `;
-            playerCard.addEventListener('click', (e) => {
-                // Sürükleme sırasında tetiklenmemesi için
-                if (e.target.closest('.player-card').classList.contains('dragging')) return;
-                showPlayerDetails(player);
-            });
-            return playerCard;
-        }
-
-        // Oyuncu Detaylarını Göster
-        function showPlayerDetails(player) {
-            detailPlayerName.textContent = player.name;
-            detailPlayerImage.src = player.image;
-            detailPlayerRating.textContent = player.rating;
-            detailPlayerGoals.textContent = player.goals || 0;
-            detailPlayerAssists.textContent = player.assists || 0;
-            detailPlayerStars.textContent = getPlayerStars(player.rating);
-            playerDetailModal.style.display = 'flex';
-        }
-
-        // Şifre Doğrulama Fonksiyonu
-        function validatePassword(password) {
-            if (password.length < 8 || password.length > 16) {
-                return "Şifre 8 ile 16 karakter arasında olmalıdır.";
-            }
-            if (!/\d/.test(password)) {
-                return "Şifre en az bir rakam içermelidir.";
-            }
-            if (!password.includes('_')) { // includes() kullanıldı
-                return "Şifre en az bir '_' karakteri içermelidir.";
-            }
-            return null; // Doğrulama başarılı
-        }
-
-        // Kullanıcı Verilerini Kaydet (localStorage)
-        function saveUserData() {
-            if (currentUser && !currentUser.isGuest) {
-                savedUserData[currentUser.username] = {
-                    coins: userCoins,
-                    squad: squad,
-                    bench: bench,
-                    playerPool: playerPool
-                };
-                localStorage.setItem('userData', JSON.stringify(savedUserData));
-                localStorage.setItem('lastLoggedInUser', currentUser.username); // Son giriş yapanı kaydet
-            }
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers)); // Kullanıcı kayıtlarını kaydet
-        }
-
-        // Kullanıcı Verilerini Yükle (localStorage)
-        function loadUserData(username) {
-            if (savedUserData[username]) {
-                const data = savedUserData[username];
-                userCoins = data.coins;
-                squad = data.squad;
-                bench = data.bench;
-                playerPool = data.playerPool;
-                console.log(`Veriler ${username} için yüklendi.`);
-            } else {
-                // Yeni kullanıcı veya misafir hesabı
-                userCoins = 2500;
-                squad = {};
-                bench = [];
-                playerPool = [];
-                giveStarterPack(); // Başlangıç paketi ver
-                console.log(`Yeni veriler ${username} için oluşturuldu.`);
-            }
-            updateUI();
-            updateSquadAndPoolDisplay();
-        }
-
-        // Kullanıcı Girişi Fonksiyonu
-        function loginUser(username, isGuest = false) {
-            currentUser = { username: username, isGuest: isGuest };
-            if (isGuest) {
-                userCoins = 2500; // Misafire her zaman başlangıç coini ver
-                squad = {};
-                bench = [];
-                playerPool = [];
-                giveStarterPack();
-            } else {
-                loadUserData(username); // Kayıtlı kullanıcının verilerini yükle
-            }
-            
-            showScreen(mainMenuScreen); // Ana menüye yönlendir
-            mainNav.style.display = 'flex'; // Ana navigasyonu göster
-            authScreen.classList.add('hidden'); // Giriş ekranını tamamen gizle
-            updateUI();
-            alert(`Hoş Geldiniz, ${currentUser.username}!`);
-        }
-
-        // Giriş İşlemi
-        loginBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const username = usernameInput.value;
-            const password = passwordInput.value;
-
-            if (registeredUsers[username] && registeredUsers[username] === password) {
-                loginUser(username);
-            } else {
-                alert('Kullanıcı adı veya şifre yanlış.');
-            }
-        });
-
-        // Kayıt İşlemi
-        registerBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const username = usernameInput.value;
-            const password = passwordInput.value;
-
-            if (!username) {
-                alert("Lütfen bir kullanıcı adı girin.");
-                return;
-            }
-            if (registeredUsers[username]) {
-                alert("Bu kullanıcı adı zaten alınmış.");
-                return;
-            }
-
-            const passwordError = validatePassword(password);
-            if (passwordError) {
-                alert(passwordError);
-                return;
-            }
-
-            registeredUsers[username] = password; // Kullanıcıyı kaydet
-            saveUserData(); // Kullanıcı kayıtlarını localStorage'a kaydet
-            alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
-            // Kayıt sonrası otomatik giriş yapılıyorsa:
-            // loginUser(username);
-        });
-
-        // Misafir Giriş İşlemi
-        guestLoginBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('Misafir hesabı açıldı. İlerlemeniz kaydedilmeyecektir.');
-            loginUser('Misafir', true);
-        });
-
-        // Başlangıç Paketi Verme
-        function giveStarterPack() {
-            if (playerPool.length === 0) { // Sadece havuz boşsa başlangıç paketi ver
-                starterPlayers.forEach(player => {
-                    const playerWithStats = { ...player, goals: 0, assists: 0, source: 'pool' };
-                    playerPool.push(playerWithStats);
-                });
-            }
-        }
-
-        // Menü Navigasyonu (Event Listener'lar artık aktif olarak çalışacak)
-        openPacksBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showScreen(packOpeningScreen);
-            renderPacks();
-            playerRevealArea.innerHTML = '<p>Açmak istediğiniz paketi seçin!</p>';
-        });
-
-        manageSquadBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showScreen(squadManagementScreen);
-            updateSquadAndPoolDisplay();
-        });
-
-        playMatchBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showScreen(matchScreen);
-        });
-
-        settingsBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showScreen(settingsScreen);
-        });
-
-        document.getElementById('back-to-menu-btn-pack').addEventListener('click', (e) => { e.preventDefault(); showScreen(mainMenuScreen); });
-        document.getElementById('back-to-menu-btn-squad').addEventListener('click', (e) => { e.preventDefault(); showScreen(mainMenuScreen); });
-        document.getElementById('back-to-menu-btn-match').addEventListener('click', (e) => { e.preventDefault(); showScreen(mainMenuScreen); });
-        document.getElementById('back-to-menu-btn-settings').addEventListener('click', (e) => { e.preventDefault(); showScreen(mainMenuScreen); });
-        closePlayerModalBtn.addEventListener('click', () => playerDetailModal.style.display = 'none');
-        window.addEventListener('click', (event) => {
-            if (event.target == playerDetailModal) {
-                playerDetailModal.style.display = 'none';
-            }
-        });
-
-        // Paketleri Render Etme
-        function renderPacks() {
-            packList.innerHTML = '';
-            packs.forEach(pack => {
-                const packCard = document.createElement('div');
-                packCard.classList.add('pack-card');
-                packCard.innerHTML = `
-                    <img src="${pack.image}" alt="${pack.name}">
-                    <h3>${pack.name}</h3>
-                    <p>${pack.description}</p>
-                    <button data-pack-id="${pack.id}">${pack.cost === 0 ? 'Ücretsiz Aç' : pack.cost + ' Coin Aç'}</button>
-                `;
-                packList.appendChild(packCard);
-
-                packCard.querySelector('button').addEventListener('click', () => openPack(pack));
-            });
-        }
-
-        // Paket Açma Mantığı
-        function openPack(pack) {
-            if (userCoins >= pack.cost) {
-                userCoins -= pack.cost;
-                updateUI();
-                playerRevealArea.innerHTML = '<p>Paket açılıyor...</p>';
-                setTimeout(() => {
-                    const randomPlayer = getRandomPlayer(pack.playerRange.min, pack.playerRange.max);
-                    if (randomPlayer) {
-                        const playerWithStats = { ...randomPlayer, goals: 0, assists: 0, source: 'pool' };
-                        playerPool.push(playerWithStats);
-                        renderRevealedPlayer(playerWithStats);
-                        updateSquadAndPoolDisplay(); // Havuzu güncelle
-                        saveUserData(); // Oyuncu eklendiğinde verileri kaydet
-                    } else {
-                        playerRevealArea.innerHTML = '<p>Bir hata oluştu, oyuncu bulunamadı.</p>';
-                    }
-                }, 1500); // Açılış animasyonu süresi
-            } else {
-                alert('Yeterli coin yok!');
-            }
-        }
-
-        // Rastgele Oyuncu Getirme
-        function getRandomPlayer(minRating, maxRating) {
-            const eligiblePlayers = allPlayers.filter(p => p.rating >= minRating && p.rating <= maxRating);
-            if (eligiblePlayers.length === 0) return null;
-            const randomIndex = Math.floor(Math.random() * eligiblePlayers.length);
-            return eligiblePlayers[randomIndex];
-        }
-
-        // Açılan Oyuncuyu Göster
-        function renderRevealedPlayer(player) {
-            playerRevealArea.innerHTML = ''; // Önceki içeriği temizle
-            const playerCard = createPlayerCard(player);
-            playerCard.classList.add('revealed-player-card'); // Animasyon için
-            playerRevealArea.appendChild(playerCard);
-            // Kartı göstermek için animasyon sınıfını ekle
-            setTimeout(() => playerCard.style.display = 'block', 10);
-        }
-
-        // Kadro ve Havuzu Güncelle
-        function updateSquadAndPoolDisplay() {
-            // Kadro alanını temizle ve yeniden oluştur (sürükle bırak özelliği için)
-            formationArea.innerHTML = `
-                <div class="position-slot" data-position="GK">Kaleci</div>
-                <div class="position-slot" data-position="LB">Sol Bek</div>
-                <div class="position-slot" data-position="CB1">Stoper</div>
-                <div class="position-slot" data-position="CB2">Stoper</div>
-                <div class="position-slot" data-position="RB">Sağ Bek</div>
-                <div class="position-slot" data-position="LM">Sol Orta Saha</div>
-                <div class="position-slot" data-position="CM1">Merkez Orta Saha</div>
-                <div class="position-slot" data-position="CM2">Merkez Orta Saha</div>
-                <div class="position-slot" data-position="RM">Sağ Orta Saha</div>
-                <div class="position-slot" data-position="LW">Sol Kanat</div>
-                <div class="position-slot" data-position="ST">Santrafor</div>
-                <div class="position-slot" data-position="RW">Sağ Kanat</div>
-            `;
-            
-            // Mevcut kadro oyuncularını yerleştir
-            for (const pos in squad) {
-                const player = squad[pos];
-                const slot = formationArea.querySelector(`[data-position="${pos}"]`);
-                if (slot && player) {
-                    const playerCard = createPlayerCard(player, true);
-                    slot.innerHTML = ''; // İçeriği temizle
-                    slot.appendChild(playerCard);
-                    playerCard.dataset.playerCurrentPosition = pos; // Mevcut pozisyonu kaydet
-                }
-            }
-
-            // Yedekleri render et
-            benchPlayersContainer.innerHTML = '';
-            bench.forEach(player => {
-                const playerCard = createPlayerCard(player, true);
-                benchPlayersContainer.appendChild(playerCard);
-            });
-
-            // Kadro dışı havuzu render et
-            poolPlayersContainer.innerHTML = '';
-            playerPool.forEach(player => {
-                const playerCard = createPlayerCard(player, true);
-                poolPlayersContainer.appendChild(playerCard);
-            });
-            poolCountDisplay.textContent = `${playerPool.length}/500`;
-
-            // Sürükle-Bırak Olay Dinleyicileri
-            addDragDropListeners();
-            saveUserData(); // Kadro güncellendiğinde verileri kaydet
-        }
-
-        let draggedPlayer = null;
-        let draggedPlayerSource = null; // 'squad', 'bench', 'pool'
-        let draggedPlayerOldPosition = null; // Sadece squad için
-
-        function addDragDropListeners() {
-            document.querySelectorAll('.player-card.draggable').forEach(card => {
-                card.addEventListener('dragstart', (e) => {
-                    draggedPlayer = e.target;
-                    draggedPlayerSource = draggedPlayer.dataset.playerSource;
-                    draggedPlayerOldPosition = draggedPlayer.dataset.playerCurrentPosition;
-                    e.dataTransfer.setData('text/plain', draggedPlayer.dataset.playerId);
-                    setTimeout(() => {
-                        draggedPlayer.classList.add('dragging');
-                    }, 0);
-                });
-
-                card.addEventListener('dragend', () => {
-                    draggedPlayer.classList.remove('dragging');
-                    draggedPlayer = null;
-                    draggedPlayerSource = null;
-                    draggedPlayerOldPosition = null;
-                });
-            });
-
-            document.querySelectorAll('.drop-zone').forEach(zone => {
-                zone.addEventListener('dragover', (e) => {
-                    e.preventDefault(); // Varsayılanı engelle (drop'u etkinleştir)
-                    if (zone.classList.contains('position-slot') && !zone.querySelector('.player-card')) {
-                         zone.classList.add('hover'); // Boş slot vurgusu
-                    } else if (zone.id === 'bench-area' || zone.id === 'out-of-squad-pool') {
-                        zone.classList.add('hover');
-                    }
-                });
-
-                zone.addEventListener('dragleave', (e) => {
-                    zone.classList.remove('hover');
-                });
-
-                zone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    zone.classList.remove('hover');
-
-                    const playerId = e.dataTransfer.getData('text/plain');
-                    const player = findPlayerById(playerId);
-                    if (!player) return;
-
-                    const targetZoneId = zone.id;
-                    const targetPosition = zone.dataset.position; // Sadece pozisyon slotları için
-
-                    // Kendi kendine bırakmayı engelle
-                    if (e.target.closest('.player-card') === draggedPlayer) {
-                        return;
-                    }
-
-                    // Oyuncuyu eski konumundan kaldır
-                    removePlayerFromSource(player, draggedPlayerSource, draggedPlayerOldPosition);
-
-                    // Oyuncuyu yeni konuma yerleştir
-                    if (targetZoneId === 'formation-area' || zone.classList.contains('position-slot')) {
-                        // Bir pozisyon slotuna bırakıldı
-                        if (!zone.querySelector('.player-card')) { // Slot boşsa
-                            squad[targetPosition] = player;
-                            player.source = 'squad';
-                            // Slotun içine kartı yeniden oluşturup ekle
-                            const newPlayerCard = createPlayerCard(player, true);
-                            newPlayerCard.dataset.playerCurrentPosition = targetPosition;
-                            zone.appendChild(newPlayerCard);
-                        } else {
-                            // Dolu bir slota bırakıldı, değiş tokuş yap veya eski yerine döndür
-                            const oldPlayerInSlot = squad[targetPosition];
-                            // Önceki oyuncuyu havuz veya yedeğe taşı
-                            if (oldPlayerInSlot) {
-                                // Eski oyuncuyu havuza at
-                                playerPool.push({ ...oldPlayerInSlot, source: 'pool' });
-                            }
-
-                            squad[targetPosition] = player;
-                            player.source = 'squad';
-                            const newPlayerCard = createPlayerCard(player, true);
-                            newPlayerCard.dataset.playerCurrentPosition = targetPosition;
-                            zone.innerHTML = '';
-                            zone.appendChild(newPlayerCard);
-                        }
-                    } else if (targetZoneId === 'bench-area') {
-                        bench.push({ ...player, source: 'bench' });
-                    } else if (targetZoneId === 'out-of-squad-pool') {
-                        playerPool.push({ ...player, source: 'pool' });
-                    }
-                    
-                    updateSquadAndPoolDisplay();
-                });
-            });
-        }
-
-        function findPlayerById(id) {
-            let foundPlayer = null;
-            Object.values(squad).forEach(p => { if (p && p.id === id) foundPlayer = p; });
-            bench.forEach(p => { if (p.id === id) foundPlayer = p; });
-            playerPool.forEach(p => { if (p.id === id) foundPlayer = p; });
-            return foundPlayer;
-        }
-
-        function removePlayerFromSource(player, source, oldPosition = null) {
-            if (source === 'squad' && oldPosition) {
-                delete squad[oldPosition];
-            } else if (source === 'bench') {
-                const index = bench.findIndex(p => p.id === player.id);
-                if (index > -1) bench.splice(index, 1);
-            } else if (source === 'pool') {
-                const index = playerPool.findIndex(p => p.id === player.id);
-                if (index > -1) playerPool.splice(index, 1);
-            }
-        }
-
-        // --- Ayarlar Menüsü Fonksiyonları ---
-
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (confirm("Hesabınızdan çıkış yapmak istediğinize emin misiniz?")) {
-                saveUserData(); // Mevcut kullanıcının verilerini kaydet
-                currentUser = null;
-                localStorage.removeItem('lastLoggedInUser'); // Son giriş yapanı temizle
-                userCoins = 0;
-                squad = {};
-                bench = [];
-                playerPool = [];
-                // Giriş ekranını aktif et ve görünür yap
-                authScreen.classList.remove('hidden');
-                showScreen(authScreen); 
-                mainNav.style.display = 'none'; // Navigasyonu gizle
-                updateUI();
-                alert("Başarıyla çıkış yapıldı.");
-            }
-        });
-
-        deleteAccountBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (currentUser && !currentUser.isGuest) {
-                if (confirm(`Gerçekten ${currentUser.username} hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!`)) {
-                    if (confirm("Bu son uyarınızdır. Hesabınız ve tüm ilerlemeniz kalıcı olarak silinecektir. Devam etmek için TAMAM'a basın.")) {
-                        delete registeredUsers[currentUser.username];
-                        delete savedUserData[currentUser.username];
-                        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-                        localStorage.setItem('userData', JSON.stringify(savedUserData));
-                        localStorage.removeItem('lastLoggedInUser');
-
-                        currentUser = null;
-                        userCoins = 0;
-                        squad = {};
-                        bench = [];
-                        playerPool = [];
-
-                        authScreen.classList.remove('hidden');
-                        showScreen(authScreen);
-                        mainNav.style.display = 'none';
-                        updateUI();
-                        alert("Hesabınız başarıyla silindi.");
-                    }
-                }
-            } else {
-                alert("Misafir hesabı silinemez veya zaten giriş yapmadınız.");
-            }
-        });
-
-        languageSelect.addEventListener('change', (e) => {
-            // Dil değiştirme mantığı buraya gelecek
-            alert(`Dil ${e.target.value} olarak ayarlandı (simüle edildi).`);
-        });
-
-        toggleThemeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert("Tema değiştirme özelliği yakında eklenecek!");
-        });
-
-
-        // Oyun Başlangıcı
-        document.addEventListener('DOMContentLoaded', () => {
-            const lastUser = localStorage.getItem('lastLoggedInUser');
-            if (lastUser && registeredUsers[lastUser]) {
-                // Eğer daha önce giriş yapmış bir kullanıcı varsa, otomatik olarak giriş yap
-                loginUser(lastUser);
-            } else {
-                // Yoksa giriş ekranını göster
-                showScreen(authScreen);
-                mainNav.style.display = 'none'; // Başlangıçta navigasyonu gizle
-            }
-            updateUI();
-        });
-
-        // Sayfadan ayrılmadan önce verileri kaydet (tarayıcı kapanması vb.)
-        window.addEventListener('beforeunload', () => {
-            saveUserData();
-        });
-
-        // --- JS KODLARI BURADA BİTİYOR ---
-    </script>
-</body>
-</html>
+      }
+    }
+
+    // Kartları oluştur
+    state.squad.forEach(player => {
+      const card = document.createElement('div');
+      card.className = 'player-card';
+      card.innerHTML = `
+        <h3>#${player.id} Oyuncu</h3>
+        <p>Takım: ${player.team}</p>
+        <p>Rating: <span class="rating">${player.rating}</span></p>
+        <p>Moral: ${player.morale}</p>
+        <button class="btn"${player.developed? ' disabled':''}>${player.developed? 'Geliştirildi':'+100 Coin ile Geliştir'}</button>
+      `;
+      const btn = card.querySelector('button');
+      btn.onclick = () => {
+        if (state.coins >= 100 && !player.developed) {
+          state.coins -= 100;
+          player.rating += 100;
+          player.developed = true;
+          saveState();
+          renderSquad();
+        } else alert('Yetersiz coin veya zaten geliştirildi.');
+      };
+      container.appendChild(card);
+    });
+    saveState();
+  }
+
+  /***************************************
+   *    FİKSTÜR & PUAN TABLOSU          *
+   ***************************************/
+  function renderFixtures() {
+    // Örnek haftalık fikstür ve puan tablosu oluştur
+    const fixtureList = document.getElementById('fixture-list');
+    const standingList= document.getElementById('standing-list');
+    fixtureList.innerHTML = '';
+    standingList.innerHTML= '';
+
+    const teams = state.squadTeam ? leagues[Object.keys(leagues).find(k=>leagues[k].includes(state.squadTeam))] : [];
+    if (teams.length<2) {
+      fixtureList.innerHTML = '<li>Takım seçin, fikstür buraya gelecek.</li>';
+      standingList.innerHTML = '<li>Puan tablosu görüntülenemiyor.</li>';
+      return;
+    }
+
+    // Basit simülasyon
+    teams.forEach((t,i) => {
+      fixtureList.innerHTML += `<li>${t} vs ${teams[(i+1)%teams.length]}</li>`;
+      standingList.innerHTML+= `<li>${t}: ${Math.floor(Math.random()*30)} puan</li>`;
+    });
+  }
+
+  /***************************************
+   *    TRANSFER PİYASASI               *
+   ***************************************/
+  function renderTransfers() {
+    const list = document.getElementById('transfer-list');
+    list.innerHTML = '';
+    // Dummy transfer list
+    const players = [];
+    for (let i=1; i<=10; i++) {
+      players.push({
+        name: `Oyuncu ${i}`,
+        from: Object.values(leagues)[i%6][i%5],
+        to: Object.values(leagues)[(i+1)%6][(i+1)%5],
+        price: (5+Math.floor(Math.random()*45))+'M€'
+      });
+    }
+    players.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'transfer-item';
+      div.innerHTML = `
+        <p>${p.name} → ${p.to} (${p.price})</p>
+        <button class="btn">Teklif Ver</button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  /***************************************
+   *    GENÇ AKADEMİ & DİREKTÖRLER      *
+   ***************************************/
+  function renderAcademy() {
+    const acList = document.getElement
