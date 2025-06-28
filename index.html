@@ -72,18 +72,25 @@
   }
 
   /* Coin */
-  #coinCount {
+  #coinDisplay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.5rem; font-weight: 700;
     margin-bottom: 20px;
     color:#ffd700; /* Altın rengi */
     text-shadow: 0 0 8px rgba(255,215,0,0.6);
-    text-align: center;
     background: #0f3460;
-    padding: 10px;
+    padding: 10px 15px;
     border-radius: 8px;
     width: fit-content;
     margin-left: auto;
     margin-right: auto;
+  }
+  #coinDisplay img {
+      width: 25px;
+      height: 25px;
+      margin-right: 8px;
   }
 
   /* Kadro bölümü */
@@ -118,21 +125,53 @@
     background: #16213e; /* Daha açık oyuncu kartı */
     margin:8px 0; padding: 10px 15px;
     border-radius: 8px; /* cursor:grab; */ /* Sürükle-bırak kaldırıldı */
-    display:flex; justify-content: space-between;
-    align-items:center; flex-wrap: wrap; /* Butonların alta geçmesi için */
+    display:flex; flex-direction: column; /* Dikey düzenleme */
+    align-items: flex-start;
     gap: 5px;
     transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: relative; /* Çerçeve için */
+    cursor: pointer; /* Bilgi göstermek için tıklanabilir */
   }
   ul.player-list li:hover {
     background: #2c3e50;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   }
+  .player-card-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+  }
+  .player-thumbnail {
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      background: #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      color: #333;
+      overflow: hidden;
+      flex-shrink: 0;
+  }
+  .player-thumbnail img {
+      width: 100%; height: 100%; object-fit: cover;
+  }
+  .player-text-info {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+  }
+  .player-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+  }
   .player-info {
     font-size: 0.9rem; color:#b0b0b0;
-    flex-basis: 100%; /* Bilgilerin ayrı satıra geçmesi için */
   }
   .player-actions {
       display: flex; gap: 5px;
@@ -144,7 +183,6 @@
     padding: 8px 15px; font-size: 0.9rem;
     cursor:pointer; border:none; background:#e94560;
     color:#fff; border-radius: 6px;
-    /* margin-left: 10px; */
     transition: background-color 0.2s, transform 0.1s;
     font-weight: bold;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -170,6 +208,78 @@
   #increaseRosterBtn:hover:not(:disabled) {
     background-color: #4cae4c;
   }
+
+  /* Oyuncu bilgi paneli */
+  #playerInfoPanel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #0f3460;
+      border: 3px solid #e94560;
+      border-radius: 15px;
+      padding: 30px;
+      z-index: 1001;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+      display: none; /* Başlangıçta gizli */
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      max-width: 400px;
+      text-align: center;
+  }
+  #playerInfoPanel.active {
+      display: flex;
+  }
+  #playerInfoPanel h3 {
+      color: #ffd700;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 8px rgba(255,215,0,0.5);
+  }
+  #playerInfoPanel img {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #fff;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+  }
+  #playerInfoPanel p {
+      font-size: 1.1rem;
+      color: #e0e0e0;
+      margin: 5px 0;
+  }
+  #playerInfoPanel .close-btn {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: #f44336;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px; height: 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      line-height: 1;
+      text-align: center;
+      transition: background-color 0.2s;
+  }
+  #playerInfoPanel .close-btn:hover {
+      background: #d32f2f;
+  }
+
+  /* Oyuncu kartı çerçeveleri */
+  .player-frame {
+    position: absolute;
+    top: -2px; left: -2px;
+    right: -2px; bottom: -2px;
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .frame-bronze { border: 2px solid #cd7f32; box-shadow: 0 0 8px rgba(205,127,50,0.6); }
+  .frame-silver { border: 2px solid #c0c0c0; box-shadow: 0 0 8px rgba(192,192,192,0.6); }
+  .frame-gold { border: 2px solid #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.8); }
+  .frame-diamond { border: 2px solid #b9f2ff; box-shadow: 0 0 10px rgba(185,242,255,0.9), 0 0 20px rgba(185,242,255,0.5); }
 
   /* Paket açma animasyonu */
   #packAnim {
@@ -244,7 +354,7 @@
       font-size: 1.1rem;
       color: #b0b0b0;
   }
-  select, input[type="text"] {
+  select, input[type="text"], input[type="password"] {
       width: calc(100% - 20px);
       padding: 10px;
       margin-bottom: 15px;
@@ -357,7 +467,7 @@
   .goal-post.right-top { top: calc(50% - 100px); right: -25px; }
   .goal-post.right-bottom { top: calc(50% + 30px); right: -25px; }
 
-  #player, #bot, #ball {
+  #player, #bot {
     position: absolute;
     width: 45px; height: 45px;
     border-radius: 50%;
@@ -366,6 +476,10 @@
     user-select: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     transition: transform 0.1s ease-out; /* Hareket animasyonu */
+    overflow: hidden; /* Karakter görseli için */
+  }
+  #player img, #bot img {
+      width: 100%; height: 100%; object-fit: cover;
   }
   #player {
     background: #3f88c5; /* Mavi takım */
@@ -583,6 +697,121 @@
       padding: 10px;
   }
 
+  /* Giriş Ekranı */
+  #loginScreen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    color: #e0e0e0;
+    text-align: center;
+  }
+  #loginScreen h2 {
+      font-size: 2.5rem;
+      color: #e94560;
+      margin-bottom: 30px;
+      font-family: 'Press Start 2P', cursive;
+  }
+  #loginForm {
+      background: #16213e;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      width: 90%;
+      max-width: 400px;
+  }
+  #loginForm input {
+      width: calc(100% - 20px);
+      margin-bottom: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #0f3460;
+      background-color: #2c3e50;
+      color: #e0e0e0;
+      font-size: 1.1rem;
+  }
+  #loginForm button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 10px;
+  }
+  #loginToggle {
+      margin-top: 20px;
+      font-size: 0.95rem;
+  }
+  #loginToggle button {
+      background: none;
+      border: none;
+      color: #ffd700;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 5px;
+      font-size: 0.95rem;
+  }
+
+  /* Genel Tema Değişikliği (Ayarlar için) */
+  body.theme-light {
+    background: #f0f2f5;
+    color: #333;
+  }
+  body.theme-light header {
+    background: #0a2647;
+    color: #e94560;
+  }
+  body.theme-light nav {
+    background: #205295;
+  }
+  body.theme-light nav button {
+    color: #f0f2f5;
+  }
+  body.theme-light nav button.active {
+    background: #e94560;
+    color: #fff;
+  }
+  body.theme-light main {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  }
+  body.theme-light section {
+    background: #ffffff;
+  }
+  body.theme-light #coinDisplay {
+      background: #0a2647;
+      color: #ffd700;
+  }
+  body.theme-light .roster-box {
+    background: #e0f2f7;
+  }
+  body.theme-light ul.player-list li {
+    background: #f5f5f5;
+    color: #333;
+  }
+  body.theme-light ul.player-list li .player-name {
+    color: #333;
+  }
+  body.theme-light ul.player-list li .player-info {
+    color: #666;
+  }
+  body.theme-light select, body.theme-light input[type="text"], body.theme-light input[type="password"] {
+      border: 1px solid #bbdefb;
+      background-color: #e0f2f7;
+      color: #333;
+  }
+  body.theme-light #playerInfoPanel {
+      background: #e0f2f7;
+      border: 3px solid #205295;
+  }
+  body.theme-light #playerInfoPanel h3 {
+      color: #205295;
+  }
+  body.theme-light #playerInfoPanel p {
+      color: #333;
+  }
+
 
   /* Responsive */
   @media (max-width: 768px) {
@@ -590,7 +819,7 @@
     nav button { font-size: 0.9rem; padding: 10px 8px; }
     main { padding: 10px; }
     section { padding: 15px; max-width: 95%; margin-top: 10px; }
-    #coinCount { font-size: 1.2rem; padding: 8px; }
+    #coinDisplay { font-size: 1.2rem; padding: 8px; }
     .roster-box { min-width: unset; width: 100%; max-width: unset; }
     .roster-container { flex-direction: column; align-items: center; gap: 15px; }
     ul.player-list li { font-size: 0.9rem; padding: 8px 10px; }
@@ -665,7 +894,7 @@
             justify-content: center;
             align-items: center;
         }
-        #coinCount, header, nav {
+        #coinDisplay, header, nav {
             display: none !important; /* Menü ve başlıkları gizle */
         }
         #matchSection.fullscreen-active {
@@ -683,34 +912,7 @@
         #scoreDisplay { font-size: 1.2rem; margin-bottom: 2px; }
         #timerDisplay { font-size: 1rem; }
         #matchMsg { font-size: 0.9rem; margin-top: 2px; }
-        #matchArea {
-            width: 98%;
-            height: 90vh; /* Yüksekliğin çoğunu kapla */
-            max-width: none; /* Max genişliği kaldır */
-            margin-top: 0; /* Üst boşluğu kaldır */
-        }
-        #joystickContainer {
-            width: 100px; height: 100px;
-            bottom: 10px; left: 10px;
-        }
-        #joystick {
-            width: 50px; height: 50px;
-            top: 25px; left: 25px;
-        }
-        #kickBtn {
-            width: 70px; height: 70px;
-            font-size: 1.2rem;
-            bottom: 20px; right: 10px;
-        }
-        #powerBarContainer {
-            width: 200px; height: 15px;
-            bottom: 5px; /* Daha alta al */
-        }
-        #exitMatchBtn {
-            top: 5px; right: 5px;
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
+        #matchOptions button { padding: 12px 25px; font-size: 1.1rem; }
         #restartMatchBtn {
             margin: 10px auto 0;
             padding: 10px 20px;
@@ -727,8 +929,20 @@
 </head>
 <body>
 
+<div id="loginScreen">
+    <div id="loginForm">
+        <h2>SoccerTR</h2>
+        <input type="text" id="usernameInput" placeholder="Kullanıcı Adı" />
+        <input type="password" id="passwordInput" placeholder="Şifre" />
+        <button id="loginButton">Giriş Yap</button>
+        <div id="loginToggle">
+            Hesabın yok mu? <button id="registerPrompt">Kaydol</button>
+        </div>
+    </div>
+</div>
+
 <header>SoccerTR</header>
-<nav>
+<nav style="display:none;">
     <button id="btnRoster" class="active">Kadro</button>
     <button id="btnPack">Paket Aç</button>
     <button id="btnTraining">Antrenman</button>
@@ -736,8 +950,11 @@
     <button id="btnSettings">Ayarlar</button>
 </nav>
 
-<main>
-    <div id="coinCount">Coin: 100</div>
+<main style="display:none;">
+    <div id="coinDisplay">
+        <img src="https://www.flaticon.com/svg/v2/icons/svg/883/883710.svg" alt="Coin" />
+        <span id="coinCount">100</span>
+    </div>
 
     <section id="rosterSection" class="active">
         <button id="increaseRosterBtn" class="small-btn">Kadro Dışını +100 (100 Coin)</button>
@@ -819,8 +1036,8 @@
                 <div class="goal-post right-top"></div>
                 <div class="goal-post right-bottom"></div>
             </div>
-            <div id="player">P</div>
-            <div id="bot">B</div>
+            <div id="player"></div>
+            <div id="bot"></div>
             <div id="ball"></div>
             <div id="joystickContainer">
                 <div id="joystick"></div>
@@ -849,13 +1066,26 @@
         <input type="radio" id="themeDefault" name="theme" value="default" checked><label for="themeDefault">Varsayılan</label><br/>
         <input type="radio" id="themeDark" name="theme" value="dark"><label for="themeDark">Koyu</label><br/>
         <input type="radio" id="themeLight" name="theme" value="light"><label for="themeLight">Açık</label>
+        <br/><br/>
+        <button id="logoutButton">Hesaptan Çıkış Yap</button>
+        <button id="deleteAccountButton" style="background-color: #f44336;">Hesabı Sil</button>
     </section>
 </main>
 <button id="exitMatchBtn">Maçtan Çık</button>
 
+<div id="playerInfoPanel">
+    <button class="close-btn" onclick="document.getElementById('playerInfoPanel').classList.remove('active');">&times;</button>
+    <h3>Oyuncu Bilgisi</h3>
+    <div id="infoPlayerImage"></div>
+    <p>Ad: <span id="infoPlayerName"></span></p>
+    <p>Rating: <span id="infoPlayerRating"></span></p>
+    <p>Gol: <span id="infoPlayerGoals"></span></p>
+    <p>Asist: <span id="infoPlayerAssists"></span></p>
+</div>
+
 <script>
 (() => {
-    // Player data from 2024-2025 season starting information
+    // --- Statik Veriler ve Sabitler ---
     const ligPaketleri = {
         mls: {
             players: ["Lionel Messi", "Luis Suárez", "Jordi Alba", "Sergio Busquets", "Cucho Hernández", "Héctor Herrera", "Lorenzo Insigne", "Denis Bouanga", "Thiago Almada", "Lucho Acosta"],
@@ -892,19 +1122,31 @@
     };
 
     const defaultPlayerImage = "https://via.placeholder.com/150/16213E/E0E0E0?text=Oyuncu"; // Placeholder image URL
+    // Ronaldo ve Messi için basit temsili ikonlar
+    const ronaldoImage = "https://img.icons8.com/color/48/cristiano-ronaldo.png"; // Placeholder
+    const messiImage = "https://img.icons8.com/color/48/lionel-messi.png"; // Placeholder
+    const genericPlayerImage = "https://img.icons8.com/ios-filled/50/football2.png"; // Generic player icon
 
-    let coin = 500; // Başlangıç coini
-    let rosterLimit = 500; // Kadro dışı limit başlangıç
-
-    let players = []; // Tüm oyuncular kadro dışı dahil
+    // --- Oyun Verileri (Hesaba Özel) ---
+    let currentUser = null;
+    let coin = 100;
+    let rosterLimit = 500;
+    let players = []; // Tüm oyuncular
     let first11 = [];
     let substitutes = [];
     let rosterOut = [];
+    let nextId = 1; // Oyuncular için otomatik ID
 
-    // IDs için otomatik artan
-    let nextId = 1;
+    // --- DOM Elementleri ---
+    const loginScreen = document.getElementById("loginScreen");
+    const usernameInput = document.getElementById("usernameInput");
+    const passwordInput = document.getElementById("passwordInput");
+    const loginButton = document.getElementById("loginButton");
+    const registerPrompt = document.getElementById("registerPrompt");
+    const navBar = document.querySelector("nav");
+    const mainContent = document.querySelector("main");
 
-    // DOM elemanları
+    const coinDisplay = document.getElementById("coinDisplay");
     const coinCountEl = document.getElementById("coinCount");
     const btnRoster = document.getElementById("btnRoster");
     const btnPack = document.getElementById("btnPack");
@@ -926,6 +1168,13 @@
     const rosterOutCountEl = document.getElementById("rosterOutCount");
     const rosterLimitCountEl = document.getElementById("rosterLimitCount");
     const increaseRosterBtn = document.getElementById("increaseRosterBtn");
+
+    const playerInfoPanel = document.getElementById("playerInfoPanel");
+    const infoPlayerImage = document.getElementById("infoPlayerImage");
+    const infoPlayerName = document.getElementById("infoPlayerName");
+    const infoPlayerRating = document.getElementById("infoPlayerRating");
+    const infoPlayerGoals = document.getElementById("infoPlayerGoals");
+    const infoPlayerAssists = document.getElementById("infoPlayerAssists");
 
     const leagueSelect = document.getElementById("leagueSelect");
     const packImageContainer = document.getElementById("packImageContainer");
@@ -952,7 +1201,7 @@
     const joystickContainer = document.getElementById("joystickContainer");
     const joystick = document.getElementById("joystick");
     const kickBtn = document.getElementById("kickBtn");
-    const powerBarContainer = document.getElementById("powerBarContainer"); // Power bar container
+    const powerBarContainer = document.getElementById("powerBarContainer");
     const powerBar = document.getElementById("powerBar");
     const matchMsg = document.getElementById("matchMsg");
     const restartMatchBtn = document.getElementById("restartMatchBtn");
@@ -960,29 +1209,371 @@
 
     const languageSelect = document.getElementById("languageSelect");
     const themeRadios = document.querySelectorAll('input[name="theme"]');
+    const logoutButton = document.getElementById("logoutButton");
+    const deleteAccountButton = document.getElementById("deleteAccountButton");
 
-    // Menü geçiş fonksiyonu
+    // --- Uluslararasılaştırma (i18n) ---
+    const translations = {
+        tr: {
+            roster: "Kadro",
+            pack: "Paket Aç",
+            training: "Antrenman",
+            match: "Maç",
+            settings: "Ayarlar",
+            coin: "Coin",
+            first11: "İlk 11",
+            substitutes: "Yedek",
+            rosterOut: "Kadro Dışı",
+            increaseRoster: "Kadro Dışını +100 (100 Coin)",
+            openPack: "Paket Aç (100 Coin)",
+            playerInfo: "Oyuncu Bilgisi",
+            rating: "Rating",
+            goals: "Gol",
+            assists: "Asist",
+            packOpening: "Paket Açılıyor...",
+            congrats: "Tebrikler! {playerName} kazandınız!",
+            selectPlayer: "Oyuncu seçiniz...",
+            normalTraining: "Normal Antrenman (Ücretsiz)",
+            specialTraining: "Özel Antrenman (Ücretsiz)",
+            trainMsgMaxRating: "{playerName} zaten en yüksek rating'de!",
+            trainMsgNormal: "{playerName} normal antrenmanla +{inc} rating kazandı! Şimdi: {rating}",
+            trainMsgSpecial: "{playerName} özel antrenmanla +{inc} rating aldı! Şimdi: {rating}",
+            goalScored: "⚽ Gol attı!",
+            assistMade: "🅰️ Asist yaptı!",
+            start1v1: "1 vs 1 Maç Başlat",
+            start11v11: "11 vs 11 Maç Başlat",
+            yourTeam: "Senin Takımın",
+            botTeam: "Bot Takımı",
+            time: "Süre",
+            matchStarted: "Maç başladı!",
+            matchContinue: "Maça devam!",
+            goal: "GOOOL! 🎉",
+            goalConceded: "GOL YEDİN! 😩",
+            shot: "Vuruş! Güç: {power}%.",
+            tooFar: "Topa uzaksın! Vuruş yapılamadı.",
+            matchWin: "Maçı KAZANDIN! 🎉",
+            matchLose: "Maçı KAYBETTİN! 😩",
+            matchDraw: "Maç BERABERE! 🤝",
+            restartMatch: "Maçı Yeniden Başlat",
+            exitMatch: "Maçtan Çık",
+            languageSelect: "Dil Seçimi:",
+            theme: "Tema:",
+            default: "Varsayılan",
+            dark: "Koyu",
+            light: "Açık",
+            logout: "Hesaptan Çıkış Yap",
+            deleteAccount: "Hesabı Sil",
+            loginTitle: "Giriş Yap",
+            username: "Kullanıcı Adı",
+            password: "Şifre",
+            loginButton: "Giriş Yap",
+            noAccount: "Hesabın yok mu?",
+            register: "Kaydol",
+            registerTitle: "Kaydol",
+            registerButton: "Kaydol",
+            alreadyAccount: "Zaten hesabın var mı?",
+            loginPrompt: "Giriş Yap",
+            fillAllFields: "Lütfen tüm alanları doldurun.",
+            userExists: "Bu kullanıcı adı zaten mevcut.",
+            registrationSuccess: "Kayıt başarılı! Giriş yapabilirsiniz.",
+            invalidCredentials: "Yanlış kullanıcı adı veya şifre.",
+            loggedIn: "Başarıyla giriş yapıldı!",
+            accountDeletedConfirm: "Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+            accountDeleted: "Hesabınız başarıyla silindi.",
+            notEnoughCoin: "Yeterli coin yok!",
+            rosterFull: "Kadro dışı limiti dolu. Lütfen kadro dışını arttırın (Kadro bölümünde).",
+            allPlayersInLeague: "Bu ligde tüm oyuncular sizde var veya oyuncu havuzu boş! Farklı bir lig deneyin.",
+            first11Full: "İlk 11 dolu! Lütfen önce bir oyuncuyu kadro dışı bırakın.",
+            substitutesFull: "Yedekler dolu! Lütfen önce bir oyuncuyu kadro dışı bırakın.",
+            rosterLimitFull: "Kadro dışı limiti dolu! Limiti artırın veya bir oyuncu silin.",
+            rosterIncreaseSuccess: "Kadro dışı limiti +100 oldu: {limit}",
+            first11Required: "11 vs 11 maç için İlk 11'de 11 oyuncun olmalı!"
+
+        },
+        en: {
+            roster: "Roster",
+            pack: "Open Pack",
+            training: "Training",
+            match: "Match",
+            settings: "Settings",
+            coin: "Coin",
+            first11: "First 11",
+            substitutes: "Substitutes",
+            rosterOut: "Roster Out",
+            increaseRoster: "Increase Roster by +100 (100 Coin)",
+            openPack: "Open Pack (100 Coin)",
+            playerInfo: "Player Info",
+            rating: "Rating",
+            goals: "Goals",
+            assists: "Assists",
+            packOpening: "Opening Pack...",
+            congrats: "Congratulations! You got {playerName}!",
+            selectPlayer: "Select player...",
+            normalTraining: "Normal Training (Free)",
+            specialTraining: "Special Training (Free)",
+            trainMsgMaxRating: "{playerName} is already at max rating!",
+            trainMsgNormal: "{playerName} gained +{inc} rating with normal training! Now: {rating}",
+            trainMsgSpecial: "{playerName} gained +{inc} rating with special training! Now: {rating}",
+            goalScored: "⚽ Goal!",
+            assistMade: "🅰️ Assist!",
+            start1v1: "Start 1 vs 1 Match",
+            start11v11: "Start 11 vs 11 Match",
+            yourTeam: "Your Team",
+            botTeam: "Bot Team",
+            time: "Time",
+            matchStarted: "Match started!",
+            matchContinue: "Continue match!",
+            goal: "GOAL! 🎉",
+            goalConceded: "GOAL CONCEDED! 😩",
+            shot: "Shot! Power: {power}%.",
+            tooFar: "Too far from the ball! Cannot shoot.",
+            matchWin: "You WON the match! 🎉",
+            matchLose: "You LOST the match! 😩",
+            matchDraw: "The match is a DRAW! 🤝",
+            restartMatch: "Restart Match",
+            exitMatch: "Exit Match",
+            languageSelect: "Language Selection:",
+            theme: "Theme:",
+            default: "Default",
+            dark: "Dark",
+            light: "Light",
+            logout: "Logout",
+            deleteAccount: "Delete Account",
+            loginTitle: "Login",
+            username: "Username",
+            password: "Password",
+            loginButton: "Login",
+            noAccount: "Don't have an account?",
+            register: "Register",
+            registerTitle: "Register",
+            registerButton: "Register",
+            alreadyAccount: "Already have an account?",
+            loginPrompt: "Login",
+            fillAllFields: "Please fill in all fields.",
+            userExists: "This username already exists.",
+            registrationSuccess: "Registration successful! You can now log in.",
+            invalidCredentials: "Invalid username or password.",
+            loggedIn: "Successfully logged in!",
+            accountDeletedConfirm: "Are you sure you want to delete your account? This action cannot be undone.",
+            accountDeleted: "Your account has been successfully deleted.",
+            notEnoughCoin: "Not enough coin!",
+            rosterFull: "Roster out limit is full. Please increase roster out capacity (in Roster section).",
+            allPlayersInLeague: "You have all players in this league or the player pool is empty! Try a different league.",
+            first11Full: "First 11 is full! Please move a player to roster out first.",
+            substitutesFull: "Substitutes are full! Please move a player to roster out first.",
+            rosterLimitFull: "Roster out limit is full! Increase the limit or delete a player.",
+            rosterIncreaseSuccess: "Roster out limit increased by +100: {limit}",
+            first11Required: "For an 11 vs 11 match, you need 11 players in your First 11!"
+        }
+        // Diğer diller buraya eklenebilir
+    };
+
+    let currentLanguage = "tr";
+
+    function updateTextContent() {
+        const t = translations[currentLanguage];
+        document.getElementById("btnRoster").textContent = t.roster;
+        document.getElementById("btnPack").textContent = t.pack;
+        document.getElementById("btnTraining").textContent = t.training;
+        document.getElementById("btnMatch").textContent = t.match;
+        document.getElementById("btnSettings").textContent = t.settings;
+        document.getElementById("increaseRosterBtn").textContent = t.increaseRoster;
+        document.querySelector("#rosterSection .roster-box:nth-of-type(1) h3").innerHTML = `${t.first11} (<span id="first11Count">${first11.length}</span>/11)`;
+        document.querySelector("#rosterSection .roster-box:nth-of-type(2) h3").innerHTML = `${t.substitutes} (<span id="substitutesCount">${substitutes.length}</span>/11)`;
+        document.querySelector("#rosterSection .roster-box:nth-of-type(3) h3").innerHTML = `${t.rosterOut} (<span id="rosterOutCount">${rosterOut.length}</span>/<span id="rosterLimitCount">${rosterLimit}</span>)`;
+        document.querySelector("#packSection h2").textContent = t.pack;
+        document.querySelector("#packSection p").textContent = `${t.openPack.split('(')[0]} 100 ${t.coin} karşılığında rastgele bir ligden oyuncu kazan!`;
+        document.querySelector("label[for='leagueSelect']").textContent = t.leagueSelect.replace(':', '');
+        leagueSelect.options[0].textContent = t.selectLeague; // "Lig seçiniz..."
+        openPackBtn.textContent = t.openPack;
+        packAnimText.textContent = t.packOpening; // Başlangıç metni
+
+        document.querySelector("#trainingSection h2").textContent = t.training;
+        document.querySelector("label[for='trainSelect']").textContent = t.selectPlayer.replace(':', '');
+        trainSelect.options[0].textContent = t.selectPlayer;
+        normalTrainBtn.textContent = t.normalTraining;
+        playerTrainBtn.textContent = t.specialTraining;
+
+        document.querySelector("#matchSection h2").textContent = t.match;
+        start1v1MatchBtn.textContent = t.start1v1;
+        start11v11MatchBtn.textContent = t.start11v11;
+        document.querySelector("#matchInfo #scoreDisplay").textContent = `${t.yourTeam} ${playerScore} - ${botScore} ${t.botTeam}`;
+        document.querySelector("#matchInfo #timerDisplay").textContent = `${t.time}: ${Math.floor(matchTime/60).toString().padStart(2, '0')}:${(matchTime%60).toString().padStart(2, '0')}`;
+        restartMatchBtn.textContent = t.restartMatch;
+        exitMatchBtn.textContent = t.exitMatch;
+
+        document.querySelector("#settingsSection h2").textContent = t.settings;
+        document.querySelector("label[for='languageSelect']").textContent = t.languageSelect;
+        document.querySelector("label[for='themeDefault']").textContent = t.default;
+        document.querySelector("label[for='themeDark']").textContent = t.dark;
+        document.querySelector("label[for='themeLight']").textContent = t.light;
+        logoutButton.textContent = t.logout;
+        deleteAccountButton.textContent = t.deleteAccount;
+
+        // Login ekranı metinleri
+        document.querySelector("#loginScreen h2").textContent = "SoccerTR"; // Logo gibi
+        usernameInput.placeholder = t.username;
+        passwordInput.placeholder = t.password;
+        loginButton.textContent = t.loginButton;
+        registerPrompt.textContent = t.register;
+        document.getElementById("loginToggle").childNodes[0].nodeValue = isRegisterMode ? t.alreadyAccount : t.noAccount;
+        document.getElementById("loginToggle").querySelector("button").textContent = isRegisterMode ? t.loginPrompt : t.register;
+    }
+
+    // --- Hesap Yönetimi Fonksiyonları ---
+    let users = JSON.parse(localStorage.getItem('soccer_users')) || {};
+    let isRegisterMode = false; // Giriş mi, kayıt mı?
+
+    function saveUserData() {
+        if (!currentUser) return;
+        users[currentUser] = {
+            coin: coin,
+            rosterLimit: rosterLimit,
+            players: players,
+            first11: first11.map(p => p.id), // Sadece ID'leri kaydet
+            substitutes: substitutes.map(p => p.id),
+            rosterOut: rosterOut.map(p => p.id),
+            nextId: nextId
+        };
+        localStorage.setItem('soccer_users', JSON.stringify(users));
+        localStorage.setItem('soccer_last_user', currentUser); // Son kullanıcıyı hatırla
+    }
+
+    function loadUserData(username) {
+        const userData = users[username];
+        if (userData) {
+            coin = userData.coin || 100;
+            rosterLimit = userData.rosterLimit || 500;
+            players = userData.players || [];
+            nextId = userData.nextId || 1;
+
+            // Oyuncu listelerini ID'lere göre doldur
+            first11 = players.filter(p => userData.first11.includes(p.id));
+            substitutes = players.filter(p => userData.substitutes.includes(p.id));
+            rosterOut = players.filter(p => userData.rosterOut.includes(p.id));
+            
+            // Eğer bir oyuncu bir listede yoksa ve diğer listede olması gerekiyorsa fixle
+            players.forEach(p => {
+                if(!first11.includes(p) && !substitutes.includes(p) && !rosterOut.includes(p)) {
+                    rosterOut.push(p); // Varsayılan olarak kadro dışına at
+                }
+            });
+
+            console.log(`Kullanıcı ${username} için veriler yüklendi.`);
+        } else {
+            // Yeni kullanıcı veya ilk kez giriş
+            coin = 100;
+            rosterLimit = 500;
+            players = [];
+            first11 = [];
+            substitutes = [];
+            rosterOut = [];
+            nextId = 1;
+            console.log(`Yeni kullanıcı ${username} için varsayılan veriler oluşturuldu.`);
+        }
+        updateCoin();
+        updateRosterLists();
+    }
+
+    function handleLogin() {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !password) {
+            alert(translations[currentLanguage].fillAllFields);
+            return;
+        }
+
+        if (isRegisterMode) {
+            // Kayıt Modu
+            if (users[username]) {
+                alert(translations[currentLanguage].userExists);
+            } else {
+                users[username] = { password: password }; // Yeni kullanıcı oluştur
+                localStorage.setItem('soccer_users', JSON.stringify(users));
+                alert(translations[currentLanguage].registrationSuccess);
+                // Kayıttan sonra otomatik olarak giriş moduna geç
+                isRegisterMode = false;
+                toggleLoginRegister();
+            }
+        } else {
+            // Giriş Modu
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                loginScreen.style.display = 'none';
+                navBar.style.display = 'flex';
+                mainContent.style.display = 'flex';
+                loadUserData(currentUser);
+                updateTextContent(); // Dil ve diğer metinleri güncelle
+                alert(translations[currentLanguage].loggedIn);
+                showSection("rosterSection"); // Giriş sonrası kadro ekranına yönlendir
+            } else {
+                alert(translations[currentLanguage].invalidCredentials);
+            }
+        }
+    }
+
+    function toggleLoginRegister() {
+        isRegisterMode = !isRegisterMode;
+        loginButton.textContent = isRegisterMode ? translations[currentLanguage].registerButton : translations[currentLanguage].loginButton;
+        registerPrompt.textContent = isRegisterMode ? translations[currentLanguage].loginPrompt : translations[currentLanguage].register;
+        document.getElementById("loginToggle").childNodes[0].nodeValue = isRegisterMode ? translations[currentLanguage].alreadyAccount : translations[currentLanguage].noAccount;
+        document.querySelector("#loginScreen h2").textContent = isRegisterMode ? translations[currentLanguage].registerTitle : translations[currentLanguage].loginTitle;
+    }
+
+    loginButton.onclick = handleLogin;
+    registerPrompt.onclick = toggleLoginRegister;
+
+    logoutButton.onclick = () => {
+        saveUserData(); // Mevcut veriyi kaydet
+        currentUser = null;
+        localStorage.removeItem('soccer_last_user'); // Son kullanıcıyı unut
+        location.reload(); // Sayfayı yenileyerek giriş ekranına dön
+    };
+
+    deleteAccountButton.onclick = () => {
+        if (!currentUser) return;
+        if (confirm(translations[currentLanguage].accountDeletedConfirm)) {
+            delete users[currentUser];
+            localStorage.setItem('soccer_users', JSON.stringify(users));
+            alert(translations[currentLanguage].accountDeleted);
+            currentUser = null;
+            localStorage.removeItem('soccer_last_user');
+            location.reload();
+        }
+    };
+
+    // --- Genel Arayüz ve Navigasyon Fonksiyonları ---
     function showSection(sectionId) {
-        // Tüm section'ları gizle, tüm nav butonlarının active sınıfını kaldır
+        if (matchActive && sectionId !== 'matchSection') { // Maç aktifken menüden çıkmaya çalışırsa
+            if (!confirm(translations[currentLanguage].exitMatch + " Emin misiniz? Maç kaybolacak!")) {
+                return; // Kullanıcı vazgeçerse hiçbir şey yapma
+            }
+            endMatch(true); // Maçı bitir ve tam ekrandan çık
+            // Maç bitince showSection tekrar çağrılacağı için burada tekrar çağırmıyoruz
+        }
+
         document.querySelectorAll('section').forEach(s => s.classList.remove("active"));
         document.querySelectorAll('nav button').forEach(b => b.classList.remove("active"));
 
-        // Seçilen section'ı göster, butonunu active yap
         document.getElementById(sectionId).classList.add("active");
         document.getElementById(`btn${sectionId.replace('Section', '')}`).classList.add("active");
-
-        // Maç modundan çıkarken gerekli elementleri gizle/göster
-        if (sectionId !== 'matchSection' && matchActive) {
-            endMatch(false); // Maçı bitir ama tam ekrandan çıkma (ana menüye döndüğü için)
-            exitFullscreen(); // Tam ekrandan çık
-            matchSection.classList.remove("fullscreen-active");
-            exitMatchBtn.style.display = 'none';
-        } else if (sectionId === 'matchSection' && !matchActive) { // Maç bölümüne girildiğinde maç başlamadıysa
+        
+        // Eğer maç ekranına geçilmiyorsa maç alanı gizli kalsın
+        if (sectionId !== 'matchSection') {
             matchArea.style.display = 'none';
             matchInfo.style.display = 'none';
             matchOptions.style.display = 'flex';
             restartMatchBtn.style.display = 'none';
-            exitMatchBtn.style.display = 'none'; // Maç başlamadan çık butonu görünmesin
+            exitMatchBtn.style.display = 'none';
+        } else { // Maç ekranına geçildiğinde (ama maç başlamadıysa)
+            if(!matchActive) { // Maç aktif değilse seçenekleri göster
+                matchArea.style.display = 'none';
+                matchInfo.style.display = 'none';
+                matchOptions.style.display = 'flex';
+                restartMatchBtn.style.display = 'none';
+                exitMatchBtn.style.display = 'none';
+            }
         }
     }
 
@@ -992,75 +1583,75 @@
     btnMatch.onclick = () => showSection('matchSection');
     btnSettings.onclick = () => showSection('settingsSection');
 
-    // Coin güncelle
+    // --- Coin ve Kadro Yönetimi ---
     function updateCoin() {
-        coinCountEl.textContent = `Coin: ${coin}`;
+        coinCountEl.textContent = coin;
     }
 
-    // Kadro listelerini güncelle
-    function updateRosterLists() {
-        first11List.innerHTML = "";
-        subsList.innerHTML = "";
-        rosterOutList.innerHTML = "";
-
-        // First11'deki oyuncuları doldur
-        first11.forEach(player => first11List.appendChild(createPlayerLi(player, 'first11')));
-        // Yedeklerdeki oyuncuları doldur
-        substitutes.forEach(player => subsList.appendChild(createPlayerLi(player, 'substitutes')));
-        // Kadro dışındaki oyuncuları doldur
-        rosterOut.forEach(player => rosterOutList.appendChild(createPlayerLi(player, 'rosterOut')));
-
-        first11CountEl.textContent = first11.length;
-        substitutesCountEl.textContent = substitutes.length;
-        rosterOutCountEl.textContent = rosterOut.length;
-        rosterLimitCountEl.textContent = rosterLimit;
-
-        updateTrainingSelect(); // Antrenman selectbox'ını da güncelle
+    function getPlayerFrameClass(rating) {
+        if (rating >= 95) return 'frame-diamond';
+        if (rating >= 85) return 'frame-gold';
+        if (rating >= 75) return 'frame-silver';
+        return 'frame-bronze';
     }
 
     function createPlayerLi(player, currentListType) {
         const li = document.createElement("li");
         li.className = "player-item";
-        li.dataset.playerId = player.id; // Oyuncu ID'sini sakla
+        li.dataset.playerId = player.id;
+        li.onclick = () => showPlayerDetails(player);
+
+        const frameDiv = document.createElement("div");
+        frameDiv.className = `player-frame ${getPlayerFrameClass(player.rating)}`;
+        li.appendChild(frameDiv);
+
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "player-card-content";
+
+        const thumbnailDiv = document.createElement("div");
+        thumbnailDiv.className = "player-thumbnail";
+        const img = document.createElement("img");
+        img.src = player.image || genericPlayerImage;
+        thumbnailDiv.appendChild(img);
+        contentDiv.appendChild(thumbnailDiv);
+
+        const textInfoDiv = document.createElement("div");
+        textInfoDiv.className = "player-text-info";
 
         const playerNameSpan = document.createElement("span");
         playerNameSpan.className = "player-name";
         playerNameSpan.textContent = player.name;
+        textInfoDiv.appendChild(playerNameSpan);
 
         const playerInfoSpan = document.createElement("span");
         playerInfoSpan.className = "player-info";
-        playerInfoSpan.textContent = `Rating: ${player.rating} | Gol: ${player.goals} | Asist: ${player.assists}`;
-
-        li.appendChild(playerNameSpan);
-        li.appendChild(playerInfoSpan);
+        playerInfoSpan.textContent = `${translations[currentLanguage].rating}: ${player.rating}`;
+        textInfoDiv.appendChild(playerInfoSpan);
+        contentDiv.appendChild(textInfoDiv);
+        li.appendChild(contentDiv);
 
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "player-actions";
 
-        // İlk 11'e Gönder butonu
         if (currentListType !== 'first11') {
             const toFirst11Btn = document.createElement("button");
             toFirst11Btn.className = "small-btn";
-            toFirst11Btn.textContent = "İlk 11'e Gönder";
-            toFirst11Btn.onclick = () => movePlayerToList(player.id, 'first11');
+            toFirst11Btn.textContent = translations[currentLanguage].toFirst11 || "İlk 11'e Gönder";
+            toFirst11Btn.onclick = (e) => { e.stopPropagation(); movePlayerToList(player.id, 'first11'); };
             actionsDiv.appendChild(toFirst11Btn);
         }
-
-        // Yedeklere Gönder butonu
         if (currentListType !== 'substitutes') {
             const toSubsBtn = document.createElement("button");
             toSubsBtn.className = "small-btn";
-            toSubsBtn.textContent = "Yedeklere Gönder";
-            toSubsBtn.onclick = () => movePlayerToList(player.id, 'substitutes');
+            toSubsBtn.textContent = translations[currentLanguage].toSubstitutes || "Yedeklere Gönder";
+            toSubsBtn.onclick = (e) => { e.stopPropagation(); movePlayerToList(player.id, 'substitutes'); };
             actionsDiv.appendChild(toSubsBtn);
         }
-
-        // Kadro Dışı Bırak butonu
         if (currentListType !== 'rosterOut') {
             const toRosterOutBtn = document.createElement("button");
             toRosterOutBtn.className = "small-btn";
-            toRosterOutBtn.textContent = "Kadro Dışı";
-            toRosterOutBtn.onclick = () => movePlayerToList(player.id, 'rosterOut');
+            toRosterOutBtn.textContent = translations[currentLanguage].rosterOut;
+            toRosterOutBtn.onclick = (e) => { e.stopPropagation(); movePlayerToList(player.id, 'rosterOut'); };
             actionsDiv.appendChild(toRosterOutBtn);
         }
 
@@ -1068,7 +1659,33 @@
         return li;
     }
 
-    // Oyuncu taşıma fonksiyonu
+    function showPlayerDetails(player) {
+        infoPlayerImage.innerHTML = `<img src="${player.image || defaultPlayerImage}" alt="${player.name}"/>`;
+        infoPlayerName.textContent = player.name;
+        infoPlayerRating.textContent = player.rating;
+        infoPlayerGoals.textContent = player.goals;
+        infoPlayerAssists.textContent = player.assists;
+        playerInfoPanel.classList.add('active');
+    }
+
+    function updateRosterLists() {
+        first11List.innerHTML = "";
+        subsList.innerHTML = "";
+        rosterOutList.innerHTML = "";
+
+        first11.forEach(player => first11List.appendChild(createPlayerLi(player, 'first11')));
+        substitutes.forEach(player => subsList.appendChild(createPlayerLi(player, 'substitutes')));
+        rosterOut.forEach(player => rosterOutList.appendChild(createPlayerLi(player, 'rosterOut')));
+
+        first11CountEl.textContent = first11.length;
+        substitutesCountEl.textContent = substitutes.length;
+        rosterOutCountEl.textContent = rosterOut.length;
+        rosterLimitCountEl.textContent = rosterLimit;
+
+        updateTrainingSelect();
+        saveUserData(); // Her liste güncellemesinde kaydet
+    }
+
     function movePlayerToList(playerId, targetListType) {
         const player = players.find(p => p.id === playerId);
         if (!player) return;
@@ -1078,152 +1695,150 @@
         substitutes = substitutes.filter(p => p.id !== playerId);
         rosterOut = rosterOut.filter(p => p.id !== playerId);
 
-        // Hedef listeye ekle
+        let moved = false;
         if (targetListType === 'first11') {
             if (first11.length < 11) {
                 first11.push(player);
+                moved = true;
             } else {
-                alert("İlk 11 dolu! Lütfen önce bir oyuncuyu kadro dışı bırakın.");
-                // Eski listeye geri koy
-                placePlayerBack(player);
+                alert(translations[currentLanguage].first11Full);
             }
         } else if (targetListType === 'substitutes') {
             if (substitutes.length < 11) {
                 substitutes.push(player);
+                moved = true;
             } else {
-                alert("Yedekler dolu! Lütfen önce bir oyuncuyu kadro dışı bırakın.");
-                placePlayerBack(player);
+                alert(translations[currentLanguage].substitutesFull);
             }
         } else if (targetListType === 'rosterOut') {
             if (rosterOut.length < rosterLimit) {
                 rosterOut.push(player);
+                moved = true;
             } else {
-                alert("Kadro dışı limiti dolu! Limiti artırın veya bir oyuncu silin.");
-                placePlayerBack(player);
+                alert(translations[currentLanguage].rosterLimitFull);
+            }
+        }
+        
+        if (!moved) { // Eğer oyuncu taşınamadıysa eski listesine geri koy
+            if (first11.find(p => p.id === playerId)) {} // Zaten buradaysa dokunma
+            else if (substitutes.find(p => p.id === playerId)) {}
+            else if (rosterOut.find(p => p.id === playerId)) {}
+            else { // Hiçbir yerde değilse, orijinal olarak nereden geldiğini bulup oraya koymak daha zor, en uygun yere veya rosterOut'a
+                 rosterOut.push(player); // Varsayılan olarak rosterOut'a geri koy
             }
         }
         updateRosterLists();
     }
 
-    // Oyuncuyu taşınamadığında eski yerine geri koyma yardımcı fonksiyonu
-    function placePlayerBack(player) {
-        if (!first11.includes(player) && !substitutes.includes(player) && !rosterOut.includes(player)) {
-            // Hiçbir yerde değilse, en uygun yere veya varsayılan olarak rosterOut'a geri koy
-            if (rosterOut.length < rosterLimit) {
-                rosterOut.push(player);
-            } else if (substitutes.length < 11) {
-                substitutes.push(player);
-            } else if (first11.length < 11) {
-                first11.push(player);
-            } else {
-                // Eğer hiçbir yere konamazsa, oyuncuyu kaybetmeyi kullanıcıya bildir (bu durumda olmaz ama önlem)
-                alert("Oyuncu hiçbir listeye eklenemedi. Teknik bir hata oluştu.");
-            }
-        }
-    }
-
-
-    // Kadro dışı arttırma
     increaseRosterBtn.onclick = () => {
         if(coin < 100) {
-            alert("Yeterli coin yok!");
+            alert(translations[currentLanguage].notEnoughCoin);
             return;
         }
         rosterLimit += 100;
         coin -= 100;
         updateCoin();
         updateRosterLists();
-        alert(`Kadro dışı limiti +100 oldu: ${rosterLimit}`);
+        alert(translations[currentLanguage].rosterIncreaseSuccess.replace('{limit}', rosterLimit));
     };
 
-    // Paket açma butonu durumu ve görsel güncelleme
+    // --- Paket Açma ---
     leagueSelect.onchange = () => {
         const selectedLeague = leagueSelect.value;
         openPackBtn.disabled = selectedLeague === "";
-        packAnim.classList.remove('active'); // Animasyonu kapat
-        packAnimText.textContent = "Paket Açılıyor...";
-        packPlayerImage.innerHTML = ''; // Önceki oyuncu resmini temizle
+        packAnim.classList.remove('active');
+        packAnimText.textContent = translations[currentLanguage].packOpening;
+        packPlayerImage.innerHTML = '';
 
         if (selectedLeague && ligPaketleri[selectedLeague] && ligPaketleri[selectedLeague].image) {
-            packImageContainer.innerHTML = `<img src="${ligPaketleri[selectedLeague].image}" alt="${selectedLeague} Paketi"/>`;
+            packImageContainer.innerHTML = `<img src="${ligPaketleri[selectedLeague].image}" alt="${selectedLeague} Pack"/>`;
         } else {
-            packImageContainer.innerHTML = `<span class="placeholder-text">Paket Resmi</span>`;
+            packImageContainer.innerHTML = `<span class="placeholder-text">${translations[currentLanguage].packImagePlaceholder || "Paket Resmi"}</span>`;
         }
     };
 
-    // Paket açma animasyonu
-    function showPackAnimation(playerName) {
-        packAnim.classList.add('active'); // Animasyonu başlat
-        packAnimText.textContent = "Paket Açılıyor...";
-        packPlayerImage.innerHTML = ''; // Temizle
+    function showPackAnimation(playerName, playerRating, playerImage) {
+        packAnim.classList.add('active');
+        packAnimText.textContent = translations[currentLanguage].packOpening;
+        
+        // Remove existing frames from previous animations
+        packPlayerImage.className = ''; 
+        packPlayerImage.innerHTML = `<img src="${playerImage || defaultPlayerImage}" alt="${playerName}"/>`;
+        
+        // Apply initial style before transition
+        packPlayerImage.style.opacity = '0';
+        packPlayerImage.style.transform = 'scale(0.5)';
 
         setTimeout(() => {
-            packAnimText.textContent = `Tebrikler! ${playerName} kazandınız!`;
-            // Basit bir oyuncu görseli (gerçek resim için API veya statik resimler gerekir)
-            packPlayerImage.innerHTML = `<img src="${defaultPlayerImage}" alt="${playerName}"/>`;
-        }, 1500); // 1.5 saniye sonra oyuncu göster
+            packAnimText.textContent = translations[currentLanguage].congrats.replace('{playerName}', playerName);
+            packPlayerImage.className = getPlayerFrameClass(playerRating); // Çerçeveyi uygula
+            packPlayerImage.style.opacity = '1';
+            packPlayerImage.style.transform = 'scale(1)';
+        }, 1500);
 
         setTimeout(() => {
-            packAnim.classList.remove('active'); // Animasyonu kapat
-        }, 4000); // Toplam 4 saniye sonra kapanır
+            packAnim.classList.remove('active');
+        }, 4000);
     }
 
-    // Paket açma
     openPackBtn.onclick = () => {
         if(coin < 100) {
-            alert("Yeterli coin yok!");
+            alert(translations[currentLanguage].notEnoughCoin);
             return;
         }
         const lig = leagueSelect.value;
         const pool = ligPaketleri[lig].players;
         if(!pool) {
-            alert("Lütfen geçerli bir lig seçin.");
+            alert(translations[currentLanguage].selectLeague);
             return;
         }
 
-        // Halihazırda sahip olunan oyuncuları filtrele (sadece rosterOut içindekiler değil, tüm players içinde)
         const available = pool.filter(name => !players.some(p => p.name === name));
         if(available.length === 0) {
-            alert("Bu ligde tüm oyuncular sizde var veya oyuncu havuzu boş! Farklı bir lig deneyin.");
+            alert(translations[currentLanguage].allPlayersInLeague);
             return;
         }
         
-        // Kadro dışı limit kontrolü
         if(rosterOut.length >= rosterLimit) {
-            alert("Kadro dışı limiti dolu. Lütfen kadro dışını arttırın (Kadro bölümünde).");
+            alert(translations[currentLanguage].rosterFull);
             return;
         }
 
         coin -= 100;
         updateCoin();
 
-        // Rastgele oyuncu seçimi
         const selectedName = available[Math.floor(Math.random() * available.length)];
         const newPlayer = {
             id: nextId++,
             name: selectedName,
             rating: Math.floor(Math.random() * 20) + 70, // 70-89 arası
             goals: 0,
-            assists: 0
+            assists: 0,
+            image: defaultPlayerImage // Varsayılan oyuncu görseli
         };
+        // Özel oyunculara özel görsel ataması (Ronaldo/Messi gibi, eğer isimleri gelirse)
+        if (selectedName.includes("Ronaldo")) newPlayer.image = ronaldoImage;
+        else if (selectedName.includes("Messi")) newPlayer.image = messiImage;
+        else newPlayer.image = genericPlayerImage;
+
 
         players.push(newPlayer);
-        rosterOut.push(newPlayer); // Yeni oyuncuyu otomatik kadro dışına ekle
+        rosterOut.push(newPlayer);
 
-        showPackAnimation(selectedName);
+        showPackAnimation(newPlayer.name, newPlayer.rating, newPlayer.image);
 
         setTimeout(() => {
             updateRosterLists();
-        }, 4000); // Animasyon bitince listeyi güncelle
+        }, 4000);
     };
 
-    // Antrenman seçimi güncelle
+    // --- Antrenman Bölümü ---
     function updateTrainingSelect() {
-        trainSelect.innerHTML = '<option value="">Oyuncu seçiniz...</option>';
+        trainSelect.innerHTML = `<option value="">${translations[currentLanguage].selectPlayer}</option>`;
         players.forEach(p => {
             const option = document.createElement("option");
             option.value = p.id;
-            option.textContent = `${p.name} (Rating: ${p.rating})`;
+            option.textContent = `${p.name} (${translations[currentLanguage].rating}: ${p.rating})`;
             trainSelect.appendChild(option);
         });
         normalTrainBtn.disabled = true;
@@ -1237,46 +1852,43 @@
         trainMsg.textContent = "";
     };
 
-    // Normal antrenman ücretsiz
     normalTrainBtn.onclick = () => {
         const pid = parseInt(trainSelect.value);
         const player = players.find(p => p.id === pid);
         if(!player) return;
         if (player.rating >= 100) {
             trainMsg.style.color = "yellow";
-            trainMsg.textContent = `${player.name} zaten en yüksek rating'de!`;
+            trainMsg.textContent = translations[currentLanguage].trainMsgMaxRating.replace('{playerName}', player.name);
             return;
         }
-        const inc = Math.floor(Math.random() * 3) + 1; // 1-3 artış
+        const inc = Math.floor(Math.random() * 3) + 1;
         player.rating = Math.min(100, player.rating + inc);
         trainMsg.style.color = "lightgreen";
-        trainMsg.textContent = `${player.name} normal antrenmanla +${inc} rating kazandı! Şimdi: ${player.rating}`;
+        trainMsg.textContent = translations[currentLanguage].trainMsgNormal.replace('{playerName}', player.name).replace('{inc}', inc).replace('{rating}', player.rating);
         updateRosterLists();
         updateTrainingSelect();
     };
 
-    // Oyuncu antrenmanı ücretsiz
     playerTrainBtn.onclick = () => {
         const pid = parseInt(trainSelect.value);
         const player = players.find(p => p.id === pid);
         if(!player) return;
         if (player.rating >= 100) {
             trainMsg.style.color = "yellow";
-            trainMsg.textContent = `${player.name} zaten en yüksek rating'de!`;
+            trainMsg.textContent = translations[currentLanguage].trainMsgMaxRating.replace('{playerName}', player.name);
             return;
         }
-        const inc = Math.floor(Math.random() * 5) + 2; // 2-6 artış
+        const inc = Math.floor(Math.random() * 5) + 2;
         player.rating = Math.min(100, player.rating + inc);
 
-        // %30 gol, %20 asist şansı
-        let msg = `${player.name} özel antrenmanla +${inc} rating aldı! Şimdi: ${player.rating}`;
+        let msg = translations[currentLanguage].trainMsgSpecial.replace('{playerName}', player.name).replace('{inc}', inc).replace('{rating}', player.rating);
         const rand = Math.random();
         if(rand < 0.3) {
             player.goals++;
-            msg += " ⚽ Gol attı!";
-        } else if(rand < 0.5) { // %20 şans (0.3 ile 0.5 arası)
+            msg += " " + translations[currentLanguage].goalScored;
+        } else if(rand < 0.5) {
             player.assists++;
-            msg += " 🅰️ Asist yaptı!";
+            msg += " " + translations[currentLanguage].assistMade;
         }
         trainMsg.style.color = "orange";
         trainMsg.textContent = msg;
@@ -1284,149 +1896,151 @@
         updateTrainingSelect();
     };
 
-    // Maç modu değişkenleri
+    // --- Maç Modu Değişkenleri ve Fonksiyonları ---
     let matchActive = false;
     let playerPos = {x:0, y:0};
     let botPos = {x:0, y:0};
     let ballPos = {x:0, y:0};
-    let ballVelocity = {x:0, y:0}; // Topun hızı ve yönü
-    const ballBaseSpeedFactor = 6; // Topun temel hızı artırıldı
-    const playerSpeed = 5; // Oyuncu hızı artırıldı
-    const botSpeed = 4.5; // Bot hızı (biraz daha yavaş)
+    let ballVelocity = {x:0, y:0};
+    const ballBaseSpeedFactor = 3.5; // Topun hızı düşürüldü
+    const playerSpeed = 3; // Oyuncu hızı düşürüldü
+    const botSpeed = 2.8; // Bot hızı düşürüldü
     let keysPressed = {};
     let power = 0;
     let powerIncreasing = false;
-    let isChargingShot = false; // Şut dolduruluyor mu
+    let isChargingShot = false;
 
     let playerScore = 0;
     let botScore = 0;
-    let matchTime = 120; // 2 dakika (saniye cinsinden)
-    let matchInterval = null; // setInterval id'si
-    let currentMatchMode = '1v1'; // Başlangıçta 1v1
-    let gameLoopId = null; // requestAnimationFrame id'si
+    let matchTime = 120;
+    let matchInterval = null;
+    let currentMatchMode = '1v1';
+    let gameLoopId = null;
 
-    // Maç alanının boyutları dinamik olarak alınacak
     let matchAreaWidth = 0;
     let matchAreaHeight = 0;
     let playerWidth = 0;
     let ballWidth = 0;
-    // Kale koordinatları
-    const goalWidth = 25; // Kale direkleri arasındaki boşluk (CSS ile aynı)
-    const goalHeight = 200; // Kale yüksekliği (CSS'deki goal-area height ile aynı)
+    const goalWidth = 25;
+    const goalHeight = 200;
 
-    // Tam ekran modu
+    // Oyuncu ve Bot görsellerini güncelle
+    function updateCharacterImages() {
+        // Basit insan silueti veya ikon
+        playerEl.innerHTML = `<img src="${genericPlayerImage}" alt="Player" />`;
+        botEl.innerHTML = `<img src="${genericPlayerImage}" alt="Bot" />`;
+    }
+
     function enterFullscreen() {
         if (matchSection.requestFullscreen) {
             matchSection.requestFullscreen();
-        } else if (matchSection.mozRequestFullScreen) { /* Firefox */
+        } else if (matchSection.mozRequestFullScreen) {
             matchSection.mozRequestFullScreen();
-        } else if (matchSection.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+        } else if (matchSection.webkitRequestFullscreen) {
             matchSection.webkitRequestFullscreen();
-        } else if (matchSection.msRequestFullscreen) { /* IE/Edge */
+        } else if (matchSection.msRequestFullscreen) {
             matchSection.msRequestFullscreen();
         }
         matchSection.classList.add('fullscreen-active');
-        exitMatchBtn.style.display = 'block'; // Çık butonu görünür
+        exitMatchBtn.style.display = 'block';
     }
 
     function exitFullscreen() {
         if (document.exitFullscreen) {
             document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) { /* Firefox */
+        } else if (document.mozCancelFullScreen) {
             document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { /* IE/Edge */
+        } else if (document.webkitExitFullscreen) {
+            document.webkitCancelFullScreen();
+        } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
         }
         matchSection.classList.remove('fullscreen-active');
-        exitMatchBtn.style.display = 'none'; // Çık butonu gizlenir
+        exitMatchBtn.style.display = 'none';
     }
 
     document.addEventListener('fullscreenchange', (event) => {
         if (!document.fullscreenElement) {
-            // Tam ekrandan çıkıldı
-            if (matchActive) { // Eğer maç aktifken çıkıldıysa
-                endMatch(false); // Maçı bitir, menüye dön
-                showSection('matchSection'); // Maç seçeneklerini göster
+            if (matchActive) {
+                endMatch(false); // Tam ekrandan çıkılınca maçı bitir
+                showSection('matchSection');
             }
         }
     });
 
-    // Vuruş güç barı güncelle
     function updatePowerBar() {
         powerBar.style.width = power + "%";
-        powerBarContainer.style.display = isChargingShot ? 'block' : 'none'; // Şarj olurken göster
+        powerBarContainer.style.display = isChargingShot ? 'block' : 'none';
     }
 
-    // Skor ekranını güncelle
     function updateScoreDisplay() {
-        scoreDisplay.textContent = `Senin Takımın ${playerScore} - ${botScore} Bot Takımı`;
+        scoreDisplay.textContent = `${translations[currentLanguage].yourTeam} ${playerScore} - ${botScore} ${translations[currentLanguage].botTeam}`;
     }
 
-    // Zamanlayıcıyı güncelle
     function updateTimerDisplay() {
         const minutes = Math.floor(matchTime / 60).toString().padStart(2, '0');
         const seconds = (matchTime % 60).toString().padStart(2, '0');
-        timerDisplay.textContent = `Süre: ${minutes}:${seconds}`;
+        timerDisplay.textContent = `${translations[currentLanguage].time}: ${minutes}:${seconds}`;
     }
 
-    // Topu orta sahaya sıfırla
     function resetBall() {
         ballPos = {
             x: matchAreaWidth / 2 - ballWidth / 2,
             y: matchAreaHeight / 2 - ballWidth / 2
         };
-        ballVelocity = {x:0, y:0}; // Topun hızını sıfırla
-        playerPos = {x: 100, y: matchAreaHeight / 2 - playerWidth / 2}; // Oyuncuyu da sıfırla
-        botPos = {x: matchAreaWidth - 100 - playerWidth, y: matchAreaHeight / 2 - playerWidth / 2}; // Botu da sıfırla
+        ballVelocity = {x:0, y:0};
+        playerPos = {x: 100, y: matchAreaHeight / 2 - playerWidth / 2};
+        botPos = {x: matchAreaWidth - 100 - playerWidth, y: matchAreaHeight / 2 - playerWidth / 2};
         updatePositions();
-        matchMsg.textContent = "Maça devam!";
-        power = 0; // Güç barını sıfırla
+        matchMsg.textContent = translations[currentLanguage].matchContinue;
+        power = 0;
         isChargingShot = false;
         updatePowerBar();
     }
 
-    // Gol kontrolü
     function checkGoal() {
-        // Sol kale (Botun kalesi)
-        const leftGoalX = 0;
-        const leftGoalY_top = matchAreaHeight / 2 - goalHeight / 2;
-        const leftGoalY_bottom = matchAreaHeight / 2 + goalHeight / 2;
+        const leftGoalX_start = 0;
+        const leftGoalX_end = goalWidth;
+        const goalY_top = matchAreaHeight / 2 - goalHeight / 2;
+        const goalY_bottom = matchAreaHeight / 2 + goalHeight / 2;
 
-        if (ballPos.x <= leftGoalX + ballWidth/2 && ballPos.y > leftGoalY_top && ballPos.y < leftGoalY_bottom) {
-            playerScore++;
-            updateScoreDisplay();
-            matchMsg.textContent = "GOOOL! 🎉";
-            // Gol atan oyuncuya +1 gol ekle (rastgele ilk11 oyuncusu)
-            if (currentMatchMode === '11v11' && first11.length > 0) {
-                const scorer = first11[Math.floor(Math.random()*first11.length)];
-                scorer.goals++;
-                updateRosterLists();
+        let goalScoredThisFrame = false;
+
+        // Sol kale (Botun kalesi)
+        if (ballPos.x <= leftGoalX_end && ballPos.y + ballWidth > goalY_top && ballPos.y < goalY_bottom) {
+            if (ballVelocity.x < 0) { // Top kaleye doğru gidiyorsa
+                playerScore++;
+                updateScoreDisplay();
+                matchMsg.textContent = translations[currentLanguage].goal;
+                if (currentMatchMode === '11v11' && first11.length > 0) {
+                    const scorer = first11[Math.floor(Math.random()*first11.length)];
+                    scorer.goals++;
+                    updateRosterLists();
+                }
+                setTimeout(resetBall, 1000); // 1 saniye sonra topu sıfırla
+                goalScoredThisFrame = true;
             }
-            setTimeout(resetBall, 1500); // 1.5 saniye sonra topu sıfırla
-            return true;
         }
 
         // Sağ kale (Senin kalen)
-        const rightGoalX = matchAreaWidth - ballWidth;
-        const rightGoalY_top = matchAreaHeight / 2 - goalHeight / 2;
-        const rightGoalY_bottom = matchAreaHeight / 2 + goalHeight / 2;
+        const rightGoalX_start = matchAreaWidth - goalWidth;
+        const rightGoalX_end = matchAreaWidth;
 
-        if (ballPos.x + ballWidth >= rightGoalX - ballWidth/2 && ballPos.y > rightGoalY_top && ballPos.y < rightGoalY_bottom) {
-            botScore++;
-            updateScoreDisplay();
-            matchMsg.textContent = "GOL YEDİN! 😩";
-            setTimeout(resetBall, 1500); // 1.5 saniye sonra topu sıfırla
-            return true;
+        if (ballPos.x + ballWidth >= rightGoalX_start && ballPos.y + ballWidth > goalY_top && ballPos.y < goalY_bottom) {
+            if (ballVelocity.x > 0) { // Top kaleye doğru gidiyorsa
+                botScore++;
+                updateScoreDisplay();
+                matchMsg.textContent = translations[currentLanguage].goalConceded;
+                setTimeout(resetBall, 1000); // 1 saniye sonra topu sıfırla
+                goalScoredThisFrame = true;
+            }
         }
-        return false;
+        return goalScoredThisFrame;
     }
 
-    // Maç başlat
     function startMatch(mode) {
         if (mode === '11v11' && first11.length < 11) {
-            alert("11 vs 11 maç için İlk 11'de 11 oyuncun olmalı!");
+            alert(translations[currentLanguage].first11Required);
             return;
         }
 
@@ -1434,41 +2048,39 @@
         matchActive = true;
         playerScore = 0;
         botScore = 0;
-        matchTime = 120; // 2 dakika
+        matchTime = 120;
         updateScoreDisplay();
         updateTimerDisplay();
-        matchMsg.textContent = "Maç başladı!";
+        matchMsg.textContent = translations[currentLanguage].matchStarted;
         
         matchOptions.style.display = 'none';
         matchArea.style.display = 'block';
         matchInfo.style.display = 'block';
         restartMatchBtn.style.display = 'none';
         
-        enterFullscreen(); // Maç başlarken tam ekrana geç
-        // Boyutları al (Maç alanı görünür ve tam ekran olduğunda)
+        enterFullscreen();
+        
         matchAreaWidth = matchArea.clientWidth;
         matchAreaHeight = matchArea.clientHeight;
         playerWidth = playerEl.clientWidth;
         ballWidth = ballEl.clientWidth;
 
-        resetBall(); // Topu ve oyuncuları sıfırla
+        resetBall();
+        updateCharacterImages(); // Karakter görsellerini başlat
 
-        // Zamanlayıcıyı başlat
         clearInterval(matchInterval);
         matchInterval = setInterval(() => {
             matchTime--;
             updateTimerDisplay();
             if (matchTime <= 0) {
-                endMatch(true); // Süre bitince bitir ve tam ekrandan çık
+                endMatch(true);
             }
         }, 1000);
 
-        // PC için klavye dinle
         window.addEventListener("keydown", keyDownHandler);
         window.addEventListener("keyup", keyUpHandler);
 
-        // Oyun döngülerini başlat
-        if (!gameLoopId) { // Sadece bir kez başlat
+        if (!gameLoopId) {
             gameLoopId = requestAnimationFrame(gameLoop);
             requestAnimationFrame(joystickLoop);
         }
@@ -1477,51 +2089,50 @@
     start1v1MatchBtn.onclick = () => startMatch('1v1');
     start11v11MatchBtn.onclick = () => startMatch('11v11');
     restartMatchBtn.onclick = () => {
-        showSection('matchSection'); // Maç bölümüne geri dönerek seçenekleri göster
+        showSection('matchSection');
     };
-    exitMatchBtn.onclick = () => { // Maçtan Çık butonu
-        endMatch(true); // Maçı bitir ve tam ekrandan çık
-        showSection('matchSection'); // Maç seçeneklerini göster
+    exitMatchBtn.onclick = () => {
+        endMatch(true);
+        showSection('matchSection');
     };
 
 
-    // Maç sonu
     function endMatch(exitFullScreenOnEnd) {
         if (!matchActive) return;
         matchActive = false;
         clearInterval(matchInterval);
-        cancelAnimationFrame(gameLoopId); // Oyun döngüsünü durdur
-        gameLoopId = null; // ID'yi sıfırla
+        cancelAnimationFrame(gameLoopId);
+        gameLoopId = null;
         
         window.removeEventListener("keydown", keyDownHandler);
         window.removeEventListener("keyup", keyUpHandler);
         
         let finalMsg = "";
         if (playerScore > botScore) {
-            finalMsg = "Maçı KAZANDIN! 🎉";
-            coin += 200; // Galibiyet ödülü
+            finalMsg = translations[currentLanguage].matchWin;
+            coin += 200;
         } else if (botScore > playerScore) {
-            finalMsg = "Maçı KAYBETTİN! 😩";
+            finalMsg = translations[currentLanguage].matchLose;
         } else {
-            finalMsg = "Maç BERABERE! 🤝";
-            coin += 50; // Beraberlik ödülü
+            finalMsg = translations[currentLanguage].matchDraw;
+            coin += 50;
         }
         updateCoin();
-        matchMsg.textContent = finalMsg + " Tekrar denemek için 'Maçı Yeniden Başlat'a tıkla.";
+        matchMsg.textContent = finalMsg + " " + translations[currentLanguage].restartMatchPrompt || "Tekrar denemek için 'Maçı Yeniden Başlat'a tıkla.";
         matchArea.style.display = 'none';
         matchInfo.style.display = 'block';
         restartMatchBtn.style.display = 'block';
         power = 0;
-        isChargingShot = false; // Şarj durumunu sıfırla
+        isChargingShot = false;
         updatePowerBar();
 
         if (exitFullScreenOnEnd) {
-            exitFullscreen(); // Maç bitince tam ekrandan çık
+            exitFullscreen();
             matchSection.classList.remove("fullscreen-active");
         }
+        saveUserData(); // Maç bitince veriyi kaydet
     }
 
-    // Pozisyon güncelle
     function updatePositions() {
         playerEl.style.left = playerPos.x + "px";
         playerEl.style.top = playerPos.y + "px";
@@ -1531,12 +2142,11 @@
         ballEl.style.top = ballPos.y + "px";
     }
 
-    // Klavye tuşları
     function keyDownHandler(e) {
         if(!matchActive) return;
         keysPressed[e.key.toLowerCase()] = true;
         if(e.key === " " && !isChargingShot) {
-            e.preventDefault(); // Varsayılan boşluk davranışını engelle
+            e.preventDefault();
             startPowerCharge();
         }
     }
@@ -1548,23 +2158,22 @@
         }
     }
 
-    // Power şarj mekanizması
     let powerChargeInterval = null;
     function startPowerCharge() {
-        isChargingShot = true; // Şut dolduruluyor
+        isChargingShot = true;
         powerIncreasing = true;
         power = 0;
         powerChargeInterval = setInterval(() => {
-            power += 3; // Şarj hızı artırıldı
-            if(power > 100) power = 0; // %100'ü geçerse sıfırla
+            power += 3;
+            if(power > 100) power = 0;
             updatePowerBar();
-        }, 30); // Daha hızlı güncelleme
+        }, 30);
     }
     function stopPowerCharge() {
-        if(!isChargingShot) return; // Zaten şarj olmuyorsa bir şey yapma
+        if(!isChargingShot) return;
 
-        isChargingShot = false; // Şut doldurma bitti
-        if(powerIncreasing) { // Sadece şarj ediyorsa şut çek
+        isChargingShot = false;
+        if(powerIncreasing) {
             powerIncreasing = false;
             clearInterval(powerChargeInterval);
             shootBall(power);
@@ -1573,7 +2182,6 @@
         }
     }
 
-    // Topu vurma işlemi
     function shootBall(power) {
         const playerCenter = {
             x: playerPos.x + playerWidth / 2,
@@ -1589,34 +2197,31 @@
             Math.pow(playerCenter.y - ballCenter.y, 2)
         );
         
-        const effectiveRange = playerWidth / 2 + ballWidth / 2 + 10; // Oyuncu ve top yarıçapları + tolerans
+        const effectiveRange = playerWidth / 2 + ballWidth / 2 + 10;
 
         if (distance < effectiveRange) {
             const playerRatingAvg = currentMatchMode === '11v11' && first11.length > 0
                 ? first11.reduce((a,b) => a + b.rating, 0) / first11.length
-                : 80; // 1v1 veya takım yoksa varsayılan rating
+                : 80;
 
-            const shotStrength = (power / 100) * ballBaseSpeedFactor * (1 + (playerRatingAvg - 70) / 100 * 0.05); // Rating etkisi ayarlandı
+            const shotStrength = (power / 100) * ballBaseSpeedFactor * (1 + (playerRatingAvg - 70) / 100 * 0.05);
             
-            // Oyuncudan topa doğru yön (topa bakış açısı)
             const angle = Math.atan2(ballCenter.y - playerCenter.y, ballCenter.x - playerCenter.x);
             ballVelocity.x = Math.cos(angle) * shotStrength;
             ballVelocity.y = Math.sin(angle) * shotStrength;
 
-            matchMsg.textContent = `Vuruş! Güç: ${power.toFixed(0)}%.`;
+            matchMsg.textContent = translations[currentLanguage].shot.replace('{power}', power.toFixed(0));
 
-            // Topa vuruş animasyonu ekle
             ballEl.classList.add('shot-anim');
             setTimeout(() => {
                 ballEl.classList.remove('shot-anim');
-            }, 200); // Animasyon süresi (CSS ile aynı olmalı)
+            }, 200);
 
         } else {
-            matchMsg.textContent = "Topa uzaksın! Vuruş yapılamadı.";
+            matchMsg.textContent = translations[currentLanguage].tooFar;
         }
     }
 
-    // Basit bot hareketi (topa yaklaşma ve şut çekme)
     function botMove() {
         if(!matchActive) return;
 
@@ -1632,33 +2237,30 @@
         let targetX = ballPos.x;
         let targetY = ballPos.y;
 
-        // Botun kaleye şut çekmesi için pozisyon almasını sağla
         const botToBallDist = Math.sqrt(
             Math.pow(botCenter.x - ballCenter.x, 2) +
             Math.pow(botCenter.y - ballCenter.y, 2)
         );
-        const botShootRange = playerWidth / 2 + ballWidth / 2 + 15; // Botun şut menzili
+        const botShootRange = playerWidth / 2 + ballWidth / 2 + 15;
 
-        if (botToBallDist < botShootRange && ballVelocity.x === 0 && ballVelocity.y === 0) { // Top hareketsiz ve menzildeyse şut pozisyonu al
-            // Kalenin ortasına doğru bir vektör
-            const goalX = 0; // Hedef sol kale
-            const goalY = matchAreaHeight / 2; // Kalenin ortası
+        if (botToBallDist < botShootRange && ballVelocity.x === 0 && ballVelocity.y === 0) {
+            const goalX = 0;
+            const goalY = matchAreaHeight / 2;
 
             const shotDx = goalX - ballCenter.x;
             const shotDy = goalY - ballCenter.y;
             const shotDist = Math.sqrt(shotDx * shotDx + shotDy * shotDy);
             
-            const botShotPower = (Math.random() * 0.5 + 0.5) * ballBaseSpeedFactor; // Orta rastgele güç (0.5-1.0x baseSpeed)
+            const botShotPower = (Math.random() * 0.5 + 0.5) * ballBaseSpeedFactor;
             ballVelocity.x = (shotDx / shotDist) * botShotPower;
             ballVelocity.y = (shotDy / shotDist) * botShotPower;
 
-            // Topa vuruş animasyonu (bot için de)
             ballEl.classList.add('shot-anim');
             setTimeout(() => {
                 ballEl.classList.remove('shot-anim');
             }, 200);
 
-        } else { // Topu takip et
+        } else {
             const dx = targetX - botPos.x;
             const dy = targetY - botPos.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
@@ -1669,14 +2271,12 @@
             }
         }
 
-        // Botun kendi sahasında kalmasını sağla (sahanın sağ yarısı)
         botPos.x = Math.max(matchAreaWidth / 2, Math.min(matchAreaWidth - playerWidth, botPos.x));
         botPos.y = Math.min(Math.max(0, botPos.y), matchAreaHeight - playerWidth);
 
         updatePositions();
     }
 
-    // Çarpışma kontrolü (Basit çembersel çarpışma)
     function checkCollision(obj1Pos, obj1Size, obj2Pos, obj2Size) {
         const obj1Center = { x: obj1Pos.x + obj1Size / 2, y: obj1Pos.y + obj1Size / 2 };
         const obj2Center = { x: obj2Pos.x + obj2Size / 2, y: obj2Pos.y + obj2Size / 2 };
@@ -1687,24 +2287,21 @@
         return distance < (obj1Size / 2 + obj2Size / 2);
     }
 
-    // Top hareketi
     function moveBall() {
         if (!matchActive) return;
 
         ballPos.x += ballVelocity.x;
         ballPos.y += ballVelocity.y;
 
-        // Topun sahadan çıkmasını engelle ve sekme efekti ver
-        // X ekseni (sol/sağ kenarlar)
+        // Sınır çarpışmaları
         if (ballPos.x <= 0) {
             ballPos.x = 0;
-            ballVelocity.x *= -0.8; // Hafif enerji kaybı
+            ballVelocity.x *= -0.8;
         } else if (ballPos.x + ballWidth >= matchAreaWidth) {
             ballPos.x = matchAreaWidth - ballWidth;
             ballVelocity.x *= -0.8;
         }
 
-        // Y ekseni (üst/alt kenarlar)
         if (ballPos.y <= 0) {
             ballPos.y = 0;
             ballVelocity.y *= -0.8;
@@ -1713,68 +2310,56 @@
             ballVelocity.y *= -0.8;
         }
 
-        // Sürtünme ile yavaşlama
         ballVelocity.x *= 0.98;
         ballVelocity.y *= 0.98;
 
-        // Hız çok düşerse durdur
         if (Math.abs(ballVelocity.x) < 0.1) ballVelocity.x = 0;
         if (Math.abs(ballVelocity.y) < 0.1) ballVelocity.y = 0;
 
-        // Oyuncu ile top çarpışması (sadece pasif çarpışma, şut değil)
-        if (checkCollision(playerPos, playerWidth, ballPos, ballWidth)) {
-            // Basit bir itme kuvveti
+        if (checkCollision(playerPos, playerWidth, ballPos, ballWidth) && !isChargingShot) {
             const angle = Math.atan2(ballPos.y - playerPos.y, ballPos.x - playerPos.x);
-            ballVelocity.x = Math.cos(angle) * (ballBaseSpeedFactor * 0.4); // Oyuncudan aldığı ivme
+            ballVelocity.x = Math.cos(angle) * (ballBaseSpeedFactor * 0.4);
             ballVelocity.y = Math.sin(angle) * (ballBaseSpeedFactor * 0.4);
         }
 
-        // Bot ile top çarpışması (sadece pasif çarpışma, şut değil)
-        if (checkCollision(botPos, playerWidth, ballPos, ballWidth)) {
+        if (checkCollision(botPos, playerWidth, ballPos, ballWidth) && ballVelocity.x === 0 && ballVelocity.y === 0) { // Bot topa hareketsizse çarpışma
             const angle = Math.atan2(ballPos.y - botPos.y, ballPos.x - botPos.x);
-            ballVelocity.x = Math.cos(angle) * (ballBaseSpeedFactor * 0.3); // Botun ivmesi
+            ballVelocity.x = Math.cos(angle) * (ballBaseSpeedFactor * 0.3);
             ballVelocity.y = Math.sin(angle) * (ballBaseSpeedFactor * 0.3);
         }
 
         updatePositions();
     }
 
-    // Ana oyun döngüsü
     function gameLoop() {
         if(!matchActive) {
-             gameLoopId = null; // Döngüyü durdur
+             gameLoopId = null;
              return;
         }
         
-        // PC hareket
         let moveX = 0;
         let moveY = 0;
 
-        // W A S D veya ok tuşları kontrolü
         if(keysPressed["w"] || keysPressed["arrowup"]) moveY -= playerSpeed;
         if(keysPressed["s"] || keysPressed["arrowdown"]) moveY += playerSpeed;
         if(keysPressed["a"] || keysPressed["arrowleft"]) moveX -= playerSpeed;
         if(keysPressed["d"] || keysPressed["arrowright"]) moveX += playerSpeed;
 
-        // Oyuncu pozisyonu güncelle
         playerPos.x += moveX;
         playerPos.y += moveY;
 
-        // Sınırlar
         playerPos.x = Math.min(Math.max(0, playerPos.x), matchAreaWidth - playerWidth);
         playerPos.y = Math.min(Math.max(0, playerPos.y), matchAreaHeight - playerWidth);
         
-        // Oyuncunun kendi sahasında kalmasını sağla (sahanın sol yarısı)
         playerPos.x = Math.min(matchAreaWidth / 2 - playerWidth, Math.max(0, playerPos.x));
 
-        botMove(); // Botu hareket ettir
-        moveBall(); // Topu hareket ettir
-        checkGoal(); // Gol var mı kontrol et
+        botMove();
+        moveBall();
+        checkGoal();
 
         gameLoopId = requestAnimationFrame(gameLoop);
     }
 
-    // Joystick hareketi
     let joystickActive = false;
     let joystickCenter = {x: 0, y: 0};
     let joystickPos = {x: 0, y: 0};
@@ -1820,7 +2405,6 @@
         joystickPos = {x: dx / maxDistance, y: dy / maxDistance};
     }
 
-    // Joystickla oyuncu hareketi döngüsü
     let joystickLoopId = null;
     function joystickLoop() {
         if(!matchActive) {
@@ -1830,19 +2414,15 @@
         playerPos.x += joystickPos.x * playerSpeed;
         playerPos.y += joystickPos.y * playerSpeed;
 
-        // Sınırlar
         playerPos.x = Math.min(Math.max(0, playerPos.x), matchAreaWidth - playerWidth);
         playerPos.y = Math.min(Math.max(0, playerPos.y), matchAreaHeight - playerWidth);
         
-        // Oyuncunun kendi sahasında kalmasını sağla (sahanın sol yarısı)
         playerPos.x = Math.min(matchAreaWidth / 2 - playerWidth, Math.max(0, playerPos.x));
 
         joystickLoopId = requestAnimationFrame(joystickLoop);
     }
 
-    // Mobil ise joystick ve vur butonunu göster, değilse gizle
     function updateControlsVisibility() {
-        // Dokunmatik olay desteği kontrolü
         const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
         if(isTouchDevice) {
             joystickContainer.style.display = "block";
@@ -1853,7 +2433,6 @@
         }
     }
 
-    // Mobil için dokunmatik olaylar (touchstart/touchend)
     kickBtn.addEventListener("touchstart", (e) => {
         if (!matchActive) return;
         e.preventDefault();
@@ -1866,7 +2445,6 @@
         stopPowerCharge();
     }, { passive: false });
 
-    // PC için mouse olayları (mousedown/mouseup)
     kickBtn.addEventListener("mousedown", (e) => {
         if (!matchActive) return;
         e.preventDefault();
@@ -1878,43 +2456,74 @@
         stopPowerCharge();
     });
 
-    // Tema değiştirme
+    // --- Ayarlar ve Temalar ---
+    languageSelect.onchange = () => {
+        currentLanguage = languageSelect.value;
+        updateTextContent();
+        updateRosterLists(); // Oyuncu liste butonları için de güncelle
+        updateTrainingSelect(); // Antrenman selectbox'ı için de güncelle
+        // Maç modundaki metinleri güncelle (eğer aktifse)
+        if (matchActive) {
+            updateScoreDisplay();
+            updateTimerDisplay();
+        }
+        // Save selected language to local storage
+        localStorage.setItem('soccer_language', currentLanguage);
+    };
+
     themeRadios.forEach(radio => {
         radio.addEventListener("change", () => {
-            if(radio.checked) {
-                if(radio.value === "dark" || radio.value === "default") {
-                    document.body.style.background = "#1a1a2e";
-                    document.body.style.color = "#e0e0e0";
-                    document.querySelector('header').style.background = "#0f3460";
-                    document.querySelector('nav').style.background = "#16213e";
-                    document.querySelector('main').style.background = "linear-gradient(135deg, #2c3e50, #0f3460)";
-                    document.querySelectorAll('section').forEach(s => s.style.background = "#16213e");
-                    document.querySelectorAll('.roster-box').forEach(b => b.style.background = "#0f3460");
-                    document.querySelectorAll('ul.player-list li').forEach(li => li.style.background = "#16213e");
-                } else if(radio.value === "light") {
-                    document.body.style.background = "#f0f2f5"; /* Açık gri */
-                    document.body.style.color = "#333";
-                    document.querySelector('header').style.background = "#0a2647"; /* Daha koyu mavi */
-                    document.querySelector('nav').style.background = "#205295"; /* Mavi */
-                    document.querySelector('main').style.background = "linear-gradient(135deg, #e3f2fd, #bbdefb)"; /* Açık mavi degrade */
-                    document.querySelectorAll('section').forEach(s => s.style.background = "#ffffff"); /* Beyaz kutular */
-                    document.querySelectorAll('.roster-box').forEach(b => b.style.background = "#e0f2f7"); /* Açık mavi kutular */
-                    document.querySelectorAll('ul.player-list li').forEach(li => li.style.background = "#f5f5f5"); /* Açık gri liste elemanları */
-                }
+            document.body.classList.remove('theme-dark', 'theme-light');
+            if(radio.value === "dark" || radio.value === "default") {
+                // Varsayılan koyu temayı uygula
+            } else if(radio.value === "light") {
+                document.body.classList.add('theme-light');
             }
+            // Save selected theme to local storage
+            localStorage.setItem('soccer_theme', radio.value);
         });
     });
 
-    // Başlangıç işlemleri
+    // --- Başlangıç Yüklemeleri ---
     function initializeGame() {
-        updateCoin();
-        updateControlsVisibility(); // Kontrolleri başlat
-        updateRosterLists(); // Oyuncuları güncelleyince selectbox da güncellenecek
-        showSection("rosterSection"); // Başlangıçta kadro bölümünü göster
+        // Son giriş yapılan kullanıcıyı kontrol et
+        const lastUser = localStorage.getItem('soccer_last_user');
+        if (lastUser && users[lastUser]) {
+            currentUser = lastUser;
+            loginScreen.style.display = 'none';
+            navBar.style.display = 'flex';
+            mainContent.style.display = 'flex';
+            loadUserData(currentUser);
+        } else {
+            loginScreen.style.display = 'flex';
+            navBar.style.display = 'none';
+            mainContent.style.display = 'none';
+        }
 
-        // İlk defa çağrılacak oyun döngüleri
+        // Kaydedilen dil ayarını yükle
+        const savedLanguage = localStorage.getItem('soccer_language');
+        if (savedLanguage && translations[savedLanguage]) {
+            currentLanguage = savedLanguage;
+            languageSelect.value = savedLanguage;
+        }
+        updateTextContent(); // Başlangıçta metinleri güncelle
+
+        // Kaydedilen tema ayarını yükle
+        const savedTheme = localStorage.getItem('soccer_theme');
+        if (savedTheme) {
+            const themeRadio = document.getElementById(`theme${savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1)}`);
+            if (themeRadio) {
+                themeRadio.checked = true;
+                themeRadio.dispatchEvent(new Event('change')); // Değişikliği tetikle
+            }
+        }
+
+        updateControlsVisibility();
+        updateRosterLists();
+        updateTrainingSelect();
+
         gameLoopId = requestAnimationFrame(gameLoop);
-        joystickLoopId = requestAnimationFrame(joystickLoop); // Joystick döngüsünü de başlat
+        joystickLoopId = requestAnimationFrame(joystickLoop);
     }
     
     initializeGame();
