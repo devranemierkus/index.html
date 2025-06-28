@@ -9,7 +9,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background: linear-gradient to bottom right, #2c3e50, #34495e; /* Koyu tema */
+            background: linear-gradient(to bottom right, #2c3e50, #34495e); /* Koyu tema */
             color: #ecf0f1;
             display: flex;
             justify-content: center;
@@ -159,7 +159,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: linear-gradient to top left, #3498db, #2980b9; /* Mavinin tonları */
+            background: linear-gradient(to top left, #3498db, #2980b9); /* Mavinin tonları */
             border-radius: 12px;
         }
 
@@ -207,12 +207,15 @@
             background-color: #229a54;
         }
 
-        #google-login-btn {
-            background-color: #dd4b39; /* Google kırmızısı */
-        }
-
-        #google-login-btn:hover {
-            background-color: #c23321;
+        #guest-warning {
+            color: #ffda79;
+            font-size: 0.9em;
+            margin-top: 10px;
+            text-align: center;
+            background-color: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px dashed #f1c40f;
         }
 
         /* Paket Açma Ekranı */
@@ -648,7 +651,10 @@
                 <input type="password" id="password" placeholder="Şifre" required>
                 <button id="login-btn">Giriş Yap</button>
                 <button id="register-btn">Kayıt Ol</button>
-                <button id="google-login-btn">Gmail ile Giriş Yap (Simüle Edildi)</button>
+                <hr style="width: 80%; border-color: rgba(255,255,255,0.2);">
+                <button id="gmail-login-btn" style="background-color: #dd4b39;">Gmail ile Giriş Yap (Simüle Edildi)</button>
+                <button id="guest-login-btn" style="background-color: #7f8c8d;">Misafir Hesabı Aç</button>
+                <p id="guest-warning">Misafir hesabı sadece bu oturum için geçerlidir. Sayfayı yenilediğinizde veya kapattığınızda ilerlemeniz **kaybolacaktır**.</p>
             </div>
         </section>
 
@@ -750,7 +756,8 @@
 
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
-        const googleLoginBtn = document.getElementById('google-login-btn');
+        const gmailLoginBtn = document.getElementById('gmail-login-btn'); // Gmail butonu ID'si düzeltildi
+        const guestLoginBtn = document.getElementById('guest-login-btn'); // Misafir butonu
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const usernameDisplay = document.getElementById('username-display');
@@ -780,7 +787,7 @@
 
         // Oyun Verileri (Basit birer örnek)
         let currentUser = null; // Giriş yapan kullanıcı
-        let userCoins = 2500;
+        let userCoins = 0; // Başlangıçta 0, giriş tipine göre atanacak
         let squad = {}; // { GK: playerObject, CB1: playerObject, ... }
         let bench = []; // 11 kişilik yedekler
         let playerPool = []; // 500 kişilik havuz
@@ -893,17 +900,23 @@
             playerDetailModal.style.display = 'flex';
         }
 
+        // Kullanıcı Girişi Fonksiyonu
+        function loginUser(username) {
+            currentUser = { username: username };
+            userCoins = 2500; // Her girişte başlangıç coini ver
+            giveStarterPack(); // Başlangıç paketi ver
+            showScreen(mainMenuScreen);
+            updateUI();
+            alert(`Hoş Geldiniz, ${currentUser.username}!`);
+        }
+
         // Giriş/Kayıt İşlemleri
         loginBtn.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
             if (email && password) {
-                currentUser = { username: email.split('@')[0], email: email };
-                userCoins = 2500; // Her girişte başlangıç coini ver
-                giveStarterPack(); // Başlangıç paketi ver
-                showScreen(mainMenuScreen);
-                updateUI();
-                alert(`Hoş Geldiniz, ${currentUser.username}!`);
+                // Normalde burada bir veritabanı kontrolü olur
+                loginUser(email.split('@')[0]);
             } else {
                 alert('Lütfen e-posta ve şifrenizi girin.');
             }
@@ -920,13 +933,14 @@
             }
         });
 
-        googleLoginBtn.addEventListener('click', () => {
-            alert('Gmail ile Giriş simüle edildi. Hoş Geldiniz, Gmail Kullanıcısı!');
-            currentUser = { username: 'GmailKullanıcısı', email: 'gmail@example.com' };
-            userCoins = 2500;
-            giveStarterPack();
-            showScreen(mainMenuScreen);
-            updateUI();
+        gmailLoginBtn.addEventListener('click', () => {
+            alert('Gmail ile Giriş simüle edildi.');
+            loginUser('GmailKullanıcısı');
+        });
+
+        guestLoginBtn.addEventListener('click', () => {
+            alert('Misafir hesabı açıldı. İlerlemeniz kaydedilmeyecektir.');
+            loginUser('Misafir');
         });
 
         // Başlangıç Paketi Verme
