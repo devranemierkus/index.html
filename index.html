@@ -75,6 +75,8 @@
             padding: 15px 0;
             border-bottom: 2px solid #212f3d;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            /* Başlangıçta gizli olacak */
+            display: none; 
         }
 
         .main-nav button {
@@ -112,11 +114,44 @@
             overflow-y: auto; /* İçerik taşarsa kaydırma çubuğu */
             box-sizing: border-box;
             animation: fadeIn 0.6s ease-out;
+            position: absolute; /* Ekranların üst üste binmesini engellemek için */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding-top: calc(15px + 2.2em + 15px); /* Header yüksekliği + padding */
+            padding-bottom: calc(15px + 1.1em + 15px); /* Nav yüksekliği + padding */
+            box-sizing: border-box; /* Padding dahil et */
+            z-index: 1; /* Normal ekranlar */
         }
 
         .screen.active {
             display: block; /* Aktif ekranı göster */
+            z-index: 2; /* Aktif ekranın diğerlerinin üzerinde olmasını sağla */
+            position: relative; /* Aktif ekranın akışı etkilemesini sağla */
         }
+
+        /* Giriş ekranı özel konumu */
+        #auth-screen {
+            display: flex; /* Varsayılan olarak aktif */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to top left, #3498db, #2980b9); /* Mavinin tonları */
+            border-radius: 12px;
+            position: absolute; /* Tamamen kaplasın */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3; /* Giriş ekranı her zaman en üstte */
+        }
+
+        /* Giriş ekranı gizlendiğinde */
+        #auth-screen.hidden {
+            display: none;
+        }
+
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -154,15 +189,6 @@
         }
 
         /* Giriş/Kayıt Ekranı */
-        #auth-screen {
-            display: flex; /* Varsayılan olarak aktif */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(to top left, #3498db, #2980b9); /* Mavinin tonları */
-            border-radius: 12px;
-        }
-
         #auth-screen h2 {
             color: white;
             font-size: 3em;
@@ -712,6 +738,7 @@
         <section id="main-menu-screen" class="screen">
             <h2>Ana Menü</h2>
             <p id="welcome-message">Hoş geldiniz, menajer! Takımını kur ve zafere ulaş!</p>
+            <button id="dummy-button" style="margin-top: 50px; padding: 15px 30px; font-size: 1.2em; background-color: #3498db; color: white; border: none; border-radius: 8px;">Deneme Butonu</button>
         </section>
 
         <section id="pack-opening-screen" class="screen">
@@ -818,6 +845,7 @@
         const matchScreen = document.getElementById('match-screen');
         const settingsScreen = document.getElementById('settings-screen');
 
+        const gameContainer = document.getElementById('game-container'); // Oyun kapsayıcısı
         const mainNav = document.getElementById('main-nav'); // Ana navigasyon
         const welcomeMessage = document.getElementById('welcome-message'); // Hoş geldin mesajı
 
@@ -856,6 +884,11 @@
         const deleteAccountBtn = document.getElementById('delete-account-btn');
         const languageSelect = document.getElementById('language-select');
         const toggleThemeBtn = document.getElementById('toggle-theme-btn');
+
+        // Test butonu
+        document.getElementById('dummy-button').addEventListener('click', () => {
+            alert('Ana Menüdeki Deneme Butonu Çalışıyor!');
+        });
 
 
         // Oyun Verileri (Basit birer örnek)
@@ -915,10 +948,18 @@
         // --- Fonksiyonlar ---
 
         function showScreen(screenToShow) {
+            // Tüm ekranları gizle
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
+                // auth-screen'i kapatmak için hidden sınıfını ekle
+                if (screen.id === 'auth-screen') {
+                    screen.classList.add('hidden');
+                }
             });
+            // Gösterilecek ekranı aktif et
             screenToShow.classList.add('active');
+            // Oyun kapsayıcısının yüksekliğini içeriğe göre ayarla
+            gameContainer.style.height = 'auto'; 
         }
 
         function updateUI() {
@@ -1050,6 +1091,7 @@
             
             showScreen(mainMenuScreen); // Ana menüye yönlendir
             mainNav.style.display = 'flex'; // Ana navigasyonu göster
+            authScreen.classList.add('hidden'); // Giriş ekranını tamamen gizle
             updateUI();
             alert(`Hoş Geldiniz, ${currentUser.username}!`);
         }
@@ -1104,10 +1146,12 @@
 
         // Başlangıç Paketi Verme
         function giveStarterPack() {
-            starterPlayers.forEach(player => {
-                const playerWithStats = { ...player, goals: 0, assists: 0, source: 'pool' };
-                playerPool.push(playerWithStats);
-            });
+            if (playerPool.length === 0) { // Sadece havuz boşsa başlangıç paketi ver
+                starterPlayers.forEach(player => {
+                    const playerWithStats = { ...player, goals: 0, assists: 0, source: 'pool' };
+                    playerPool.push(playerWithStats);
+                });
+            }
         }
 
         // Menü Navigasyonu (Event Listener'lar artık aktif olarak çalışacak)
@@ -1380,7 +1424,9 @@
                 squad = {};
                 bench = [];
                 playerPool = [];
-                showScreen(authScreen); // Giriş ekranına dön
+                // Giriş ekranını aktif et ve görünür yap
+                authScreen.classList.remove('hidden');
+                showScreen(authScreen); 
                 mainNav.style.display = 'none'; // Navigasyonu gizle
                 updateUI();
                 alert("Başarıyla çıkış yapıldı.");
@@ -1404,6 +1450,7 @@
                         bench = [];
                         playerPool = [];
 
+                        authScreen.classList.remove('hidden');
                         showScreen(authScreen);
                         mainNav.style.display = 'none';
                         updateUI();
