@@ -218,6 +218,14 @@
             border: 1px dashed #f1c40f;
         }
 
+        .password-info {
+            color: #bdc3c7;
+            font-size: 0.85em;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 5px;
+        }
+
         /* Paket Açma Ekranı */
         .pack-list {
             display: grid;
@@ -632,7 +640,7 @@
         <header>
             <h1>SoccerTR</h1>
             <div class="user-info">
-                <span id="user-coins">2500 Coin</span>
+                <span id="user-coins">0 Coin</span>
                 <span id="username-display">Misafir</span>
             </div>
         </header>
@@ -647,12 +655,12 @@
         <section id="auth-screen" class="screen active">
             <h2>SoccerTR'ye Hoş Geldiniz!</h2>
             <div class="auth-form">
-                <input type="email" id="email" placeholder="E-posta" required>
+                <input type="text" id="username" placeholder="Kullanıcı Adı" required>
                 <input type="password" id="password" placeholder="Şifre" required>
+                <p class="password-info">Şifre: 8-16 karakter, en az bir rakam ve "_" içermeli.</p>
                 <button id="login-btn">Giriş Yap</button>
                 <button id="register-btn">Kayıt Ol</button>
                 <hr style="width: 80%; border-color: rgba(255,255,255,0.2);">
-                <button id="gmail-login-btn" style="background-color: #dd4b39;">Gmail ile Giriş Yap (Simüle Edildi)</button>
                 <button id="guest-login-btn" style="background-color: #7f8c8d;">Misafir Hesabı Aç</button>
                 <p id="guest-warning">Misafir hesabı sadece bu oturum için geçerlidir. Sayfayı yenilediğinizde veya kapattığınızda ilerlemeniz **kaybolacaktır**.</p>
             </div>
@@ -756,9 +764,8 @@
 
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
-        const gmailLoginBtn = document.getElementById('gmail-login-btn'); // Gmail butonu ID'si düzeltildi
-        const guestLoginBtn = document.getElementById('guest-login-btn'); // Misafir butonu
-        const emailInput = document.getElementById('email');
+        const guestLoginBtn = document.getElementById('guest-login-btn');
+        const usernameInput = document.getElementById('username'); // email input yerine username
         const passwordInput = document.getElementById('password');
         const usernameDisplay = document.getElementById('username-display');
         const userCoinsDisplay = document.getElementById('user-coins');
@@ -791,6 +798,13 @@
         let squad = {}; // { GK: playerObject, CB1: playerObject, ... }
         let bench = []; // 11 kişilik yedekler
         let playerPool = []; // 500 kişilik havuz
+
+        // --- Simüle Edilmiş Kullanıcı Veritabanı ---
+        // Gerçek bir uygulamada bu veriler sunucu tarafında güvenli bir şekilde saklanır.
+        const users = {
+            "testuser": "Test123_",
+            "deneme": "Deneme456_"
+        };
 
         // Oyuncu Veritabanı (Örnek, gerçekte çok daha büyük olur)
         const allPlayers = [
@@ -900,47 +914,78 @@
             playerDetailModal.style.display = 'flex';
         }
 
+        // Şifre Doğrulama Fonksiyonu
+        function validatePassword(password) {
+            // En az 8, en fazla 16 karakter
+            if (password.length < 8 || password.length > 16) {
+                return "Şifre 8 ile 16 karakter arasında olmalıdır.";
+            }
+            // En az bir rakam içermeli
+            if (!/\d/.test(password)) {
+                return "Şifre en az bir rakam içermelidir.";
+            }
+            // En az bir "_" içermeli
+            if (!/.*_.* / .test(password)) { // Updated regex
+                return "Şifre en az bir '_' karakteri içermelidir.";
+            }
+            return null; // Doğrulama başarılı
+        }
+
         // Kullanıcı Girişi Fonksiyonu
-        function loginUser(username) {
-            currentUser = { username: username };
+        function loginUser(username, isGuest = false) {
+            currentUser = { username: username, isGuest: isGuest };
             userCoins = 2500; // Her girişte başlangıç coini ver
             giveStarterPack(); // Başlangıç paketi ver
-            showScreen(mainMenuScreen);
+            showScreen(mainMenuScreen); // Ana menüye yönlendir
             updateUI();
             alert(`Hoş Geldiniz, ${currentUser.username}!`);
         }
 
-        // Giriş/Kayıt İşlemleri
-        loginBtn.addEventListener('click', () => {
-            const email = emailInput.value;
+        // Giriş İşlemi
+        loginBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // Formun varsayılan gönderimini engelle
+            const username = usernameInput.value;
             const password = passwordInput.value;
-            if (email && password) {
-                // Normalde burada bir veritabanı kontrolü olur
-                loginUser(email.split('@')[0]);
+
+            if (users[username] && users[username] === password) {
+                loginUser(username);
             } else {
-                alert('Lütfen e-posta ve şifrenizi girin.');
+                alert('Kullanıcı adı veya şifre yanlış.');
             }
         });
 
-        registerBtn.addEventListener('click', () => {
-            const email = emailInput.value;
+        // Kayıt İşlemi
+        registerBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // Formun varsayılan gönderimini engelle
+            const username = usernameInput.value;
             const password = passwordInput.value;
-            if (email && password) {
-                // Normalde burada bir veritabanına kayıt işlemi olur
-                alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
-            } else {
-                alert('Lütfen e-posta ve şifrenizi girin.');
+
+            if (!username) {
+                alert("Lütfen bir kullanıcı adı girin.");
+                return;
             }
+            if (users[username]) {
+                alert("Bu kullanıcı adı zaten alınmış.");
+                return;
+            }
+
+            const passwordError = validatePassword(password);
+            if (passwordError) {
+                alert(passwordError);
+                return;
+            }
+
+            users[username] = password; // Kullanıcıyı simüle edilmiş DB'ye ekle
+            alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
+            // Kayıt sonrası otomatik giriş yapmak isterseniz:
+            // loginUser(username);
         });
 
-        gmailLoginBtn.addEventListener('click', () => {
-            alert('Gmail ile Giriş simüle edildi.');
-            loginUser('GmailKullanıcısı');
-        });
-
-        guestLoginBtn.addEventListener('click', () => {
+        // Misafir Giriş İşlemi
+        guestLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // Formun varsayılan gönderimini engelle
             alert('Misafir hesabı açıldı. İlerlemeniz kaydedilmeyecektir.');
-            loginUser('Misafir');
+            loginUser('Misafir', true);
         });
 
         // Başlangıç Paketi Verme
@@ -953,7 +998,7 @@
             console.log('Başlangıç oyuncuları verildi:', playerPool);
         }
 
-        // Menü Navigasyonu
+        // Menü Navigasyonu (Event Listener'lar artık aktif olarak çalışacak)
         openPacksBtn.addEventListener('click', () => {
             showScreen(packOpeningScreen);
             renderPacks();
