@@ -1,236 +1,1205 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoccerTR - Rüya Takım</title>
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { margin: 0; background: #0b0f1a; color: #f0f0f0; }
-    .screen { display: none; padding: 20px; text-align: center; }
-    .visible { display: block !important; }
-    button {
-      padding: 10px 20px;
-      margin: 10px;
-      border: none;
-      border-radius: 10px;
-      background: #00ffc3;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    input {
-      padding: 10px;
-      width: 250px;
-      border-radius: 10px;
-      border: none;
-      margin: 10px;
-    }
-    .card {
-      background: #1e1e2e;
-      padding: 10px;
-      margin: 10px auto;
-      border-radius: 10px;
-      width: 250px;
-      box-shadow: 0 0 10px #00ffc3;
-    }
-    .green { color: lime; }
-    .orange { color: orange; }
-    .red { color: red; }
-    .joy-controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .joystick, .shoot-btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #00ffc3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: black;
-      font-weight: bold;
-    }
-    canvas {
-      background: #4CAF50;
-      display: block;
-      margin: 20px auto;
-      border-radius: 10px;
-    }
-    .section-title {
-      margin-top: 30px;
-      font-size: 20px;
-      border-bottom: 2px solid #00ffc3;
-      padding-bottom: 5px;
-    }
-    .player-info { display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .player-info img { border-radius: 50%; width: 40px; height: 40px; }
-    .match-status { margin: 10px; font-size: 16px; color: #0f0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoccerTR: Kendi Rüya Takımını Kur!</title>
+    <style>
+        /* Genel Stil Ayarları */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient to bottom right, #2c3e50, #34495e; /* Koyu tema */
+            color: #ecf0f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none; /* Metin seçimi engelleme */
+        }
+
+        #game-container {
+            background-color: #3b5998; /* Daha canlı bir mavi tonu */
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 1200px;
+            min-height: 700px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #2980b9;
+        }
+
+        /* Başlık ve Kullanıcı Bilgileri */
+        header {
+            background-color: #2980b9;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2471a3;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            color: #ecf0f1;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+
+        .user-info span {
+            margin-left: 20px;
+            padding: 8px 15px;
+            background-color: #3498db;
+            border-radius: 20px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Ana Navigasyon */
+        .main-nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #2c3e50;
+            padding: 15px 0;
+            border-bottom: 2px solid #212f3d;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-nav button {
+            background-color: #e67e22; /* Turuncu buton */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .main-nav button:hover {
+            background-color: #d35400;
+            transform: translateY(-2px);
+        }
+
+        .main-nav button:active {
+            background-color: #c0392b;
+            transform: translateY(0);
+        }
+
+        /* Genel Ekran Stilleri */
+        .screen {
+            flex-grow: 1;
+            padding: 30px;
+            display: none; /* Varsayılan olarak gizli */
+            background-color: #4667a2; /* Açık mavi tonu */
+            border-radius: 0 0 12px 12px;
+            overflow-y: auto; /* İçerik taşarsa kaydırma çubuğu */
+            box-sizing: border-box;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .screen.active {
+            display: block; /* Aktif ekranı göster */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .screen h2 {
+            color: #ecf0f1;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        /* Geri Butonları */
+        .back-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .back-button:hover {
+            background-color: #c0392b;
+        }
+
+        /* Giriş/Kayıt Ekranı */
+        #auth-screen {
+            display: flex; /* Varsayılan olarak aktif */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient to top left, #3498db, #2980b9; /* Mavinin tonları */
+            border-radius: 12px;
+        }
+
+        #auth-screen h2 {
+            color: white;
+            font-size: 3em;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            margin-bottom: 40px;
+        }
+
+        .auth-form {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .auth-form input {
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1.1em;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .auth-form button {
+            background-color: #27ae60; /* Yeşil buton */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .auth-form button:hover {
+            background-color: #229a54;
+        }
+
+        #google-login-btn {
+            background-color: #dd4b39; /* Google kırmızısı */
+        }
+
+        #google-login-btn:hover {
+            background-color: #c23321;
+        }
+
+        /* Paket Açma Ekranı */
+        .pack-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .pack-card {
+            background-color: #2c3e50;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #3498db;
+        }
+
+        .pack-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .pack-card img {
+            width: 80%;
+            height: auto;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #5faee3;
+        }
+
+        .pack-card h3 {
+            color: #ecf0f1;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        .pack-card p {
+            color: #bdc3c7;
+            font-size: 0.9em;
+        }
+
+        .pack-card button {
+            background-color: #f39c12; /* Altın sarısı */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .pack-card button:hover {
+            background-color: #e67e22;
+        }
+
+        #player-reveal-area {
+            background-color: #2c3e50;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed #3498db;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden; /* Animasyonlar için */
+        }
+
+        .revealed-player-card {
+            display: none; /* JS ile gösterilecek */
+            animation: playerPopIn 0.8s ease-out forwards;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes playerPopIn {
+            0% { opacity: 0; transform: scale(0.5) rotateY(90deg); }
+            60% { opacity: 1; transform: scale(1.1) rotateY(-10deg); }
+            100% { opacity: 1; transform: scale(1) rotateY(0deg); }
+        }
+
+        .player-card {
+            background-color: #34495e;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            width: 250px;
+            margin: 0 auto;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+            border: 3px solid; /* Çerçeve rengi JS ile belirlenecek */
+            transition: transform 0.2s ease;
+        }
+
+        .player-card.draggable {
+            cursor: grab;
+        }
+
+        .player-card.draggable:active {
+            cursor: grabbing;
+        }
+
+        .player-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ecf0f1;
+            margin-bottom: 10px;
+        }
+
+        .player-card h4 {
+            color: #ecf0f1;
+            font-size: 1.5em;
+            margin: 5px 0;
+        }
+
+        .player-card p {
+            color: #bdc3c7;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .player-card .rating-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        .rating-green { background-color: #27ae60; }
+        .rating-orange { background-color: #e67e22; }
+        .rating-red { background-color: #c0392b; }
+
+        .player-card .stars {
+            color: gold;
+            font-size: 1.5em;
+            margin-top: 5px;
+        }
+
+        /* Kadro Yönetimi Ekranı */
+        #squad-management-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .squad-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Formation ve Bench/Pool */
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        #formation-area {
+            background-color: #3b5998; /* Saha rengi gibi */
+            border: 3px dashed #2980b9;
+            border-radius: 10px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Örnek 4-3-3 için */
+            grid-template-rows: repeat(4, 1fr); /* Kaleci, defans, orta saha, forvet */
+            gap: 10px;
+            position: relative;
+            min-height: 500px;
+        }
+        
+        #formation-area::before {
+            content: 'SAHA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5em;
+            color: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            z-index: 0;
+        }
+
+
+        .position-slot {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px dashed #7f8c8d;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9em;
+            color: #bdc3c7;
+            height: 100px; /* Sabit yükseklik */
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .position-slot.hover {
+            border-color: #3498db;
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+
+        .position-slot .player-card {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px; /* Kartın içine sığması için */
+            box-sizing: border-box;
+            font-size: 0.8em;
+        }
+        .position-slot .player-card img {
+            width: 60px;
+            height: 60px;
+        }
+        .position-slot .player-card h4 {
+            font-size: 1em;
+            margin: 2px 0;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .position-slot .player-card .rating-badge {
+            font-size: 0.8em;
+            padding: 3px 6px;
+        }
+        .position-slot .player-card .stars {
+            font-size: 1em;
+        }
+
+
+        .squad-side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #bench-area, #out-of-squad-pool {
+            background-color: #2c3e50;
+            border: 2px solid #34495e;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 200px;
+            overflow-y: auto;
+        }
+
+        #bench-area h3, #out-of-squad-pool h3 {
+            color: #ecf0f1;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #3498db;
+            padding-bottom: 8px;
+            font-size: 1.5em;
+        }
+
+        .player-list-scroll {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Maç Ekranı */
+        #match-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #27ae60; /* Yeşil saha rengi */
+        }
+        #match-screen h2 {
+            color: white;
+        }
+
+        .match-display {
+            background-color: #2ecc71; /* Daha açık saha */
+            width: 80%;
+            aspect-ratio: 16/9; /* Geniş ekran oranı */
+            border: 5px solid white;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            color: rgba(255, 255, 255, 0.5);
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Player Detay Modal */
+        .modal {
+            display: none; /* Varsayılan olarak gizli */
+            position: fixed; /* Ekranı kaplar */
+            z-index: 1000; /* En üstte */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Gerekirse kaydırma */
+            background-color: rgba(0, 0, 0, 0.6); /* Yarı şeffaf siyah arka plan */
+            backdrop-filter: blur(5px); /* Arka planı bulanıklaştırma */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #34495e;
+            margin: auto;
+            padding: 30px;
+            border: 2px solid #2980b9;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: modalOpen 0.3s ease-out;
+        }
+
+        @keyframes modalOpen {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #ecf0f1;
+            text-decoration: none;
+        }
+
+        #detail-player-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #f39c12; /* Altın sarısı çerçeve */
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+        }
+
+        #detail-player-name {
+            color: #ecf0f1;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .modal-content p {
+            color: #bdc3c7;
+            font-size: 1.1em;
+            margin: 8px 0;
+        }
+
+        .modal-content p span {
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+
+        /* Responsive Tasarım (Basit) */
+        @media (max-width: 768px) {
+            #game-container {
+                width: 98%;
+                min-height: 90vh;
+            }
+            header h1 {
+                font-size: 1.8em;
+            }
+            .main-nav {
+                flex-direction: column;
+            }
+            .main-nav button {
+                width: 90%;
+                margin: 5px auto;
+            }
+            .squad-container {
+                grid-template-columns: 1fr;
+            }
+            #formation-area {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .auth-form {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div id="game-container">
+        <header>
+            <h1>SoccerTR</h1>
+            <div class="user-info">
+                <span id="user-coins">2500 Coin</span>
+                <span id="username-display">Misafir</span>
+            </div>
+        </header>
 
-<!-- GİRİŞ EKRANI -->
-<div id="loginScreen" class="screen visible">
-  <h1>SoccerTR</h1>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/8/80/Cristiano_Ronaldo_2018.jpg" width="100" />
-  <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Lionel_Messi_20180626.jpg" width="100" />
-  <p>İsmini gir:</p>
-  <input type="text" id="username" placeholder="Kullanıcı adı">
-  <br>
-  <button onclick="login()">Giriş</button>
-</div>
+        <nav class="main-nav" id="main-nav">
+            <button id="open-packs-btn">Paketleri Aç</button>
+            <button id="manage-squad-btn">Kadro Yönetimi</button>
+            <button id="play-match-btn">Maç Yap</button>
+            <button id="settings-btn">Ayarlar</button>
+        </nav>
 
-<!-- ANA MENÜ -->
-<div id="mainMenu" class="screen">
-  <h2>Hoş geldin <span id="playerName"></span></h2>
-  <div class="section-title">Menü</div>
-  <button onclick="showScreen('packScreen')">🎁 Paket Aç</button>
-  <button onclick="showScreen('squadScreen')">📋 Kadro</button>
-  <button onclick="showScreen('matchMenu')">⚽ Maç</button>
-  <button onclick="showScreen('achievements')">🏆 Başarılar</button>
-  <button onclick="showScreen('settings')">⚙️ Ayarlar</button>
-</div>
+        <section id="auth-screen" class="screen active">
+            <h2>SoccerTR'ye Hoş Geldiniz!</h2>
+            <div class="auth-form">
+                <input type="email" id="email" placeholder="E-posta" required>
+                <input type="password" id="password" placeholder="Şifre" required>
+                <button id="login-btn">Giriş Yap</button>
+                <button id="register-btn">Kayıt Ol</button>
+                <button id="google-login-btn">Gmail ile Giriş Yap (Simüle Edildi)</button>
+            </div>
+        </section>
 
-<!-- PAKET EKRANI -->
-<div id="packScreen" class="screen">
-  <h3>Lig Paketi Aç</h3>
-  <p>Her pakette 3 oyuncu çıkacak. Oyuncuları takımına ekle!</p>
-  <button onclick="openPack()">Rastgele Paket Aç</button>
-  <div id="packResult"></div>
-  <button onclick="showScreen('mainMenu')">Geri</button>
-</div>
+        <section id="main-menu-screen" class="screen">
+            <h2>Ana Menü</h2>
+            <p>Hoş geldiniz, menajer! Takımını kur ve zafere ulaş!</p>
+        </section>
 
-<!-- KADRO EKRANI -->
-<div id="squadScreen" class="screen">
-  <h3>Kadro Yönetimi</h3>
-  <div class="section-title">İlk 11</div>
-  <div id="ilk11"></div>
-  <div class="section-title">Yedekler</div>
-  <div id="yedekler"></div>
-  <div class="section-title">Kadro Dışı</div>
-  <div id="kadrodışı"></div>
-  <button onclick="showScreen('mainMenu')">Geri</button>
-</div>
+        <section id="pack-opening-screen" class="screen">
+            <h2>Paketleri Aç</h2>
+            <div class="pack-list" id="pack-list">
+                </div>
+            <div id="player-reveal-area">
+                <p>Açmak istediğiniz paketi seçin!</p>
+            </div>
+            <button id="back-to-menu-btn-pack" class="back-button">Ana Menüye Dön</button>
+        </section>
 
-<!-- MAÇ MENÜSÜ -->
-<div id="matchMenu" class="screen">
-  <h3>Maç Modları</h3>
-  <button onclick="startMatch('1v1')">🎮 1v1 Bot Maçı</button>
-  <button onclick="alert('11v11 modu yapım aşamasında')">⚔️ 11v11</button>
-  <button onclick="startMatch('bot')">🤖 Botlara Karşı</button>
-  <button onclick="showScreen('mainMenu')">Geri</button>
-</div>
+        <section id="squad-management-screen" class="screen">
+            <h2>Kadro Yönetimi</h2>
+            <div class="squad-container">
+                <div id="formation-area" class="drop-zone">
+                    <div class="position-slot" data-position="GK">Kaleci</div>
+                    <div class="position-slot" data-position="LB">Sol Bek</div>
+                    <div class="position-slot" data-position="CB1">Stoper</div>
+                    <div class="position-slot" data-position="CB2">Stoper</div>
+                    <div class="position-slot" data-position="RB">Sağ Bek</div>
+                    <div class="position-slot" data-position="LM">Sol Orta Saha</div>
+                    <div class="position-slot" data-position="CM1">Merkez Orta Saha</div>
+                    <div class="position-slot" data-position="CM2">Merkez Orta Saha</div>
+                    <div class="position-slot" data-position="RM">Sağ Orta Saha</div>
+                    <div class="position-slot" data-position="LW">Sol Kanat</div>
+                    <div class="position-slot" data-position="ST">Santrafor</div>
+                    <div class="position-slot" data-position="RW">Sağ Kanat</div>
+                </div>
+                <div class="squad-side-panel">
+                    <div id="bench-area" class="drop-zone">
+                        <h3>Yedekler (11)</h3>
+                        <div class="player-list-scroll" id="bench-players">
+                            </div>
+                    </div>
+                    <div id="out-of-squad-pool" class="drop-zone">
+                        <h3>Kadro Dışı Havuz (<span id="pool-count">0</span>/500)</h3>
+                        <div class="player-list-scroll" id="pool-players">
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <button id="back-to-menu-btn-squad" class="back-button">Ana Menüye Dön</button>
+        </section>
 
-<!-- MAÇ EKRANI -->
-<div id="matchScreen" class="screen">
-  <h3>1v1 Maç</h3>
-  <canvas id="gameCanvas" width="400" height="300"></canvas>
-  <div class="match-status">Maç devam ediyor...</div>
-  <div class="joy-controls">
-    <div class="joystick" onclick="movePlayer(0,-1)">↑</div>
-    <div class="joystick" onclick="movePlayer(-1,0)">←</div>
-    <div class="joystick" onclick="movePlayer(1,0)">→</div>
-    <div class="joystick" onclick="movePlayer(0,1)">↓</div>
-    <div class="shoot-btn" onclick="shootBall()">ŞUT</div>
-  </div>
-  <button onclick="endMatch()">Maçtan Çık</button>
-</div>
+        <section id="match-screen" class="screen">
+            <h2>Maç Başlıyor!</h2>
+            <div class="match-display">
+                <p>Maç simülasyonu yakında!</p>
+            </div>
+            <button id="back-to-menu-btn-match" class="back-button">Ana Menüye Dön</button>
+        </section>
 
-<!-- BAŞARILAR -->
-<div id="achievements" class="screen">
-  <h3>Başarılar</h3>
-  <p>100 oyuncu topla: ⭐ Koleksiyoncu</p>
-  <p>İlk 1v1 maçını kazan: 🏅 Acemi Zaferi</p>
-  <button onclick="showScreen('mainMenu')">Geri</button>
-</div>
+        <section id="settings-screen" class="screen">
+            <h2>Ayarlar</h2>
+            <p>Ayarlar sayfası yakında eklenecek...</p>
+            <div class="settings-options">
+                <h3>Dil Seçimi:</h3>
+                <select id="language-select">
+                    <option value="tr">Türkçe</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="pt">Português</option>
+                    <option value="pt-br">Português (Brasil)</option>
+                </select>
+            </div>
+            <button id="back-to-menu-btn-settings" class="back-button">Ana Menüye Dön</button>
+        </section>
 
-<!-- AYARLAR -->
-<div id="settings" class="screen">
-  <h3>Ayarlar</h3>
-  <button onclick="alert('Ses kapatıldı')">🔇 Sesi Kapat</button>
-  <button onclick="alert('Bildirim ayarları açıldı')">🔔 Bildirimler</button>
-  <button onclick="showScreen('mainMenu')">Geri</button>
-</div>
+        <div id="player-detail-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3 id="detail-player-name"></h3>
+                <img id="detail-player-image" src="" alt="Oyuncu Resmi">
+                <p>Rating: <span id="detail-player-rating"></span></p>
+                <p>Goller: <span id="detail-player-goals">0</span></p>
+                <p>Asistler: <span id="detail-player-assists">0</span></p>
+                <p>Nadir: <span id="detail-player-stars"></span></p>
+            </div>
+        </div>
+    </div>
 
-<script>
-let user = "", ilk11 = [], yedekler = [], kadrodisi = [];
-const players = [
-  { name: "Messi", rating: 100, img: "https://upload.wikimedia.org/wikipedia/commons/9/98/Lionel_Messi_20180626.jpg" },
-  { name: "Ronaldo", rating: 99, img: "https://upload.wikimedia.org/wikipedia/commons/8/80/Cristiano_Ronaldo_2018.jpg" },
-  { name: "Mbappe", rating: 97, img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Kylian_Mbapp%C3%A9_2019.jpg" },
-  { name: "Neymar", rating: 94, img: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Neymar_2018.jpg" },
-  { name: "Haaland", rating: 96, img: "https://upload.wikimedia.org/wikipedia/commons/8/89/Erling_Haaland_2021.jpg" },
-  { name: "Vinicius Jr", rating: 92, img: "https://upload.wikimedia.org/wikipedia/commons/7/75/Vinicius_Jr_2022.jpg" },
-  { name: "Bellingham", rating: 91, img: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Jude_Bellingham_2023.jpg" },
-  { name: "Arda Güler", rating: 87, img: "https://upload.wikimedia.org/wikipedia/commons/5/53/Arda_Guler_2023.jpg" },
-  { name: "Kane", rating: 93, img: "https://upload.wikimedia.org/wikipedia/commons/f/f7/Harry_Kane_2018.jpg" }
-];
+    <script>
+        // --- JS KODLARI BURADAN BAŞLIYOR ---
 
-function login() {
-  user = document.getElementById("username").value;
-  if (!user) return alert("İsim gir!");
-  document.getElementById("playerName").textContent = user;
-  showScreen("mainMenu");
-}
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
-  document.getElementById(id).classList.add('visible');
-}
-function openPack() {
-  const result = document.getElementById("packResult");
-  result.innerHTML = "";
-  for (let i = 0; i < 3; i++) {
-    const p = players[Math.floor(Math.random() * players.length)];
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `<img src="${p.img}" width="100"><div>${p.name}</div><div class='red'>Rating: ${p.rating}</div>
-      <button onclick='ilk11.push(${JSON.stringify(p)}); alert("İlk 11'e eklendi")'>İlk 11</button>
-      <button onclick='yedekler.push(${JSON.stringify(p)}); alert("Yedeğe eklendi")'>Yedek</button>
-      <button onclick='kadrodisi.push(${JSON.stringify(p)}); alert("Kadro dışı eklendi")'>Kadro Dışı</button>`;
-    result.appendChild(card);
-  }
-}
-function updateSquads() {
-  document.getElementById("ilk11").innerHTML = ilk11.map(p => `<div class='player-info'><img src="${p.img}"><span>${p.name} (${p.rating})</span></div>`).join("");
-  document.getElementById("yedekler").innerHTML = yedekler.map(p => `<div>${p.name}</div>`).join("");
-  document.getElementById("kadrodışı").innerHTML = kadrodisi.map(p => `<div>${p.name}</div>`).join("");
-}
-function startMatch(mode) {
-  showScreen("matchScreen");
-  gameLoop();
-}
-function endMatch() {
-  showScreen("mainMenu");
-}
-let player = { x: 50, y: 130 };
-let ball = { x: 200, y: 150, vx: 0, vy: 0 };
-function movePlayer(dx, dy) {
-  player.x += dx * 10;
-  player.y += dy * 10;
-}
-function shootBall() {
-  ball.vx = 2;
-  ball.vy = (Math.random() - 0.5) * 4;
-}
-function gameLoop() {
-  const ctx = document.getElementById("gameCanvas").getContext("2d");
-  setInterval(() => {
-    ctx.clearRect(0,0,400,300);
-    ctx.fillStyle = "white";
-    ctx.fillRect(player.x, player.y, 10, 10);
-    ball.x += ball.vx; ball.y += ball.vy;
-    ctx.beginPath(); ctx.arc(ball.x, ball.y, 5, 0, 2 * Math.PI); ctx.fill();
-    if (ball.x > 400 || ball.y > 300 || ball.y < 0) { ball.x = 200; ball.y = 150; ball.vx = 0; ball.vy = 0; }
-  }, 50);
-}
-setInterval(updateSquads, 1000);
-</script>
+        // HTML Elemanlarına Erişim
+        const authScreen = document.getElementById('auth-screen');
+        const mainMenuScreen = document.getElementById('main-menu-screen');
+        const packOpeningScreen = document.getElementById('pack-opening-screen');
+        const squadManagementScreen = document.getElementById('squad-management-screen');
+        const matchScreen = document.getElementById('match-screen');
+        const settingsScreen = document.getElementById('settings-screen');
 
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const usernameDisplay = document.getElementById('username-display');
+        const userCoinsDisplay = document.getElementById('user-coins');
+
+        const openPacksBtn = document.getElementById('open-packs-btn');
+        const manageSquadBtn = document.getElementById('manage-squad-btn');
+        const playMatchBtn = document.getElementById('play-match-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+
+        const packList = document.getElementById('pack-list');
+        const playerRevealArea = document.getElementById('player-reveal-area');
+
+        const formationArea = document.getElementById('formation-area');
+        const benchPlayersContainer = document.getElementById('bench-players');
+        const poolPlayersContainer = document.getElementById('pool-players');
+        const poolCountDisplay = document.getElementById('pool-count');
+
+        const playerDetailModal = document.getElementById('player-detail-modal');
+        const detailPlayerName = document.getElementById('detail-player-name');
+        const detailPlayerImage = document.getElementById('detail-player-image');
+        const detailPlayerRating = document.getElementById('detail-player-rating');
+        const detailPlayerGoals = document.getElementById('detail-player-goals');
+        const detailPlayerAssists = document.getElementById('detail-player-assists');
+        const detailPlayerStars = document.getElementById('detail-player-stars');
+        const closePlayerModalBtn = playerDetailModal.querySelector('.close-button');
+
+        // Oyun Verileri (Basit birer örnek)
+        let currentUser = null; // Giriş yapan kullanıcı
+        let userCoins = 2500;
+        let squad = {}; // { GK: playerObject, CB1: playerObject, ... }
+        let bench = []; // 11 kişilik yedekler
+        let playerPool = []; // 500 kişilik havuz
+
+        // Oyuncu Veritabanı (Örnek, gerçekte çok daha büyük olur)
+        const allPlayers = [
+            { id: 'p001', name: 'Donnarumma', position: 'GK', rating: 90, image: 'https://cdn.sofascore.com/images/share/player/417244.png' },
+            { id: 'p002', name: 'Akanji', position: 'CB', rating: 85, image: 'https://cdn.sofascore.com/images/share/player/823023.png' },
+            { id: 'p003', name: 'Son Heung-min', position: 'LW', rating: 92, image: 'https://cdn.sofascore.com/images/share/player/780826.png' },
+            { id: 'p004', name: 'F. Mendy', position: 'LB', rating: 83, image: 'https://cdn.sofascore.com/images/share/player/850550.png' },
+            { id: 'p005', name: 'R. Varane', position: 'CB', rating: 86, image: 'https://cdn.sofascore.com/images/share/player/779435.png' },
+            { id: 'p006', name: 'J. Cancelo', position: 'RB', rating: 87, image: 'https://cdn.sofascore.com/images/share/player/779440.png' },
+            { id: 'p007', name: 'K. De Bruyne', position: 'CM', rating: 95, image: 'https://cdn.sofascore.com/images/share/player/779836.png' },
+            { id: 'p008', name: 'L. Modrić', position: 'CM', rating: 91, image: 'https://cdn.sofascore.com/images/share/player/779344.png' },
+            { id: 'p009', name: 'Mohamed Salah', position: 'RW', rating: 93, image: 'https://cdn.sofascore.com/images/share/player/783917.png' },
+            { id: 'p010', name: 'E. Haaland', position: 'ST', rating: 94, image: 'https://cdn.sofascore.com/images/share/player/918349.png' },
+            { id: 'p011', name: 'V. Van Dijk', position: 'CB', rating: 90, image: 'https://cdn.sofascore.com/images/share/player/780807.png' },
+            { id: 'p012', name: 'Neymar', position: 'LW', rating: 92, image: 'https://cdn.sofascore.com/images/share/player/779774.png' },
+            { id: 'p013', name: 'João Félix', position: 'LW', rating: 88, image: 'https://cdn.sofascore.com/images/share/player/949987.png' },
+            { id: 'p014', name: 'Pedri', position: 'CM', rating: 87, image: 'https://cdn.sofascore.com/images/share/player/991739.png' },
+            { id: 'p015', name: 'Gavi', position: 'CM', rating: 85, image: 'https://cdn.sofascore.com/images/share/player/1023797.png' },
+            { id: 'p016', name: 'Ronald Araujo', position: 'CB', rating: 86, image: 'https://cdn.sofascore.com/images/share/player/934658.png' },
+            { id: 'p017', name: 'Alphonso Davies', position: 'LB', rating: 87, image: 'https://cdn.sofascore.com/images/share/player/926639.png' },
+            { id: 'p018', name: 'Manuel Neuer', position: 'GK', rating: 91, image: 'https://cdn.sofascore.com/images/share/player/779268.png' },
+            { id: 'p019', name: 'Harry Kane', position: 'ST', rating: 90, image: 'https://cdn.sofascore.com/images/share/player/779951.png' },
+            { id: 'p020', name: 'Lautaro Martínez', position: 'ST', rating: 88, image: 'https://cdn.sofascore.com/images/share/player/889508.png' },
+            // Daha fazla oyuncu eklenebilir...
+        ];
+
+        // Başlangıç Paketi ve Oyuncular
+        const starterPlayers = [
+            allPlayers.find(p => p.id === 'p001'), // Donnarumma
+            allPlayers.find(p => p.id === 'p002'), // Akanji
+            allPlayers.find(p => p.id === 'p003'), // Son Heung-min
+            allPlayers.find(p => p.id === 'p004'), // F. Mendy (ek defans)
+            allPlayers.find(p => p.id === 'p005'), // R. Varane (ek defans)
+        ];
+
+        // Paket Verileri (Örnek)
+        const packs = [
+            { id: 'free-pack', name: 'Ücretsiz Paket', cost: 0, image: 'https://via.placeholder.com/200x250/3498db/ffffff?text=Free+Pack', description: 'Giriş hediyesi, nadir oyuncular içerebilir!', playerRange: { min: 70, max: 95 } },
+            { id: 'gold-pack', name: 'Altın Paket', cost: 1000, image: 'https://via.placeholder.com/200x250/f1c40f/ffffff?text=Gold+Pack', description: 'Orta ve yüksek ratingli oyuncular.', playerRange: { min: 80, max: 98 } },
+            { id: 'legend-pack', name: 'Efsane Paket', cost: 5000, image: 'https://via.placeholder.com/200x250/e74c3c/ffffff?text=Legend+Pack', description: 'Çok yüksek ratingli ve efsane oyuncular!', playerRange: { min: 90, max: 107 } },
+        ];
+
+        // --- Fonksiyonlar ---
+
+        function showScreen(screenToShow) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            screenToShow.classList.add('active');
+        }
+
+        function updateUI() {
+            usernameDisplay.textContent = currentUser ? currentUser.username : 'Misafir';
+            userCoinsDisplay.textContent = `${userCoins} Coin`;
+            poolCountDisplay.textContent = `${playerPool.length}/500`;
+        }
+
+        function getPlayerRatingClass(rating) {
+            if (rating >= 90) return 'rating-red';
+            if (rating >= 71) return 'rating-orange';
+            return 'rating-green';
+        }
+
+        function getPlayerStars(rating) {
+            if (rating >= 101) return '★★★★';
+            if (rating >= 91) return '★★★';
+            if (rating >= 81) return '★★';
+            return '★';
+        }
+
+        // Oyuncu kartı oluşturma
+        function createPlayerCard(player, isDraggable = false) {
+            const playerCard = document.createElement('div');
+            playerCard.classList.add('player-card');
+            if (isDraggable) {
+                playerCard.classList.add('draggable');
+                playerCard.setAttribute('draggable', 'true');
+                playerCard.dataset.playerId = player.id;
+                playerCard.dataset.playerSource = player.source; // pool, bench, squad
+                playerCard.dataset.playerPosition = player.position; // Sadece kadrodaki oyuncu için
+            }
+            playerCard.style.borderColor = getPlayerRatingClass(player.rating).replace('rating-', '#'); // Renk kodu olarak kullan
+            
+            playerCard.innerHTML = `
+                <img src="${player.image}" alt="${player.name}">
+                <h4>${player.name}</h4>
+                <p>Mevki: ${player.position}</p>
+                <div class="rating-badge ${getPlayerRatingClass(player.rating)}">${player.rating}</div>
+                <div class="stars">${getPlayerStars(player.rating)}</div>
+            `;
+            playerCard.addEventListener('click', (e) => {
+                // Sürükleme sırasında tetiklenmemesi için
+                if (e.target.closest('.player-card').classList.contains('dragging')) return;
+                showPlayerDetails(player);
+            });
+            return playerCard;
+        }
+
+        // Oyuncu Detaylarını Göster
+        function showPlayerDetails(player) {
+            detailPlayerName.textContent = player.name;
+            detailPlayerImage.src = player.image;
+            detailPlayerRating.textContent = player.rating;
+            detailPlayerGoals.textContent = player.goals || 0;
+            detailPlayerAssists.textContent = player.assists || 0;
+            detailPlayerStars.textContent = getPlayerStars(player.rating);
+            playerDetailModal.style.display = 'flex';
+        }
+
+        // Giriş/Kayıt İşlemleri
+        loginBtn.addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            if (email && password) {
+                currentUser = { username: email.split('@')[0], email: email };
+                userCoins = 2500; // Her girişte başlangıç coini ver
+                giveStarterPack(); // Başlangıç paketi ver
+                showScreen(mainMenuScreen);
+                updateUI();
+                alert(`Hoş Geldiniz, ${currentUser.username}!`);
+            } else {
+                alert('Lütfen e-posta ve şifrenizi girin.');
+            }
+        });
+
+        registerBtn.addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            if (email && password) {
+                // Normalde burada bir veritabanına kayıt işlemi olur
+                alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
+            } else {
+                alert('Lütfen e-posta ve şifrenizi girin.');
+            }
+        });
+
+        googleLoginBtn.addEventListener('click', () => {
+            alert('Gmail ile Giriş simüle edildi. Hoş Geldiniz, Gmail Kullanıcısı!');
+            currentUser = { username: 'GmailKullanıcısı', email: 'gmail@example.com' };
+            userCoins = 2500;
+            giveStarterPack();
+            showScreen(mainMenuScreen);
+            updateUI();
+        });
+
+        // Başlangıç Paketi Verme
+        function giveStarterPack() {
+            starterPlayers.forEach(player => {
+                const playerWithStats = { ...player, goals: 0, assists: 0, source: 'pool' };
+                playerPool.push(playerWithStats);
+            });
+            updateSquadAndPoolDisplay();
+            console.log('Başlangıç oyuncuları verildi:', playerPool);
+        }
+
+        // Menü Navigasyonu
+        openPacksBtn.addEventListener('click', () => {
+            showScreen(packOpeningScreen);
+            renderPacks();
+            playerRevealArea.innerHTML = '<p>Açmak istediğiniz paketi seçin!</p>';
+        });
+
+        manageSquadBtn.addEventListener('click', () => {
+            showScreen(squadManagementScreen);
+            updateSquadAndPoolDisplay();
+        });
+
+        playMatchBtn.addEventListener('click', () => {
+            showScreen(matchScreen);
+        });
+
+        settingsBtn.addEventListener('click', () => {
+            showScreen(settingsScreen);
+        });
+
+        document.getElementById('back-to-menu-btn-pack').addEventListener('click', () => showScreen(mainMenuScreen));
+        document.getElementById('back-to-menu-btn-squad').addEventListener('click', () => showScreen(mainMenuScreen));
+        document.getElementById('back-to-menu-btn-match').addEventListener('click', () => showScreen(mainMenuScreen));
+        document.getElementById('back-to-menu-btn-settings').addEventListener('click', () => showScreen(mainMenuScreen));
+        closePlayerModalBtn.addEventListener('click', () => playerDetailModal.style.display = 'none');
+        window.addEventListener('click', (event) => {
+            if (event.target == playerDetailModal) {
+                playerDetailModal.style.display = 'none';
+            }
+        });
+
+        // Paketleri Render Etme
+        function renderPacks() {
+            packList.innerHTML = '';
+            packs.forEach(pack => {
+                const packCard = document.createElement('div');
+                packCard.classList.add('pack-card');
+                packCard.innerHTML = `
+                    <img src="${pack.image}" alt="${pack.name}">
+                    <h3>${pack.name}</h3>
+                    <p>${pack.description}</p>
+                    <button data-pack-id="${pack.id}">${pack.cost === 0 ? 'Ücretsiz Aç' : pack.cost + ' Coin Aç'}</button>
+                `;
+                packList.appendChild(packCard);
+
+                packCard.querySelector('button').addEventListener('click', () => openPack(pack));
+            });
+        }
+
+        // Paket Açma Mantığı
+        function openPack(pack) {
+            if (userCoins >= pack.cost) {
+                userCoins -= pack.cost;
+                updateUI();
+                playerRevealArea.innerHTML = '<p>Paket açılıyor...</p>';
+                setTimeout(() => {
+                    const randomPlayer = getRandomPlayer(pack.playerRange.min, pack.playerRange.max);
+                    if (randomPlayer) {
+                        const playerWithStats = { ...randomPlayer, goals: 0, assists: 0, source: 'pool' };
+                        playerPool.push(playerWithStats);
+                        renderRevealedPlayer(playerWithStats);
+                        updateSquadAndPoolDisplay(); // Havuzu güncelle
+                    } else {
+                        playerRevealArea.innerHTML = '<p>Bir hata oluştu, oyuncu bulunamadı.</p>';
+                    }
+                }, 1500); // Açılış animasyonu süresi
+            } else {
+                alert('Yeterli coin yok!');
+            }
+        }
+
+        // Rastgele Oyuncu Getirme
+        function getRandomPlayer(minRating, maxRating) {
+            const eligiblePlayers = allPlayers.filter(p => p.rating >= minRating && p.rating <= maxRating);
+            if (eligiblePlayers.length === 0) return null;
+            const randomIndex = Math.floor(Math.random() * eligiblePlayers.length);
+            return eligiblePlayers[randomIndex];
+        }
+
+        // Açılan Oyuncuyu Göster
+        function renderRevealedPlayer(player) {
+            playerRevealArea.innerHTML = ''; // Önceki içeriği temizle
+            const playerCard = createPlayerCard(player);
+            playerCard.classList.add('revealed-player-card'); // Animasyon için
+            playerRevealArea.appendChild(playerCard);
+            // Kartı göstermek için animasyon sınıfını ekle
+            setTimeout(() => playerCard.style.display = 'block', 10);
+        }
+
+        // Kadro ve Havuzu Güncelle
+        function updateSquadAndPoolDisplay() {
+            // Kadro alanını temizle ve yeniden oluştur (sürükle bırak özelliği için)
+            formationArea.innerHTML = `
+                <div class="position-slot" data-position="GK">Kaleci</div>
+                <div class="position-slot" data-position="LB">Sol Bek</div>
+                <div class="position-slot" data-position="CB1">Stoper</div>
+                <div class="position-slot" data-position="CB2">Stoper</div>
+                <div class="position-slot" data-position="RB">Sağ Bek</div>
+                <div class="position-slot" data-position="LM">Sol Orta Saha</div>
+                <div class="position-slot" data-position="CM1">Merkez Orta Saha</div>
+                <div class="position-slot" data-position="CM2">Merkez Orta Saha</div>
+                <div class="position-slot" data-position="RM">Sağ Orta Saha</div>
+                <div class="position-slot" data-position="LW">Sol Kanat</div>
+                <div class="position-slot" data-position="ST">Santrafor</div>
+                <div class="position-slot" data-position="RW">Sağ Kanat</div>
+            `;
+            
+            // Mevcut kadro oyuncularını yerleştir
+            for (const pos in squad) {
+                const player = squad[pos];
+                const slot = formationArea.querySelector(`[data-position="${pos}"]`);
+                if (slot && player) {
+                    const playerCard = createPlayerCard(player, true);
+                    slot.innerHTML = ''; // İçeriği temizle
+                    slot.appendChild(playerCard);
+                    playerCard.dataset.playerCurrentPosition = pos; // Mevcut pozisyonu kaydet
+                }
+            }
+
+            // Yedekleri render et
+            benchPlayersContainer.innerHTML = '';
+            bench.forEach(player => {
+                const playerCard = createPlayerCard(player, true);
+                benchPlayersContainer.appendChild(playerCard);
+            });
+
+            // Kadro dışı havuzu render et
+            poolPlayersContainer.innerHTML = '';
+            playerPool.forEach(player => {
+                const playerCard = createPlayerCard(player, true);
+                poolPlayersContainer.appendChild(playerCard);
+            });
+            poolCountDisplay.textContent = `${playerPool.length}/500`;
+
+            // Sürükle-Bırak Olay Dinleyicileri
+            addDragDropListeners();
+        }
+
+        let draggedPlayer = null;
+        let draggedPlayerSource = null; // 'squad', 'bench', 'pool'
+        let draggedPlayerOldPosition = null; // Sadece squad için
+
+        function addDragDropListeners() {
+            document.querySelectorAll('.player-card.draggable').forEach(card => {
+                card.addEventListener('dragstart', (e) => {
+                    draggedPlayer = e.target;
+                    draggedPlayerSource = draggedPlayer.dataset.playerSource;
+                    draggedPlayerOldPosition = draggedPlayer.dataset.playerCurrentPosition;
+                    e.dataTransfer.setData('text/plain', draggedPlayer.dataset.playerId);
+                    setTimeout(() => {
+                        draggedPlayer.classList.add('dragging');
+                    }, 0);
+                });
+
+                card.addEventListener('dragend', () => {
+                    draggedPlayer.classList.remove('dragging');
+                    draggedPlayer = null;
+                    draggedPlayerSource = null;
+                    draggedPlayerOldPosition = null;
+                });
+            });
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault(); // Varsayılanı engelle (drop'u etkinleştir)
+                    if (zone.classList.contains('position-slot') && !zone.querySelector('.player-card')) {
+                         zone.classList.add('hover'); // Boş slot vurgusu
+                    } else if (zone.id === 'bench-area' || zone.id === 'out-of-squad-pool') {
+                        zone.classList.add('hover');
+                    }
+                });
+
+                zone.addEventListener('dragleave', (e) => {
+                    zone.classList.remove('hover');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('hover');
+
+                    const playerId = e.dataTransfer.getData('text/plain');
+                    const player = findPlayerById(playerId);
+                    if (!player) return;
+
+                    const targetZoneId = zone.id;
+                    const targetPosition = zone.dataset.position; // Sadece pozisyon slotları için
+
+                    // Kendi kendine bırakmayı engelle
+                    if (e.target.closest('.player-card') === draggedPlayer) {
+                        return;
+                    }
+
+                    // Oyuncuyu eski konumundan kaldır
+                    removePlayerFromSource(player, draggedPlayerSource, draggedPlayerOldPosition);
+
+                    // Oyuncuyu yeni konuma yerleştir
+                    if (targetZoneId === 'formation-area' || zone.classList.contains('position-slot')) {
+                        // Bir pozisyon slotuna bırakıldı
+                        if (!zone.querySelector('.player-card')) { // Slot boşsa
+                            squad[targetPosition] = player;
+                            player.source = 'squad';
+                            // Slotun içine kartı yeniden oluşturup ekle
+                            const newPlayerCard = createPlayerCard(player, true);
+                            newPlayerCard.dataset.playerCurrentPosition = targetPosition;
+                            zone.appendChild(newPlayerCard);
+                        } else {
+                            // Dolu bir slota bırakıldı, değiş tokuş yap veya eski yerine döndür
+                            const oldPlayerInSlot = squad[targetPosition];
+                            // Önceki oyuncuyu havuz veya yedeğe taşı
+                            if (oldPlayerInSlot) {
+                                // Eski oyuncuyu havuza at
+                                playerPool.push({ ...oldPlayerInSlot, source: 'pool' });
+                            }
+
+                            squad[targetPosition] = player;
+                            player.source = 'squad';
+                            const newPlayerCard = createPlayerCard(player, true);
+                            newPlayerCard.dataset.playerCurrentPosition = targetPosition;
+                            zone.innerHTML = '';
+                            zone.appendChild(newPlayerCard);
+                        }
+                    } else if (targetZoneId === 'bench-area') {
+                        bench.push({ ...player, source: 'bench' });
+                    } else if (targetZoneId === 'out-of-squad-pool') {
+                        playerPool.push({ ...player, source: 'pool' });
+                    }
+                    
+                    updateSquadAndPoolDisplay();
+                });
+            });
+        }
+
+        function findPlayerById(id) {
+            let foundPlayer = null;
+            Object.values(squad).forEach(p => { if (p && p.id === id) foundPlayer = p; });
+            bench.forEach(p => { if (p.id === id) foundPlayer = p; });
+            playerPool.forEach(p => { if (p.id === id) foundPlayer = p; });
+            return foundPlayer;
+        }
+
+        function removePlayerFromSource(player, source, oldPosition = null) {
+            if (source === 'squad' && oldPosition) {
+                delete squad[oldPosition];
+            } else if (source === 'bench') {
+                const index = bench.findIndex(p => p.id === player.id);
+                if (index > -1) bench.splice(index, 1);
+            } else if (source === 'pool') {
+                const index = playerPool.findIndex(p => p.id === player.id);
+                if (index > -1) playerPool.splice(index, 1);
+            }
+        }
+
+
+        // Oyun Başlangıcı
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sayfa yüklendiğinde giriş ekranını göster
+            showScreen(authScreen);
+            updateUI();
+        });
+
+        // --- JS KODLARI BURADA BİTİYOR ---
+    </script>
 </body>
 </html>
