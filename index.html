@@ -24,6 +24,10 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     letter-spacing: 1px;
     font-family: 'Press Start 2P', cursive; /* Retro oyun fontu */
+    -webkit-user-select: none; /* Metin kopyalamayı engelle */
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
   nav {
     display: flex; background: #16213e; /* Bir ton açık */
@@ -477,26 +481,25 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     transition: transform 0.1s ease-out; /* Hareket animasyonu */
     overflow: hidden; /* Karakter görseli için */
+    background-color: transparent; /* Arka planı kaldır */
   }
   #player img, #bot img {
-      width: 100%; height: 100%; object-fit: cover;
+      width: 100%; height: 100%; object-fit: contain; /* Görselin tamamı sığsın */
   }
   #player {
-    background: #3f88c5; /* Mavi takım */
     left: 100px; top: 200px;
     z-index: 10;
-    border: 2px solid #57a0d3;
   }
   #bot {
-    background: #e63946; /* Kırmızı takım */
     right: 100px; top: 200px;
     z-index: 10;
-    border: 2px solid #f25c54;
   }
   #ball {
+    position: absolute;
     background: radial-gradient(circle at 30% 30%, #f0f0f0, #a0a0a0); /* Gri tonları, hafif parlama */
     width: 28px; height: 28px;
     top: calc(50% - 14px); left: calc(50% - 14px);
+    border-radius: 50%;
     z-index: 8;
     border: 2px solid #333;
     transition: transform 0.1s ease-out; /* Vuruş animasyonu */
@@ -716,6 +719,10 @@
       color: #e94560;
       margin-bottom: 30px;
       font-family: 'Press Start 2P', cursive;
+      -webkit-user-select: none; /* Metin kopyalamayı engelle */
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
   }
   #loginForm {
       background: #16213e;
@@ -810,6 +817,66 @@
   }
   body.theme-light #playerInfoPanel p {
       color: #333;
+  }
+
+  /* Custom Alert Modal */
+  .custom-alert-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .custom-alert-overlay.active {
+      opacity: 1;
+      visibility: visible;
+  }
+  .custom-alert-box {
+      background: #16213e;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      color: #e0e0e0;
+      border: 2px solid #e94560;
+      transform: translateY(-20px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .custom-alert-overlay.active .custom-alert-box {
+      transform: translateY(0);
+      opacity: 1;
+  }
+  .custom-alert-box h3 {
+      margin-top: 0;
+      color: #ffd700;
+      font-size: 1.5rem;
+  }
+  .custom-alert-box p {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+      line-height: 1.5;
+  }
+  .custom-alert-box button {
+      background-color: #e94560;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.2s;
+  }
+  .custom-alert-box button:hover {
+      background-color: #d13550;
   }
 
 
@@ -1083,6 +1150,14 @@
     <p>Asist: <span id="infoPlayerAssists"></span></p>
 </div>
 
+<div id="customAlertOverlay" class="custom-alert-overlay">
+    <div class="custom-alert-box">
+        <h3 id="customAlertTitle"></h3>
+        <p id="customAlertMessage"></p>
+        <button id="customAlertOkBtn">Tamam</button>
+    </div>
+</div>
+
 <script>
 (() => {
     // --- Statik Veriler ve Sabitler ---
@@ -1126,6 +1201,10 @@
     const ronaldoImage = "https://img.icons8.com/color/48/cristiano-ronaldo.png"; // Placeholder
     const messiImage = "https://img.icons8.com/color/48/lionel-messi.png"; // Placeholder
     const genericPlayerImage = "https://img.icons8.com/ios-filled/50/football2.png"; // Generic player icon
+    // Oyuncu ve Bot için basit insan figürü (yerel SVG veya daha iyi bir icon)
+    const playerFigureImage = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Football_Player_Silhouette.svg/100px-Football_Player_Silhouette.svg.png"; // Basit insan figürü
+    const botFigureImage = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Robot_icon.svg/100px-Robot_icon.svg.png"; // Basit bot figürü
+
 
     // --- Oyun Verileri (Hesaba Özel) ---
     let currentUser = null;
@@ -1212,6 +1291,13 @@
     const logoutButton = document.getElementById("logoutButton");
     const deleteAccountButton = document.getElementById("deleteAccountButton");
 
+    // Custom Alert DOM Elements
+    const customAlertOverlay = document.getElementById("customAlertOverlay");
+    const customAlertTitle = document.getElementById("customAlertTitle");
+    const customAlertMessage = document.getElementById("customAlertMessage");
+    const customAlertOkBtn = document.getElementById("customAlertOkBtn");
+
+
     // --- Uluslararasılaştırma (i18n) ---
     const translations = {
         tr: {
@@ -1233,6 +1319,7 @@
             packOpening: "Paket Açılıyor...",
             congrats: "Tebrikler! {playerName} kazandınız!",
             selectPlayer: "Oyuncu seçiniz...",
+            selectLeague: "Lig seçiniz...", // Eklendi
             normalTraining: "Normal Antrenman (Ücretsiz)",
             specialTraining: "Özel Antrenman (Ücretsiz)",
             trainMsgMaxRating: "{playerName} zaten en yüksek rating'de!",
@@ -1287,8 +1374,10 @@
             substitutesFull: "Yedekler dolu! Lütfen önce bir oyuncuyu kadro dışı bırakın.",
             rosterLimitFull: "Kadro dışı limiti dolu! Limiti artırın veya bir oyuncu silin.",
             rosterIncreaseSuccess: "Kadro dışı limiti +100 oldu: {limit}",
-            first11Required: "11 vs 11 maç için İlk 11'de 11 oyuncun olmalı!"
-
+            first11Required: "11 vs 11 maç için İlk 11'de 11 oyuncun olmalı!",
+            passwordRequirements: "Şifre 8-16 karakter, en az bir özel karakter, bir rakam, bir büyük harf ve bir küçük harf içermelidir.",
+            matchExitConfirm: "Maçtan çıkmak istediğinize emin misiniz? Maç kaybolacak!",
+            restartMatchPrompt: "Tekrar denemek için 'Maçı Yeniden Başlat'a tıkla."
         },
         en: {
             roster: "Roster",
@@ -1309,6 +1398,7 @@
             packOpening: "Opening Pack...",
             congrats: "Congratulations! You got {playerName}!",
             selectPlayer: "Select player...",
+            selectLeague: "Select league...", // Eklendi
             normalTraining: "Normal Training (Free)",
             specialTraining: "Special Training (Free)",
             trainMsgMaxRating: "{playerName} is already at max rating!",
@@ -1363,12 +1453,31 @@
             substitutesFull: "Substitutes are full! Please move a player to roster out first.",
             rosterLimitFull: "Roster out limit is full! Increase the limit or delete a player.",
             rosterIncreaseSuccess: "Roster out limit increased by +100: {limit}",
-            first11Required: "For an 11 vs 11 match, you need 11 players in your First 11!"
+            first11Required: "For an 11 vs 11 match, you need 11 players in your First 11!",
+            passwordRequirements: "Password must be 8-16 characters, contain at least one special character, one digit, one uppercase letter, and one lowercase letter.",
+            matchExitConfirm: "Are you sure you want to exit the match? The match will be lost!",
+            restartMatchPrompt: "Click 'Restart Match' to try again."
         }
         // Diğer diller buraya eklenebilir
     };
 
     let currentLanguage = "tr";
+
+    // --- Custom Alert Fonksiyonu ---
+    function customAlert(title, message, callback) {
+        customAlertTitle.textContent = title;
+        customAlertMessage.textContent = message;
+        customAlertOverlay.classList.add("active");
+
+        const handleOkClick = () => {
+            customAlertOverlay.classList.remove("active");
+            customAlertOkBtn.removeEventListener("click", handleOkClick);
+            if (callback) callback();
+        };
+
+        customAlertOkBtn.addEventListener("click", handleOkClick);
+    }
+
 
     function updateTextContent() {
         const t = translations[currentLanguage];
@@ -1382,8 +1491,8 @@
         document.querySelector("#rosterSection .roster-box:nth-of-type(2) h3").innerHTML = `${t.substitutes} (<span id="substitutesCount">${substitutes.length}</span>/11)`;
         document.querySelector("#rosterSection .roster-box:nth-of-type(3) h3").innerHTML = `${t.rosterOut} (<span id="rosterOutCount">${rosterOut.length}</span>/<span id="rosterLimitCount">${rosterLimit}</span>)`;
         document.querySelector("#packSection h2").textContent = t.pack;
-        document.querySelector("#packSection p").textContent = `${t.openPack.split('(')[0]} 100 ${t.coin} karşılığında rastgele bir ligden oyuncu kazan!`;
-        document.querySelector("label[for='leagueSelect']").textContent = t.leagueSelect.replace(':', '');
+        document.querySelector("#packSection p").textContent = `100 ${t.coin} karşılığında rastgele bir ligden oyuncu kazan!`; // Sabit tuttum
+        document.querySelector("label[for='leagueSelect']").textContent = t.selectLeague.replace(':', '');
         leagueSelect.options[0].textContent = t.selectLeague; // "Lig seçiniz..."
         openPackBtn.textContent = t.openPack;
         packAnimText.textContent = t.packOpening; // Başlangıç metni
@@ -1414,10 +1523,15 @@
         document.querySelector("#loginScreen h2").textContent = "SoccerTR"; // Logo gibi
         usernameInput.placeholder = t.username;
         passwordInput.placeholder = t.password;
-        loginButton.textContent = t.loginButton;
-        registerPrompt.textContent = t.register;
+        loginButton.textContent = isRegisterMode ? t.registerButton : t.loginButton;
+        registerPrompt.textContent = isRegisterMode ? t.loginPrompt : t.register;
         document.getElementById("loginToggle").childNodes[0].nodeValue = isRegisterMode ? t.alreadyAccount : t.noAccount;
-        document.getElementById("loginToggle").querySelector("button").textContent = isRegisterMode ? t.loginPrompt : t.register;
+        
+        document.getElementById("playerInfoPanel h3").textContent = t.playerInfo;
+        document.querySelector("#playerInfoPanel p:nth-of-type(1)").childNodes[0].nodeValue = `${t.name}: `;
+        document.querySelector("#playerInfoPanel p:nth-of-type(2)").childNodes[0].nodeValue = `${t.rating}: `;
+        document.querySelector("#playerInfoPanel p:nth-of-type(3)").childNodes[0].nodeValue = `${t.goals}: `;
+        document.querySelector("#playerInfoPanel p:nth-of-type(4)").childNodes[0].nodeValue = `${t.assists}: `;
     }
 
     // --- Hesap Yönetimi Fonksiyonları ---
@@ -1427,6 +1541,7 @@
     function saveUserData() {
         if (!currentUser) return;
         users[currentUser] = {
+            password: users[currentUser].password, // Şifreyi de kaydet
             coin: coin,
             rosterLimit: rosterLimit,
             players: players,
@@ -1475,26 +1590,59 @@
         updateRosterLists();
     }
 
+    function validatePassword(password) {
+        // En az 8, en fazla 16 karakter
+        if (password.length < 8 || password.length > 16) {
+            return false;
+        }
+        // En az bir özel karakter
+        const specialCharRegex = /[!@#$%^&*()_+{}\[\]:";'<>,.?/`~-]/;
+        if (!specialCharRegex.test(password)) {
+            return false;
+        }
+        // En az bir rakam
+        const digitRegex = /\d/;
+        if (!digitRegex.test(password)) {
+            return false;
+        }
+        // En az bir büyük harf
+        const upperCaseRegex = /[A-Z]/;
+        if (!upperCaseRegex.test(password)) {
+            return false;
+        }
+        // En az bir küçük harf
+        const lowerCaseRegex = /[a-z]/;
+        if (!lowerCaseRegex.test(password)) {
+            return false;
+        }
+        return true;
+    }
+
     function handleLogin() {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
 
         if (!username || !password) {
-            alert(translations[currentLanguage].fillAllFields);
+            customAlert("Uyarı", translations[currentLanguage].fillAllFields);
             return;
         }
 
         if (isRegisterMode) {
             // Kayıt Modu
             if (users[username]) {
-                alert(translations[currentLanguage].userExists);
+                customAlert("Hata", translations[currentLanguage].userExists);
             } else {
+                if (!validatePassword(password)) {
+                    customAlert("Hata", translations[currentLanguage].passwordRequirements);
+                    return;
+                }
                 users[username] = { password: password }; // Yeni kullanıcı oluştur
                 localStorage.setItem('soccer_users', JSON.stringify(users));
-                alert(translations[currentLanguage].registrationSuccess);
-                // Kayıttan sonra otomatik olarak giriş moduna geç
-                isRegisterMode = false;
-                toggleLoginRegister();
+                customAlert("Başarılı", translations[currentLanguage].registrationSuccess, () => {
+                    // Kayıttan sonra otomatik olarak giriş moduna geç
+                    isRegisterMode = false;
+                    toggleLoginRegister();
+                });
             }
         } else {
             // Giriş Modu
@@ -1505,10 +1653,10 @@
                 mainContent.style.display = 'flex';
                 loadUserData(currentUser);
                 updateTextContent(); // Dil ve diğer metinleri güncelle
-                alert(translations[currentLanguage].loggedIn);
+                customAlert("Başarılı", translations[currentLanguage].loggedIn);
                 showSection("rosterSection"); // Giriş sonrası kadro ekranına yönlendir
             } else {
-                alert(translations[currentLanguage].invalidCredentials);
+                customAlert("Hata", translations[currentLanguage].invalidCredentials);
             }
         }
     }
@@ -1533,26 +1681,32 @@
 
     deleteAccountButton.onclick = () => {
         if (!currentUser) return;
-        if (confirm(translations[currentLanguage].accountDeletedConfirm)) {
+        customAlert("Onay", translations[currentLanguage].accountDeletedConfirm, () => {
             delete users[currentUser];
             localStorage.setItem('soccer_users', JSON.stringify(users));
-            alert(translations[currentLanguage].accountDeleted);
-            currentUser = null;
-            localStorage.removeItem('soccer_last_user');
-            location.reload();
-        }
+            customAlert("Başarılı", translations[currentLanguage].accountDeleted, () => {
+                currentUser = null;
+                localStorage.removeItem('soccer_last_user');
+                location.reload();
+            });
+        });
     };
 
     // --- Genel Arayüz ve Navigasyon Fonksiyonları ---
     function showSection(sectionId) {
         if (matchActive && sectionId !== 'matchSection') { // Maç aktifken menüden çıkmaya çalışırsa
-            if (!confirm(translations[currentLanguage].exitMatch + " Emin misiniz? Maç kaybolacak!")) {
-                return; // Kullanıcı vazgeçerse hiçbir şey yapma
-            }
-            endMatch(true); // Maçı bitir ve tam ekrandan çık
-            // Maç bitince showSection tekrar çağrılacağı için burada tekrar çağırmıyoruz
+            customAlert("Uyarı", translations[currentLanguage].matchExitConfirm, (confirmed) => {
+                if (confirmed) {
+                    endMatch(true); // Maçı bitir ve tam ekrandan çık
+                    _showSectionLogic(sectionId); // Onaylarsa sekmeyi değiştir
+                }
+            });
+            return; // Kullanıcı vazgeçerse hiçbir şey yapma
         }
+        _showSectionLogic(sectionId);
+    }
 
+    function _showSectionLogic(sectionId) {
         document.querySelectorAll('section').forEach(s => s.classList.remove("active"));
         document.querySelectorAll('nav button').forEach(b => b.classList.remove("active"));
 
@@ -1576,6 +1730,7 @@
             }
         }
     }
+
 
     btnRoster.onclick = () => showSection('rosterSection');
     btnPack.onclick = () => showSection('packSection');
@@ -1636,14 +1791,14 @@
         if (currentListType !== 'first11') {
             const toFirst11Btn = document.createElement("button");
             toFirst11Btn.className = "small-btn";
-            toFirst11Btn.textContent = translations[currentLanguage].toFirst11 || "İlk 11'e Gönder";
+            toFirst11Btn.textContent = translations[currentLanguage].first11;
             toFirst11Btn.onclick = (e) => { e.stopPropagation(); movePlayerToList(player.id, 'first11'); };
             actionsDiv.appendChild(toFirst11Btn);
         }
         if (currentListType !== 'substitutes') {
             const toSubsBtn = document.createElement("button");
             toSubsBtn.className = "small-btn";
-            toSubsBtn.textContent = translations[currentLanguage].toSubstitutes || "Yedeklere Gönder";
+            toSubsBtn.textContent = translations[currentLanguage].substitutes;
             toSubsBtn.onclick = (e) => { e.stopPropagation(); movePlayerToList(player.id, 'substitutes'); };
             actionsDiv.appendChild(toSubsBtn);
         }
@@ -1701,21 +1856,21 @@
                 first11.push(player);
                 moved = true;
             } else {
-                alert(translations[currentLanguage].first11Full);
+                customAlert("Uyarı", translations[currentLanguage].first11Full);
             }
         } else if (targetListType === 'substitutes') {
             if (substitutes.length < 11) {
                 substitutes.push(player);
                 moved = true;
             } else {
-                alert(translations[currentLanguage].substitutesFull);
+                customAlert("Uyarı", translations[currentLanguage].substitutesFull);
             }
         } else if (targetListType === 'rosterOut') {
             if (rosterOut.length < rosterLimit) {
                 rosterOut.push(player);
                 moved = true;
             } else {
-                alert(translations[currentLanguage].rosterLimitFull);
+                customAlert("Uyarı", translations[currentLanguage].rosterLimitFull);
             }
         }
         
@@ -1732,14 +1887,14 @@
 
     increaseRosterBtn.onclick = () => {
         if(coin < 100) {
-            alert(translations[currentLanguage].notEnoughCoin);
+            customAlert("Uyarı", translations[currentLanguage].notEnoughCoin);
             return;
         }
         rosterLimit += 100;
         coin -= 100;
         updateCoin();
         updateRosterLists();
-        alert(translations[currentLanguage].rosterIncreaseSuccess.replace('{limit}', rosterLimit));
+        customAlert("Başarılı", translations[currentLanguage].rosterIncreaseSuccess.replace('{limit}', rosterLimit));
     };
 
     // --- Paket Açma ---
@@ -1783,24 +1938,24 @@
 
     openPackBtn.onclick = () => {
         if(coin < 100) {
-            alert(translations[currentLanguage].notEnoughCoin);
+            customAlert("Uyarı", translations[currentLanguage].notEnoughCoin);
             return;
         }
         const lig = leagueSelect.value;
         const pool = ligPaketleri[lig].players;
         if(!pool) {
-            alert(translations[currentLanguage].selectLeague);
+            customAlert("Uyarı", translations[currentLanguage].selectLeague); // "Lig seçiniz..." için
             return;
         }
 
         const available = pool.filter(name => !players.some(p => p.name === name));
         if(available.length === 0) {
-            alert(translations[currentLanguage].allPlayersInLeague);
+            customAlert("Uyarı", translations[currentLanguage].allPlayersInLeague);
             return;
         }
         
         if(rosterOut.length >= rosterLimit) {
-            alert(translations[currentLanguage].rosterFull);
+            customAlert("Uyarı", translations[currentLanguage].rosterFull);
             return;
         }
 
@@ -1926,9 +2081,8 @@
 
     // Oyuncu ve Bot görsellerini güncelle
     function updateCharacterImages() {
-        // Basit insan silueti veya ikon
-        playerEl.innerHTML = `<img src="${genericPlayerImage}" alt="Player" />`;
-        botEl.innerHTML = `<img src="${genericPlayerImage}" alt="Bot" />`;
+        playerEl.innerHTML = `<img src="${playerFigureImage}" alt="Player" style="width:100%; height:100%; object-fit:contain;"/>`;
+        botEl.innerHTML = `<img src="${botFigureImage}" alt="Bot" style="width:100%; height:100%; object-fit:contain;"/>`;
     }
 
     function enterFullscreen() {
@@ -1963,7 +2117,7 @@
         if (!document.fullscreenElement) {
             if (matchActive) {
                 endMatch(false); // Tam ekrandan çıkılınca maçı bitir
-                showSection('matchSection');
+                showSection('matchSection'); // Maç ekranına geri dön
             }
         }
     });
@@ -2040,7 +2194,7 @@
 
     function startMatch(mode) {
         if (mode === '11v11' && first11.length < 11) {
-            alert(translations[currentLanguage].first11Required);
+            customAlert("Uyarı", translations[currentLanguage].first11Required);
             return;
         }
 
@@ -2092,8 +2246,10 @@
         showSection('matchSection');
     };
     exitMatchBtn.onclick = () => {
-        endMatch(true);
-        showSection('matchSection');
+        customAlert("Onay", translations[currentLanguage].matchExitConfirm, () => {
+            endMatch(true);
+            showSection('matchSection');
+        });
     };
 
 
@@ -2118,7 +2274,7 @@
             coin += 50;
         }
         updateCoin();
-        matchMsg.textContent = finalMsg + " " + translations[currentLanguage].restartMatchPrompt || "Tekrar denemek için 'Maçı Yeniden Başlat'a tıkla.";
+        matchMsg.textContent = finalMsg + " " + translations[currentLanguage].restartMatchPrompt;
         matchArea.style.display = 'none';
         matchInfo.style.display = 'block';
         restartMatchBtn.style.display = 'block';
