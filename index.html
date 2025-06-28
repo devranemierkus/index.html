@@ -1,108 +1,236 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SoccerTR - The Ultimate Football Game</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoccerTR - Rüya Takım</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { margin: 0; background: #0b0f1a; color: #f0f0f0; }
+    .screen { display: none; padding: 20px; text-align: center; }
+    .visible { display: block !important; }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #00ffc3;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    input {
+      padding: 10px;
+      width: 250px;
+      border-radius: 10px;
+      border: none;
+      margin: 10px;
+    }
+    .card {
+      background: #1e1e2e;
+      padding: 10px;
+      margin: 10px auto;
+      border-radius: 10px;
+      width: 250px;
+      box-shadow: 0 0 10px #00ffc3;
+    }
+    .green { color: lime; }
+    .orange { color: orange; }
+    .red { color: red; }
+    .joy-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .joystick, .shoot-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #00ffc3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: black;
+      font-weight: bold;
+    }
+    canvas {
+      background: #4CAF50;
+      display: block;
+      margin: 20px auto;
+      border-radius: 10px;
+    }
+    .section-title {
+      margin-top: 30px;
+      font-size: 20px;
+      border-bottom: 2px solid #00ffc3;
+      padding-bottom: 5px;
+    }
+    .player-info { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .player-info img { border-radius: 50%; width: 40px; height: 40px; }
+    .match-status { margin: 10px; font-size: 16px; color: #0f0; }
+  </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="main-menu" class="screen active">
-            <h1>SoccerTR</h1>
-            <div class="package-selection">
-                <div id="bundesliga-pack" class="package-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/en/d/df/Bundesliga_logo.svg" alt="Bundesliga Paketi">
-                    <span data-key="bundesliga_pack">Bundesliga Paketi</span>
-                </div>
-                <div id="premierleague-pack" class="package-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg" alt="Premier Lig Paketi">
-                    <span data-key="premier_league_pack">Premier Lig Paketi</span>
-                </div>
-                <div id="ligaturk-pack" class="package-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/S%C3%BCper_Lig_Logo.svg/2000px-S%C3%BCper_Lig_Logo.svg.png" alt="Süper Lig Paketi">
-                    <span data-key="super_lig_pack">Süper Lig Paketi</span>
-                </div>
-                </div>
-            <button id="startGameButton" data-key="start_game_button">Maç Başlat</button>
-            <button id="goToShopButton" data-key="go_to_shop_button">Transfer Pazarı</button>
-            <button id="goToSettingsButton" data-key="settings_button">Ayarlar</button>
-        </div>
 
-        <div id="match-screen" class="screen">
-            <div id="game-area">
-                <canvas id="gameCanvas"></canvas>
-                <div class="match-ui">
-                    <div class="score-board">
-                        <span id="player-score">0</span> - <span id="bot-score">0</span>
-                    </div>
-                    <div class="timer">
-                        <span data-key="time_label">Süre:</span> <span id="match-timer">00:00</span>
-                    </div>
-                    <button id="pauseGameButton" data-key="pause_button">Duraklat</button>
-                </div>
-            </div>
-        </div>
+<!-- GİRİŞ EKRANI -->
+<div id="loginScreen" class="screen visible">
+  <h1>SoccerTR</h1>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/8/80/Cristiano_Ronaldo_2018.jpg" width="100" />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Lionel_Messi_20180626.jpg" width="100" />
+  <p>İsmini gir:</p>
+  <input type="text" id="username" placeholder="Kullanıcı adı">
+  <br>
+  <button onclick="login()">Giriş</button>
+</div>
 
-        <div id="pause-menu" class="screen hidden">
-            <h2 data-key="pause_menu_title">Duraklatıldı</h2>
-            <button id="resumeGameButton" data-key="resume_button">Devam Et</button>
-            <button id="exitMatchButton" data-key="exit_match_button">Maçtan Çık</button>
-            <button id="restartMatchButton" data-key="restart_match_button">Maçı Yeniden Başlat</button>
-        </div>
+<!-- ANA MENÜ -->
+<div id="mainMenu" class="screen">
+  <h2>Hoş geldin <span id="playerName"></span></h2>
+  <div class="section-title">Menü</div>
+  <button onclick="showScreen('packScreen')">🎁 Paket Aç</button>
+  <button onclick="showScreen('squadScreen')">📋 Kadro</button>
+  <button onclick="showScreen('matchMenu')">⚽ Maç</button>
+  <button onclick="showScreen('achievements')">🏆 Başarılar</button>
+  <button onclick="showScreen('settings')">⚙️ Ayarlar</button>
+</div>
 
-        <div id="match-end-screen" class="screen hidden">
-            <h2 data-key="match_end_title">Maç Bitti!</h2>
-            <p><span data-key="final_score_label">Final Skoru:</span> <span id="final-score">0 - 0</span></p>
-            <p><span id="match-result-message"></span></p>
-            <button id="backToMainMenuFromEnd" data-key="back_to_menu_button">Ana Menüye Dön</button>
-        </div>
+<!-- PAKET EKRANI -->
+<div id="packScreen" class="screen">
+  <h3>Lig Paketi Aç</h3>
+  <p>Her pakette 3 oyuncu çıkacak. Oyuncuları takımına ekle!</p>
+  <button onclick="openPack()">Rastgele Paket Aç</button>
+  <div id="packResult"></div>
+  <button onclick="showScreen('mainMenu')">Geri</button>
+</div>
 
-        <div id="player-profile-screen" class="screen hidden">
-            <h2 data-key="player_profile_title">Oyuncu Profili</h2>
-            <div id="player-profile-content">
-                </div>
-            <button id="backToMenuButton" data-key="back_button">Geri</button>
-        </div>
+<!-- KADRO EKRANI -->
+<div id="squadScreen" class="screen">
+  <h3>Kadro Yönetimi</h3>
+  <div class="section-title">İlk 11</div>
+  <div id="ilk11"></div>
+  <div class="section-title">Yedekler</div>
+  <div id="yedekler"></div>
+  <div class="section-title">Kadro Dışı</div>
+  <div id="kadrodışı"></div>
+  <button onclick="showScreen('mainMenu')">Geri</button>
+</div>
 
-        <div id="coach-transfer-screen" class="screen hidden">
-            <h2 data-key="coach_transfer_title">Teknik Direktör & Transferler</h2>
-            <p><span id="coins-display-label" data-key="current_coins_label">Coin:</span> <span id="coins-display">1000</span></p>
-            
-            <h3><span data-key="coaches_title">Teknik Direktörler</span></h3>
-            <div id="coaches-list" class="entity-list">
-                </div>
+<!-- MAÇ MENÜSÜ -->
+<div id="matchMenu" class="screen">
+  <h3>Maç Modları</h3>
+  <button onclick="startMatch('1v1')">🎮 1v1 Bot Maçı</button>
+  <button onclick="alert('11v11 modu yapım aşamasında')">⚔️ 11v11</button>
+  <button onclick="startMatch('bot')">🤖 Botlara Karşı</button>
+  <button onclick="showScreen('mainMenu')">Geri</button>
+</div>
 
-            <h3><span data-key="transfer_market_title">Transfer Pazarı</span></h3>
-            <div id="transfer-market" class="entity-list">
-                </div>
-            <button id="backToMainFromShop" data-key="back_button">Geri</button>
-        </div>
+<!-- MAÇ EKRANI -->
+<div id="matchScreen" class="screen">
+  <h3>1v1 Maç</h3>
+  <canvas id="gameCanvas" width="400" height="300"></canvas>
+  <div class="match-status">Maç devam ediyor...</div>
+  <div class="joy-controls">
+    <div class="joystick" onclick="movePlayer(0,-1)">↑</div>
+    <div class="joystick" onclick="movePlayer(-1,0)">←</div>
+    <div class="joystick" onclick="movePlayer(1,0)">→</div>
+    <div class="joystick" onclick="movePlayer(0,1)">↓</div>
+    <div class="shoot-btn" onclick="shootBall()">ŞUT</div>
+  </div>
+  <button onclick="endMatch()">Maçtan Çık</button>
+</div>
 
-        <div id="settings-screen" class="screen hidden">
-            <h2 data-key="settings_title">Ayarlar</h2>
-            <div class="setting-group">
-                <label data-key="language_setting">Dil Seçimi:</label>
-                <div class="language-selection">
-                    <button data-lang="tr">TR</button>
-                    <button data-lang="en">EN</button>
-                    <button data-lang="de">DE</button>
-                </div>
-            </div>
-            <div class="setting-group">
-                <label data-key="volume_setting">Ses Seviyesi:</label>
-                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
-            </div>
-            <button id="backToMainMenuFromSettings" data-key="back_button">Geri</button>
-        </div>
+<!-- BAŞARILAR -->
+<div id="achievements" class="screen">
+  <h3>Başarılar</h3>
+  <p>100 oyuncu topla: ⭐ Koleksiyoncu</p>
+  <p>İlk 1v1 maçını kazan: 🏅 Acemi Zaferi</p>
+  <button onclick="showScreen('mainMenu')">Geri</button>
+</div>
 
-        <div id="dialogue-box" class="hidden">
-            <p id="dialogue-text"></p>
-            <button id="next-dialogue-button" data-key="next_button">Devam Et</button>
-        </div>
-    </div>
+<!-- AYARLAR -->
+<div id="settings" class="screen">
+  <h3>Ayarlar</h3>
+  <button onclick="alert('Ses kapatıldı')">🔇 Sesi Kapat</button>
+  <button onclick="alert('Bildirim ayarları açıldı')">🔔 Bildirimler</button>
+  <button onclick="showScreen('mainMenu')">Geri</button>
+</div>
 
-    <audio id="goal-sound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio> <audio id="button-click-sound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" preload="auto"></audio> <audio id="bg-music" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" loop preload="auto"></audio> <script src="script.js"></script>
+<script>
+let user = "", ilk11 = [], yedekler = [], kadrodisi = [];
+const players = [
+  { name: "Messi", rating: 100, img: "https://upload.wikimedia.org/wikipedia/commons/9/98/Lionel_Messi_20180626.jpg" },
+  { name: "Ronaldo", rating: 99, img: "https://upload.wikimedia.org/wikipedia/commons/8/80/Cristiano_Ronaldo_2018.jpg" },
+  { name: "Mbappe", rating: 97, img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Kylian_Mbapp%C3%A9_2019.jpg" },
+  { name: "Neymar", rating: 94, img: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Neymar_2018.jpg" },
+  { name: "Haaland", rating: 96, img: "https://upload.wikimedia.org/wikipedia/commons/8/89/Erling_Haaland_2021.jpg" },
+  { name: "Vinicius Jr", rating: 92, img: "https://upload.wikimedia.org/wikipedia/commons/7/75/Vinicius_Jr_2022.jpg" },
+  { name: "Bellingham", rating: 91, img: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Jude_Bellingham_2023.jpg" },
+  { name: "Arda Güler", rating: 87, img: "https://upload.wikimedia.org/wikipedia/commons/5/53/Arda_Guler_2023.jpg" },
+  { name: "Kane", rating: 93, img: "https://upload.wikimedia.org/wikipedia/commons/f/f7/Harry_Kane_2018.jpg" }
+];
+
+function login() {
+  user = document.getElementById("username").value;
+  if (!user) return alert("İsim gir!");
+  document.getElementById("playerName").textContent = user;
+  showScreen("mainMenu");
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+  document.getElementById(id).classList.add('visible');
+}
+function openPack() {
+  const result = document.getElementById("packResult");
+  result.innerHTML = "";
+  for (let i = 0; i < 3; i++) {
+    const p = players[Math.floor(Math.random() * players.length)];
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<img src="${p.img}" width="100"><div>${p.name}</div><div class='red'>Rating: ${p.rating}</div>
+      <button onclick='ilk11.push(${JSON.stringify(p)}); alert("İlk 11'e eklendi")'>İlk 11</button>
+      <button onclick='yedekler.push(${JSON.stringify(p)}); alert("Yedeğe eklendi")'>Yedek</button>
+      <button onclick='kadrodisi.push(${JSON.stringify(p)}); alert("Kadro dışı eklendi")'>Kadro Dışı</button>`;
+    result.appendChild(card);
+  }
+}
+function updateSquads() {
+  document.getElementById("ilk11").innerHTML = ilk11.map(p => `<div class='player-info'><img src="${p.img}"><span>${p.name} (${p.rating})</span></div>`).join("");
+  document.getElementById("yedekler").innerHTML = yedekler.map(p => `<div>${p.name}</div>`).join("");
+  document.getElementById("kadrodışı").innerHTML = kadrodisi.map(p => `<div>${p.name}</div>`).join("");
+}
+function startMatch(mode) {
+  showScreen("matchScreen");
+  gameLoop();
+}
+function endMatch() {
+  showScreen("mainMenu");
+}
+let player = { x: 50, y: 130 };
+let ball = { x: 200, y: 150, vx: 0, vy: 0 };
+function movePlayer(dx, dy) {
+  player.x += dx * 10;
+  player.y += dy * 10;
+}
+function shootBall() {
+  ball.vx = 2;
+  ball.vy = (Math.random() - 0.5) * 4;
+}
+function gameLoop() {
+  const ctx = document.getElementById("gameCanvas").getContext("2d");
+  setInterval(() => {
+    ctx.clearRect(0,0,400,300);
+    ctx.fillStyle = "white";
+    ctx.fillRect(player.x, player.y, 10, 10);
+    ball.x += ball.vx; ball.y += ball.vy;
+    ctx.beginPath(); ctx.arc(ball.x, ball.y, 5, 0, 2 * Math.PI); ctx.fill();
+    if (ball.x > 400 || ball.y > 300 || ball.y < 0) { ball.x = 200; ball.y = 150; ball.vx = 0; ball.vy = 0; }
+  }, 50);
+}
+setInterval(updateSquads, 1000);
+</script>
+
 </body>
 </html>
