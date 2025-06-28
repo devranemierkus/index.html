@@ -633,6 +633,49 @@
                 padding: 20px;
             }
         }
+        
+        /* Ayarlar Ekranı için Stil (Örnek) */
+        .settings-option {
+            background-color: #2c3e50;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .settings-option label {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+
+        .settings-option button, .settings-option select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .settings-option button.danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .settings-option button.danger:hover {
+            background-color: #c0392b;
+        }
+
+        .settings-option select {
+            background-color: #3498db;
+            color: white;
+        }
+        .settings-option select:hover {
+            background-color: #2980b9;
+        }
     </style>
 </head>
 <body>
@@ -668,7 +711,7 @@
 
         <section id="main-menu-screen" class="screen">
             <h2>Ana Menü</h2>
-            <p>Hoş geldiniz, menajer! Takımını kur ve zafere ulaş!</p>
+            <p id="welcome-message">Hoş geldiniz, menajer! Takımını kur ve zafere ulaş!</p>
         </section>
 
         <section id="pack-opening-screen" class="screen">
@@ -724,16 +767,29 @@
 
         <section id="settings-screen" class="screen">
             <h2>Ayarlar</h2>
-            <p>Ayarlar sayfası yakında eklenecek...</p>
             <div class="settings-options">
-                <h3>Dil Seçimi:</h3>
-                <select id="language-select">
-                    <option value="tr">Türkçe</option>
-                    <option value="en">English</option>
-                    <option value="de">Deutsch</option>
-                    <option value="pt">Português</option>
-                    <option value="pt-br">Português (Brasil)</option>
-                </select>
+                <div class="settings-option">
+                    <label for="language-select">Dil Seçimi:</label>
+                    <select id="language-select">
+                        <option value="tr">Türkçe</option>
+                        <option value="en">English</option>
+                        <option value="de">Deutsch</option>
+                        <option value="pt">Português</option>
+                        <option value="pt-br">Português (Brasil)</option>
+                    </select>
+                </div>
+                <div class="settings-option">
+                    <label>Tema:</label>
+                    <button id="toggle-theme-btn">Koyu/Açık Tema (Yakında)</button>
+                </div>
+                <div class="settings-option">
+                    <label>Hesap İşlemleri:</label>
+                    <button id="logout-btn" class="danger">Hesaptan Çıkış Yap</button>
+                </div>
+                <div class="settings-option">
+                    <label>Hesabı Sil:</label>
+                    <button id="delete-account-btn" class="danger">Hesabı Sil (Geri Alınamaz!)</button>
+                </div>
             </div>
             <button id="back-to-menu-btn-settings" class="back-button">Ana Menüye Dön</button>
         </section>
@@ -762,10 +818,13 @@
         const matchScreen = document.getElementById('match-screen');
         const settingsScreen = document.getElementById('settings-screen');
 
+        const mainNav = document.getElementById('main-nav'); // Ana navigasyon
+        const welcomeMessage = document.getElementById('welcome-message'); // Hoş geldin mesajı
+
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
         const guestLoginBtn = document.getElementById('guest-login-btn');
-        const usernameInput = document.getElementById('username'); // email input yerine username
+        const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const usernameDisplay = document.getElementById('username-display');
         const userCoinsDisplay = document.getElementById('user-coins');
@@ -792,6 +851,13 @@
         const detailPlayerStars = document.getElementById('detail-player-stars');
         const closePlayerModalBtn = playerDetailModal.querySelector('.close-button');
 
+        // Ayarlar Sayfası Elemanları
+        const logoutBtn = document.getElementById('logout-btn');
+        const deleteAccountBtn = document.getElementById('delete-account-btn');
+        const languageSelect = document.getElementById('language-select');
+        const toggleThemeBtn = document.getElementById('toggle-theme-btn');
+
+
         // Oyun Verileri (Basit birer örnek)
         let currentUser = null; // Giriş yapan kullanıcı
         let userCoins = 0; // Başlangıçta 0, giriş tipine göre atanacak
@@ -799,12 +865,11 @@
         let bench = []; // 11 kişilik yedekler
         let playerPool = []; // 500 kişilik havuz
 
-        // --- Simüle Edilmiş Kullanıcı Veritabanı ---
+        // --- Simüle Edilmiş Kullanıcı Veritabanı ve Hesap Verileri ---
         // Gerçek bir uygulamada bu veriler sunucu tarafında güvenli bir şekilde saklanır.
-        const users = {
-            "testuser": "Test123_",
-            "deneme": "Deneme456_"
-        };
+        // localStorage kullanarak kalıcılık sağlıyoruz (sadece tarayıcıda)
+        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {};
+        let savedUserData = JSON.parse(localStorage.getItem('userData')) || {}; // Kullanıcıya özel oyun verileri
 
         // Oyuncu Veritabanı (Örnek, gerçekte çok daha büyük olur)
         const allPlayers = [
@@ -860,6 +925,11 @@
             usernameDisplay.textContent = currentUser ? currentUser.username : 'Misafir';
             userCoinsDisplay.textContent = `${userCoins} Coin`;
             poolCountDisplay.textContent = `${playerPool.length}/500`;
+            if (currentUser && !currentUser.isGuest) {
+                welcomeMessage.textContent = `Hoş geldiniz, ${currentUser.username}! Takımını kur ve zafere ulaş!`;
+            } else {
+                welcomeMessage.textContent = `Hoş geldiniz, menajer! Takımını kur ve zafere ulaş!`;
+            }
         }
 
         function getPlayerRatingClass(rating) {
@@ -916,38 +986,81 @@
 
         // Şifre Doğrulama Fonksiyonu
         function validatePassword(password) {
-            // En az 8, en fazla 16 karakter
             if (password.length < 8 || password.length > 16) {
                 return "Şifre 8 ile 16 karakter arasında olmalıdır.";
             }
-            // En az bir rakam içermeli
             if (!/\d/.test(password)) {
                 return "Şifre en az bir rakam içermelidir.";
             }
-            // En az bir "_" içermeli
-            if (!/.*_.* / .test(password)) { // Updated regex
+            if (!/.*_.* / .test(password)) {
                 return "Şifre en az bir '_' karakteri içermelidir.";
             }
             return null; // Doğrulama başarılı
         }
 
+        // Kullanıcı Verilerini Kaydet (localStorage)
+        function saveUserData() {
+            if (currentUser && !currentUser.isGuest) {
+                savedUserData[currentUser.username] = {
+                    coins: userCoins,
+                    squad: squad,
+                    bench: bench,
+                    playerPool: playerPool
+                };
+                localStorage.setItem('userData', JSON.stringify(savedUserData));
+                localStorage.setItem('lastLoggedInUser', currentUser.username); // Son giriş yapanı kaydet
+            }
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers)); // Kullanıcı kayıtlarını kaydet
+        }
+
+        // Kullanıcı Verilerini Yükle (localStorage)
+        function loadUserData(username) {
+            if (savedUserData[username]) {
+                const data = savedUserData[username];
+                userCoins = data.coins;
+                squad = data.squad;
+                bench = data.bench;
+                playerPool = data.playerPool;
+                console.log(`Veriler ${username} için yüklendi.`);
+            } else {
+                // Yeni kullanıcı veya misafir hesabı
+                userCoins = 2500;
+                squad = {};
+                bench = [];
+                playerPool = [];
+                giveStarterPack(); // Başlangıç paketi ver
+                console.log(`Yeni veriler ${username} için oluşturuldu.`);
+            }
+            updateUI();
+            updateSquadAndPoolDisplay();
+        }
+
         // Kullanıcı Girişi Fonksiyonu
         function loginUser(username, isGuest = false) {
             currentUser = { username: username, isGuest: isGuest };
-            userCoins = 2500; // Her girişte başlangıç coini ver
-            giveStarterPack(); // Başlangıç paketi ver
+            if (isGuest) {
+                userCoins = 2500; // Misafire her zaman başlangıç coini ver
+                squad = {};
+                bench = [];
+                playerPool = [];
+                giveStarterPack();
+            } else {
+                loadUserData(username); // Kayıtlı kullanıcının verilerini yükle
+            }
+            
             showScreen(mainMenuScreen); // Ana menüye yönlendir
+            mainNav.style.display = 'flex'; // Ana navigasyonu göster
             updateUI();
             alert(`Hoş Geldiniz, ${currentUser.username}!`);
         }
 
         // Giriş İşlemi
         loginBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Formun varsayılan gönderimini engelle
+            e.preventDefault();
             const username = usernameInput.value;
             const password = passwordInput.value;
 
-            if (users[username] && users[username] === password) {
+            if (registeredUsers[username] && registeredUsers[username] === password) {
                 loginUser(username);
             } else {
                 alert('Kullanıcı adı veya şifre yanlış.');
@@ -956,7 +1069,7 @@
 
         // Kayıt İşlemi
         registerBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Formun varsayılan gönderimini engelle
+            e.preventDefault();
             const username = usernameInput.value;
             const password = passwordInput.value;
 
@@ -964,7 +1077,7 @@
                 alert("Lütfen bir kullanıcı adı girin.");
                 return;
             }
-            if (users[username]) {
+            if (registeredUsers[username]) {
                 alert("Bu kullanıcı adı zaten alınmış.");
                 return;
             }
@@ -975,15 +1088,16 @@
                 return;
             }
 
-            users[username] = password; // Kullanıcıyı simüle edilmiş DB'ye ekle
+            registeredUsers[username] = password; // Kullanıcıyı kaydet
+            saveUserData(); // Kullanıcı kayıtlarını localStorage'a kaydet
             alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
-            // Kayıt sonrası otomatik giriş yapmak isterseniz:
+            // Kayıt sonrası otomatik giriş yapılıyorsa:
             // loginUser(username);
         });
 
         // Misafir Giriş İşlemi
         guestLoginBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Formun varsayılan gönderimini engelle
+            e.preventDefault();
             alert('Misafir hesabı açıldı. İlerlemeniz kaydedilmeyecektir.');
             loginUser('Misafir', true);
         });
@@ -994,34 +1108,36 @@
                 const playerWithStats = { ...player, goals: 0, assists: 0, source: 'pool' };
                 playerPool.push(playerWithStats);
             });
-            updateSquadAndPoolDisplay();
-            console.log('Başlangıç oyuncuları verildi:', playerPool);
         }
 
         // Menü Navigasyonu (Event Listener'lar artık aktif olarak çalışacak)
-        openPacksBtn.addEventListener('click', () => {
+        openPacksBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             showScreen(packOpeningScreen);
             renderPacks();
             playerRevealArea.innerHTML = '<p>Açmak istediğiniz paketi seçin!</p>';
         });
 
-        manageSquadBtn.addEventListener('click', () => {
+        manageSquadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             showScreen(squadManagementScreen);
             updateSquadAndPoolDisplay();
         });
 
-        playMatchBtn.addEventListener('click', () => {
+        playMatchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             showScreen(matchScreen);
         });
 
-        settingsBtn.addEventListener('click', () => {
+        settingsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             showScreen(settingsScreen);
         });
 
-        document.getElementById('back-to-menu-btn-pack').addEventListener('click', () => showScreen(mainMenuScreen));
-        document.getElementById('back-to-menu-btn-squad').addEventListener('click', () => showScreen(mainMenuScreen));
-        document.getElementById('back-to-menu-btn-match').addEventListener('click', () => showScreen(mainMenuScreen));
-        document.getElementById('back-to-menu-btn-settings').addEventListener('click', () => showScreen(mainMenuScreen));
+        document.getElementById('back-to-menu-btn-pack').addEventListener('click', (e) => { e.preventDefault(); showScreen(mainMenuScreen); });
+        document.getElementById('back-to-menu-btn-squad').addEventListener('click', (e) => { e.preventDefault(); showScreen(mainMenuScreen); });
+        document.getElementById('back-to-menu-btn-match').addEventListener('click', (e) => { e.preventDefault(); showScreen(mainMenuScreen); });
+        document.getElementById('back-to-menu-btn-settings').addEventListener('click', (e) => { e.preventDefault(); showScreen(mainMenuScreen); });
         closePlayerModalBtn.addEventListener('click', () => playerDetailModal.style.display = 'none');
         window.addEventListener('click', (event) => {
             if (event.target == playerDetailModal) {
@@ -1060,6 +1176,7 @@
                         playerPool.push(playerWithStats);
                         renderRevealedPlayer(playerWithStats);
                         updateSquadAndPoolDisplay(); // Havuzu güncelle
+                        saveUserData(); // Oyuncu eklendiğinde verileri kaydet
                     } else {
                         playerRevealArea.innerHTML = '<p>Bir hata oluştu, oyuncu bulunamadı.</p>';
                     }
@@ -1134,6 +1251,7 @@
 
             // Sürükle-Bırak Olay Dinleyicileri
             addDragDropListeners();
+            saveUserData(); // Kadro güncellendiğinde verileri kaydet
         }
 
         let draggedPlayer = null;
@@ -1250,12 +1368,81 @@
             }
         }
 
+        // --- Ayarlar Menüsü Fonksiyonları ---
+
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm("Hesabınızdan çıkış yapmak istediğinize emin misiniz?")) {
+                saveUserData(); // Mevcut kullanıcının verilerini kaydet
+                currentUser = null;
+                localStorage.removeItem('lastLoggedInUser'); // Son giriş yapanı temizle
+                userCoins = 0;
+                squad = {};
+                bench = [];
+                playerPool = [];
+                showScreen(authScreen); // Giriş ekranına dön
+                mainNav.style.display = 'none'; // Navigasyonu gizle
+                updateUI();
+                alert("Başarıyla çıkış yapıldı.");
+            }
+        });
+
+        deleteAccountBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentUser && !currentUser.isGuest) {
+                if (confirm(`Gerçekten ${currentUser.username} hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!`)) {
+                    if (confirm("Bu son uyarınızdır. Hesabınız ve tüm ilerlemeniz kalıcı olarak silinecektir. Devam etmek için TAMAM'a basın.")) {
+                        delete registeredUsers[currentUser.username];
+                        delete savedUserData[currentUser.username];
+                        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                        localStorage.setItem('userData', JSON.stringify(savedUserData));
+                        localStorage.removeItem('lastLoggedInUser');
+
+                        currentUser = null;
+                        userCoins = 0;
+                        squad = {};
+                        bench = [];
+                        playerPool = [];
+
+                        showScreen(authScreen);
+                        mainNav.style.display = 'none';
+                        updateUI();
+                        alert("Hesabınız başarıyla silindi.");
+                    }
+                }
+            } else {
+                alert("Misafir hesabı silinemez veya zaten giriş yapmadınız.");
+            }
+        });
+
+        languageSelect.addEventListener('change', (e) => {
+            // Dil değiştirme mantığı buraya gelecek
+            alert(`Dil ${e.target.value} olarak ayarlandı (simüle edildi).`);
+        });
+
+        toggleThemeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("Tema değiştirme özelliği yakında eklenecek!");
+        });
+
 
         // Oyun Başlangıcı
         document.addEventListener('DOMContentLoaded', () => {
-            // Sayfa yüklendiğinde giriş ekranını göster
-            showScreen(authScreen);
+            const lastUser = localStorage.getItem('lastLoggedInUser');
+            if (lastUser && registeredUsers[lastUser]) {
+                // Eğer daha önce giriş yapmış bir kullanıcı varsa, otomatik olarak giriş yap
+                loginUser(lastUser);
+            } else {
+                // Yoksa giriş ekranını göster
+                showScreen(authScreen);
+                mainNav.style.display = 'none'; // Başlangıçta navigasyonu gizle
+            }
             updateUI();
+        });
+
+        // Sayfadan ayrılmadan önce verileri kaydet (tarayıcı kapanması vb.)
+        window.addEventListener('beforeunload', () => {
+            saveUserData();
         });
 
         // --- JS KODLARI BURADA BİTİYOR ---
